@@ -1,6 +1,5 @@
 {
   "version": 2,
-  "name": "software-madurez",
   "rewrites": [
     { "source": "/(.*)", "destination": "/index.html" }
   ]
