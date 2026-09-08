@@ -1,0 +1,125 @@
+/* 1. Reset básico y fuentes */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: 'Segoe UI', Roboto, sans-serif;
+}
+
+
+/* 2. Contenedor principal de pantalla completa */
+.login-container {
+  display: flex;
+  width: 100vw;
+  height: 100vh;
+}
+
+/* 3. Panel Izquierdo (Imagen de fondo + overlay para leer el texto) */
+.login-sidebar {
+  flex: 1;
+  background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), 
+                    url('https://cdn.pixabay.com/animation/2025/08/15/07/22/07-22-21-420_512.gif');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 150px;
+}
+
+.sidebar-content h2 {
+  color: #ffffff;
+  font-size: 26px;
+  font-weight: 600;
+  text-align: center;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.7);
+  max-width: 400px;
+}
+
+/* 4. Panel Derecho (Formulario) */
+.login-card {
+  flex: 1;
+  background-color: #1a2332;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 60px;
+}
+
+/* Logo */
+.logo-container {
+  margin-bottom: 15px;
+}
+
+.software-logo {
+  max-width: 70px;
+  height: auto;
+}
+
+/* Título */
+.login-header h1 {
+  color: #ffffff;
+  font-size: 28px;
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+/* Formulario */
+form {
+  width: 100%;
+  max-width: 380px;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  color: #a0aec0;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 12px 15px;
+  background-color: #243044;
+  border: 1px solid #324158;
+  border-radius: 8px;
+  color: #ffffff;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.form-group input:focus {
+  border-color: #00d2b5;
+}
+
+.form-group input::placeholder {
+  color: #64748b;
+}
+
+/* Botón */
+button {
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: 8px;
+  background-color: #00d2b5;
+  color: #0d1520;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: background-color 0.2s, transform 0.1s;
+}
+
+button:hover {
+  background-color: #00b89f;
+  transform: translateY(-1px);
+}

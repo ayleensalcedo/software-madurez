@@ -1,0 +1,76 @@
+<header class="top-header">
+
+  <!-- IZQUIERDA -->
+
+  <div class="header-left">
+
+```
+<!-- Marca -->
+<div class="brand">
+  <div class="brand-icon">
+    🛡️
+  </div>
+
+  <div class="brand-text">
+    <span class="brand-title">IA Governance</span>
+    <span class="brand-subtitle">Security Platform</span>
+  </div>
+</div>
+
+<div class="header-divider"></div>
+
+<!-- Inicio -->
+<a routerLink="/menu"
+   class="btn-home"
+   title="Volver al menú principal" (click)="IrInicio()">
+
+  <span class="home-icon">⌂</span>
+  <span>Inicio</span>
+
+</a>
+
+```
+
+  </div>
+
+  <!-- DERECHA -->
+
+  <div class="header-right">
+
+```
+<!-- Usuario -->
+<div class="user-profile">
+
+  <div class="avatar">
+    {{ usuario?.nombre?.charAt(0)?.toUpperCase() }}
+  </div>
+
+  <div class="user-details">
+
+    <span class="user-name">
+      {{ usuario?.nombre }}
+    </span>
+
+    <span class="user-role">
+      {{ usuario?.rol }}
+    </span>
+
+  </div>
+
+</div>
+
+
+<!-- Logout -->
+<a routerLink="/login"
+   class="btn-logout"
+   title="Cerrar sesión" (click)="Logout()">
+
+  <span class="logout-icon">↪</span>
+  <span>Salir</span>
+
+</a>
+```
+
+  </div>
+
+</header>

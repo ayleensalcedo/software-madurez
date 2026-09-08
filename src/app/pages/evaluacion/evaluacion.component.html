@@ -1,0 +1,194 @@
+<app-header></app-header>
+<div class="evaluation-container">
+
+  <!-- HEADER -->
+  <header class="evaluation-header">
+    <div>
+      <h1>Evaluación</h1>
+      <p>Evaluación de seguridad y gobernanza de IA (Text-to-SQL)</p>
+    </div>
+
+    <div class="organization-info">
+      <span>Organización</span>
+      <strong>Empresa Consultora XYZ</strong>
+    </div>
+  </header>
+
+
+  <!-- PROGRESS -->
+  <div class="progress-section">
+    <div class="progress-info">
+      <span>Progreso de evaluación</span>
+      <strong>{{ preguntaActual + 1 }} de {{ preguntas.length }} preguntas ({{ porcentajeProgreso }}%)</strong>
+    </div>
+
+    <div class="progress-bar">
+      <!-- Barra dinámica conectada al porcentaje -->
+      <div class="progress-fill" [style.width.%]="porcentajeProgreso"></div>
+    </div>
+  </div>
+
+
+  <!-- DOMAINS -->
+  <div class="domains">
+    @for (dom of dominios; track dom.id) {
+      <div 
+        class="domain" 
+        [class.active]="pregunta.dominio === dom.nombre"
+        (click)="irAlDominio(dom.nombre)"
+        style="cursor: pointer;"
+      >
+        <div class="domain-number">
+          {{ dom.id }}
+        </div>
+        <div class="domain-info">
+          <strong>{{ dom.nombre }}</strong>
+          <span>{{ totalPreguntasPorDominio(dom.nombre) }} preguntas</span>
+        </div>
+      </div>
+    }
+  </div>
+
+
+  <!-- QUESTION CARD -->
+  <main class="question-container">
+
+    <div class="question-header">
+      <span class="question-number">
+        Pregunta {{ preguntaActual + 1 }} de {{ preguntas.length }}
+      </span>
+
+      <span class="domain-badge">
+        {{ pregunta.dominio }}
+      </span>
+    </div>
+
+    <h2>{{ pregunta.pregunta }}</h2>
+
+    <!-- ISO MAPPINGS (Muestra las normas asociadas a esta pregunta) -->
+    <div class="iso-tags">
+      @for (iso of pregunta.controlesISO27001; track iso) {
+        @if (iso) {
+          <span class="tag tag-27001">ISO 27001: {{ iso }}</span>
+        }
+      }
+      @for (iso of pregunta.controlesISO42001; track iso) {
+        @if (iso) {
+          <span class="tag tag-42001">ISO 42001: {{ iso }}</span>
+        }
+      }
+    </div>
+
+
+    <!-- ANSWERS -->
+<div class="answers">
+
+  <!-- OPCIÓN 1: No existe -->
+  <label class="answer-option" (click)="seleccionarRespuesta(1)">
+    <input
+      type="radio"
+      name="respuesta"
+      [checked]="pregunta.respuesta === 1"
+    >
+    <div class="answer-content">
+      <div class="answer-number">1</div>
+      <div>
+        <strong>No existe</strong>
+        <p>No existe ningún mecanismo o práctica relacionada con este aspecto.</p>
+      </div>
+    </div>
+  </label>
+
+  <!-- OPCIÓN 2: Existe parcialmente -->
+  <label class="answer-option" (click)="seleccionarRespuesta(2)">
+    <input
+      type="radio"
+      name="respuesta"
+      [checked]="pregunta.respuesta === 2"
+    >
+    <div class="answer-content">
+      <div class="answer-number">2</div>
+      <div>
+        <strong>Existe parcialmente</strong>
+        <p>Existen algunas prácticas, pero su implementación es limitada.</p>
+      </div>
+    </div>
+  </label>
+
+  <!-- OPCIÓN 3: Existe, pero no formalizado -->
+  <label class="answer-option" (click)="seleccionarRespuesta(3)">
+    <input
+      type="radio"
+      name="respuesta"
+      [checked]="pregunta.respuesta === 3"
+    >
+    <div class="answer-content">
+      <div class="answer-number">3</div>
+      <div>
+        <strong>Existe, pero no formalizado</strong>
+        <p>La práctica existe, pero no se encuentra formalmente documentada.</p>
+      </div>
+    </div>
+  </label>
+
+  <!-- OPCIÓN 4: Implementado -->
+  <label class="answer-option" (click)="seleccionarRespuesta(4)">
+    <input
+      type="radio"
+      name="respuesta"
+      [checked]="pregunta.respuesta === 4"
+    >
+    <div class="answer-content">
+      <div class="answer-number">4</div>
+      <div>
+        <strong>Implementado</strong>
+        <p>El mecanismo se encuentra implementado formalmente en la organización.</p>
+      </div>
+    </div>
+  </label>
+
+</div>
+    <!-- NAVIGATION -->
+    <div class="question-navigation">
+
+  <button
+    type="button"
+    class="btn-secondary"
+    (click)="anterior()"
+    [disabled]="preguntaActual === 0"
+  >
+    ← Anterior
+  </button>
+
+  <span>
+    {{ preguntaActual + 1 }} / {{ preguntas.length }}
+  </span>
+
+
+  @if (preguntaActual < preguntas.length - 1) {
+
+    <button
+      type="button"
+      class="btn-primary"
+      (click)="siguiente()"
+    >
+      Siguiente →
+    </button>
+
+  } @else {
+
+    <button
+      type="button"
+      class="btn-finalizar"
+      (click)="finalizarEvaluacion()"
+    >
+      Finalizar evaluación ✓
+    </button>
+
+  }
+
+</div>
+
+  </main>
+
+</div>

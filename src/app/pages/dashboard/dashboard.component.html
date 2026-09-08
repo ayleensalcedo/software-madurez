@@ -1,0 +1,675 @@
+<app-header></app-header>
+
+<div class="dashboard-container">
+
+  <!-- ==========================================
+       HEADER
+       ========================================== -->
+
+  <header class="dashboard-header">
+
+    <div>
+
+      <span class="eyebrow">
+        RESULTADOS DE EVALUACIÓN
+      </span>
+
+      <h1>Dashboard de Madurez</h1>
+
+      <p>
+        Análisis de seguridad y gobernanza de IA
+        para la plataforma Text-to-SQL.
+      </p>
+
+    </div>
+
+    <div class="evaluation-date">
+
+      <span>Evaluación realizada</span>
+
+      <strong>
+        {{ fechaEvaluacion | date:'dd/MM/yyyy' }}
+      </strong>
+
+    </div>
+
+  </header>
+
+
+  <!-- ==========================================
+       TOP CARDS
+       ========================================== -->
+
+  <section class="top-grid">
+
+
+    <!-- ORGANIZACIÓN -->
+
+    <article class="organization-card">
+
+      <div class="card-title">
+        <span class="title-icon">🏢</span>
+
+        <span>ORGANIZACIÓN EVALUADA</span>
+      </div>
+
+
+      <h2>
+        {{ organizacion }}
+      </h2>
+
+
+      <div class="organization-details">
+
+        <div>
+          <span>SECTOR</span>
+          <strong>{{ sector }}</strong>
+        </div>
+
+        <div>
+          <span>SOLUCIÓN</span>
+          <strong>{{ solucion }}</strong>
+        </div>
+
+      </div>
+
+    </article>
+
+
+    <!-- MADUREZ GLOBAL -->
+
+    <article class="maturity-card">
+
+      <div class="card-title">
+        <span class="title-icon">◉</span>
+
+        <span>NIVEL DE MADUREZ GLOBAL</span>
+      </div>
+
+
+      <div class="maturity-content">
+
+        <div>
+
+          <div class="global-score">
+            {{ coberturaGlobal }}<small>%</small>
+          </div>
+
+          <strong class="maturity-name">
+            {{ nombreMadurez }}
+          </strong>
+
+          <span class="maturity-description">
+            Cobertura global ponderada
+          </span>
+
+        </div>
+
+
+        <div class="score-circle"
+             [style.--progress]="coberturaGlobal + '%'">
+
+          <span>
+            {{ coberturaGlobal }}%
+          </span>
+
+        </div>
+
+      </div>
+
+
+      <!-- ESCALA -->
+
+      <div class="maturity-scale">
+
+        <div
+          class="scale-segment initial"
+          [class.current]="nivelMadurez === 1">
+        </div>
+
+        <div
+          class="scale-segment basic"
+          [class.current]="nivelMadurez === 2">
+        </div>
+
+        <div
+          class="scale-segment defined"
+          [class.current]="nivelMadurez === 3">
+        </div>
+
+        <div
+          class="scale-segment managed"
+          [class.current]="nivelMadurez === 4">
+        </div>
+
+        <div
+          class="scale-segment optimized"
+          [class.current]="nivelMadurez === 5">
+        </div>
+
+      </div>
+
+
+      <div class="scale-labels">
+
+        <span>Inicial</span>
+        <span>Básico</span>
+        <span>Definido</span>
+        <span>Gestionado</span>
+        <span>Optimizado</span>
+
+      </div>
+
+    </article>
+
+  </section>
+
+
+  <!-- ==========================================
+       KPIs
+       ========================================== -->
+
+  <section class="kpi-grid">
+
+    <article class="kpi-card">
+
+      <div class="kpi-icon">📋</div>
+
+      <div>
+        <span>Preguntas evaluadas</span>
+        <strong>{{ totalPreguntas }}</strong>
+      </div>
+
+    </article>
+
+
+    <article class="kpi-card">
+
+      <div class="kpi-icon success">✓</div>
+
+      <div>
+        <span>Implementadas</span>
+        <strong>{{ preguntasImplementadas }}</strong>
+      </div>
+
+    </article>
+
+
+    <article class="kpi-card">
+
+      <div class="kpi-icon warning">!</div>
+
+      <div>
+        <span>Brechas identificadas</span>
+        <strong>{{ brechas }}</strong>
+      </div>
+
+    </article>
+
+
+    <article class="kpi-card">
+
+      <div class="kpi-icon purple">◈</div>
+
+      <div>
+        <span>Controles evaluados</span>
+        <strong>41</strong>
+      </div>
+
+    </article>
+
+  </section>
+
+
+  <!-- ==========================================
+       DOMAINS + RADAR
+       ========================================== -->
+
+  <section class="analysis-grid">
+
+
+    <!-- COBERTURA -->
+
+    <article class="panel coverage-panel">
+
+      <div class="panel-header">
+
+        <div>
+          <span class="panel-eyebrow">
+            COBERTURA POR DOMINIO
+          </span>
+
+          <h2>
+            Nivel de implementación
+          </h2>
+        </div>
+
+        <span class="panel-info">
+          100% = cobertura máxima
+        </span>
+
+      </div>
+
+
+      <div class="domain-list">
+
+        @for (
+          dominio of resultadosDominio;
+          track dominio.nombre
+        ) {
+
+          <div class="domain-row">
+
+            <div class="domain-row-header">
+
+              <div class="domain-name">
+
+                <span
+                  class="domain-marker"
+                  [class]="obtenerClaseCobertura(
+                    dominio.cobertura
+                  )">
+                </span>
+
+                <strong>
+                  {{ dominio.nombre }}
+                </strong>
+
+              </div>
+
+              <div class="domain-result">
+
+                <span>
+                  {{ dominio.cobertura }}%
+                </span>
+
+                <small>
+                  Peso {{ dominio.peso * 100 }}%
+                </small>
+
+              </div>
+
+            </div>
+
+
+            <div class="domain-progress">
+
+              <div
+                class="domain-progress-fill"
+                [class]="obtenerClaseCobertura(
+                  dominio.cobertura
+                )"
+                [style.width.%]="dominio.cobertura">
+              </div>
+
+            </div>
+
+
+            <div class="domain-footer">
+
+              <span>
+                {{ dominio.preguntas }} preguntas
+              </span>
+
+              <span>
+                {{ dominio.puntaje }} /
+                {{ dominio.puntajeMaximo }} puntos
+              </span>
+
+            </div>
+
+          </div>
+
+        }
+
+      </div>
+
+    </article>
+
+
+    <!-- RADAR -->
+
+    <article class="panel radar-panel">
+
+      <div class="panel-header">
+
+        <div>
+
+          <span class="panel-eyebrow">
+            PERFIL DE MADUREZ
+          </span>
+
+          <h2>
+            Desempeño por dominio
+          </h2>
+
+        </div>
+
+      </div>
+
+
+      <div class="radar-container">
+
+        <svg
+          viewBox="0 0 300 260"
+          class="radar-chart">
+
+          <!-- GRID -->
+
+          <polygon
+            points="150,40 240,130 150,220 60,130"
+            class="radar-grid">
+          </polygon>
+
+          <polygon
+            points="150,62 218,130 150,198 82,130"
+            class="radar-grid">
+          </polygon>
+
+          <polygon
+            points="150,84 196,130 150,176 104,130"
+            class="radar-grid">
+          </polygon>
+
+
+          <!-- EJES -->
+
+          <line
+            x1="150"
+            y1="130"
+            x2="150"
+            y2="40">
+          </line>
+
+          <line
+            x1="150"
+            y1="130"
+            x2="240"
+            y2="130">
+          </line>
+
+          <line
+            x1="150"
+            y1="130"
+            x2="150"
+            y2="220">
+          </line>
+
+          <line
+            x1="150"
+            y1="130"
+            x2="60"
+            y2="130">
+          </line>
+
+
+          <!-- RESULTADO -->
+
+          <polygon
+            [attr.points]="getRadarPoints()"
+            class="radar-result">
+          </polygon>
+
+
+          <!-- PUNTOS -->
+
+          @for (
+            dominio of resultadosDominio;
+            track dominio.nombre;
+            let i = $index
+          ) {
+
+            <circle
+              [attr.cx]="
+                150 +
+                Math.cos(
+                  (-90 + (360 / 4) * i)
+                  * Math.PI / 180
+                )
+                * 90 *
+                (dominio.cobertura / 100)
+              "
+              [attr.cy]="
+                130 +
+                Math.sin(
+                  (-90 + (360 / 4) * i)
+                  * Math.PI / 180
+                )
+                * 90 *
+                (dominio.cobertura / 100)
+              "
+              r="4"
+              class="radar-point">
+            </circle>
+
+          }
+
+
+          <!-- LABELS -->
+
+          @for (
+            label of getRadarLabels();
+            track label.texto
+          ) {
+
+            <text
+              [attr.x]="label.x"
+              [attr.y]="label.y"
+              class="radar-label">
+
+              {{ label.texto }}
+
+            </text>
+
+          }
+
+        </svg>
+
+      </div>
+
+    </article>
+
+  </section>
+
+
+  <!-- ==========================================
+       RECOMMENDATIONS
+       ========================================== -->
+
+  <section class="panel recommendations-panel">
+
+    <div class="panel-header">
+
+      <div>
+
+        <span class="panel-eyebrow">
+          RECOMENDACIONES DE MEJORA
+        </span>
+
+        <h2>
+          Brechas y acciones recomendadas
+        </h2>
+
+      </div>
+
+      <span class="recommendation-count">
+
+        {{ recomendaciones.length }}
+        recomendaciones
+
+      </span>
+
+    </div>
+
+
+    @if (recomendaciones.length === 0) {
+
+      <div class="no-recommendations">
+
+        <span>✓</span>
+
+        <div>
+
+          <strong>
+            No se identificaron brechas.
+          </strong>
+
+          <p>
+            Todas las preguntas fueron evaluadas
+            como implementadas.
+          </p>
+
+        </div>
+
+      </div>
+
+    } @else {
+
+      <div class="recommendation-list">
+
+        @for (
+          item of recomendaciones;
+          track item.pregunta.id
+        ) {
+
+          <article class="recommendation-item">
+
+            <div
+              class="recommendation-indicator"
+              [class]="obtenerClasePrioridad(
+                item.prioridad
+              )">
+            </div>
+
+
+            <div class="recommendation-content">
+
+              <div class="recommendation-top">
+
+                <span
+                  class="priority-badge"
+                  [class]="obtenerClasePrioridad(
+                    item.prioridad
+                  )">
+
+                  {{ item.prioridad }}
+
+                </span>
+
+                <span class="question-id">
+
+                  Pregunta {{ item.pregunta.id }}
+
+                </span>
+
+                <span class="recommendation-domain">
+
+                  {{ item.pregunta.dominio }}
+
+                </span>
+
+              </div>
+
+
+              <h3>
+                {{ item.pregunta.pregunta }}
+              </h3>
+
+
+              <div class="iso-tags">
+
+                @for (
+                  iso of item.pregunta.controlesISO27001;
+                  track iso
+                ) {
+
+                  @if (iso) {
+
+                    <span class="iso-tag iso-27001">
+
+                      ISO 27001:
+                      {{ iso }}
+
+                    </span>
+
+                  }
+
+                }
+
+
+                @for (
+                  iso of item.pregunta.controlesISO42001;
+                  track iso
+                ) {
+
+                  @if (iso) {
+
+                    <span class="iso-tag iso-42001">
+
+                      ISO 42001:
+                      {{ iso }}
+
+                    </span>
+
+                  }
+
+                }
+
+              </div>
+
+
+              <div class="recommendation-text">
+
+                <strong>
+                  Acción recomendada
+                </strong>
+
+                <p>
+                  {{ item.recomendacion }}
+                </p>
+
+              </div>
+
+            </div>
+
+          </article>
+
+        }
+
+      </div>
+
+    }
+
+  </section>
+
+
+  <!-- ==========================================
+       METHODOLOGY
+       ========================================== -->
+
+  <section class="methodology-note">
+
+    <div class="methodology-icon">
+      i
+    </div>
+
+    <div>
+
+      <strong>
+        ¿Cómo se obtuvo este resultado?
+      </strong>
+
+      <p>
+        La cobertura de cada dominio se calcula
+        dividiendo el puntaje obtenido entre el
+        puntaje máximo y multiplicándolo por 100.
+        La cobertura global corresponde a la suma
+        ponderada de las coberturas de los cuatro
+        dominios.
+      </p>
+
+    </div>
+
+  </section>
+
+</div>

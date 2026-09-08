@@ -1,0 +1,54 @@
+<app-header></app-header>
+<div class="organization-container">
+
+  <div class="organization-card">
+
+    <h1>Registrar organización</h1>
+
+    <p>
+      Registre la información de la organización que será evaluada.
+    </p>
+
+    <form>
+
+      <div class="form-group">
+        <label for="nombre">Nombre de la organización</label>
+        <input
+          id="nombre"
+          type="text"
+          placeholder="Ej. Empresa Consultora XYZ"
+          [(ngModel)]="organizacion.nombre"
+          name="nombre"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="sector">Sector</label>
+        <select id="sector" [(ngModel)]="organizacion.sector" name="sector">
+          <option value="">Seleccione un sector</option>
+          <option value="consultoria">Consultoría tecnológica</option>
+          <option value="finanzas">Servicios financieros</option>
+          <option value="otro">Otro</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="responsable">Responsable de la evaluación</label>
+        <input
+          id="responsable"
+          type="text"
+          placeholder="Nombre del responsable"
+          [(ngModel)]="organizacion.responsable"
+          name="responsable"
+        />
+      </div>
+
+      <button type="button" (click)="IniciarEvaluacion()">
+        Guardar y comenzar evaluación
+      </button>
+
+    </form>
+
+  </div>
+
+</div>
