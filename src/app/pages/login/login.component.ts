@@ -42,5 +42,10 @@ export class LoginComponent {
 
   }
 
+  goToRegister(event: Event): void {
+    event.preventDefault(); // Evita la recarga de la página
+    this.router.navigate(['/registro']); // Reemplaza '/registro' por tu ruta destino
+  }
+
 
 }

@@ -1,0 +1,471 @@
+/* =========================================
+   PÁGINA
+========================================= */
+
+.registro-page {
+  min-height: 100vh;
+  background-color: #1a2332;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  padding: 35px 20px 25px;
+
+  box-sizing: border-box;
+
+  font-family:
+    Inter,
+    "Segoe UI",
+    Roboto,
+    Arial,
+    sans-serif;
+
+  background-color: #0d1520;
+}
+
+
+/* =========================================
+   LOGO
+========================================= */
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  margin-bottom: 25px;
+}
+
+.brand-icon {
+  width: 48px;
+  height: 48px;
+
+  border-radius: 14px;
+
+  background-color: #0d1520;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  box-shadow:
+    0 8px 20px rgba(8, 126, 164, 0.20);
+}
+
+.brand-icon span {
+  font-size: 25px;
+}
+
+.brand-text h1 {
+  margin: 0;
+
+  font-size: 21px;
+  font-weight: 700;
+
+  color: #d3f1ff;
+}
+
+.brand-text p {
+  margin: 2px 0 0;
+
+  font-size: 12px;
+  color: #64748b;
+}
+
+
+/* =========================================
+   CONTENEDOR
+========================================= */
+
+.registro-container {
+  width: 100%;
+  max-width: 720px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  
+}
+
+
+/* =========================================
+   CARD
+========================================= */
+
+.registro-card {
+  width: 100%;
+
+  background: #162232;
+
+  border: 1px solid #233348;
+
+  border-radius: 20px;
+
+  padding: 38px 42px;
+
+  box-sizing: border-box;
+
+  box-shadow:
+    0 20px 45px rgba(15, 76, 104, 0.08);
+}
+
+
+/* =========================================
+   HEADER DEL FORMULARIO
+========================================= */
+
+.form-header {
+  text-align: center;
+
+  margin-bottom: 30px;
+}
+
+.form-header h2 {
+  margin: 0 0 8px;
+
+  font-size: 27px;
+  font-weight: 700;
+
+  color: #fcfeff;
+}
+
+.form-header p {
+  max-width: 500px;
+
+  margin: 0 auto;
+
+  font-size: 14px;
+  line-height: 1.6;
+
+  color: #f1f5f9;
+}
+
+
+/* =========================================
+   FILAS
+========================================= */
+
+.form-row {
+  display: grid;
+
+  grid-template-columns: 1fr 1fr;
+
+  gap: 18px;
+}
+
+
+/* =========================================
+   FORM GROUP
+========================================= */
+
+.form-group {
+  margin-bottom: 19px;
+}
+
+.form-group label {
+  display: block;
+
+  margin-bottom: 7px;
+
+  font-size: 13px;
+  font-weight: 600;
+
+  color: #e9edf1;
+}
+
+
+/* =========================================
+   INPUTS
+========================================= */
+
+.form-group input {
+  width: 100%;
+
+  height: 46px;
+
+  box-sizing: border-box;
+
+  border: 1px solid #d7e2ec;
+
+  border-radius: 10px;
+
+  background: #fbfdff;
+
+  padding: 0 13px;
+
+  font-size: 14px;
+
+  color: #1e293b;
+
+  outline: none;
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease;
+}
+
+.form-group input::placeholder {
+  color: #a0aec0;
+}
+
+.form-group input:focus {
+  border-color: #0e8db4;
+
+  background: #ffffff;
+
+  box-shadow:
+    0 0 0 3px rgba(14, 141, 180, 0.10);
+}
+
+
+/* =========================================
+   INPUT CON ICONO
+========================================= */
+
+.input-with-icon {
+  position: relative;
+}
+
+.input-with-icon .input-icon {
+  position: absolute;
+
+  left: 13px;
+  top: 50%;
+
+  transform: translateY(-50%);
+
+  font-size: 15px;
+
+  color: #7b91a3;
+
+  pointer-events: none;
+}
+
+.input-with-icon input {
+  padding-left: 39px;
+}
+
+
+/* =========================================
+   ERRORES
+========================================= */
+
+.error {
+  display: block;
+
+  margin-top: 5px;
+
+  font-size: 11px;
+
+  color: #dc4b5c;
+}
+
+
+/* =========================================
+   MENSAJE INFORMATIVO
+========================================= */
+
+.info-message {
+  display: flex;
+
+  align-items: flex-start;
+
+  gap: 10px;
+
+  padding: 13px 15px;
+
+  margin-top: 2px;
+  margin-bottom: 22px;
+
+  border-radius: 10px;
+
+  background: #f0f8fc;
+
+  border: 1px solid #d5edf5;
+}
+
+.info-icon {
+  flex-shrink: 0;
+
+  width: 19px;
+  height: 19px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
+
+  background: #0b82a8;
+
+  color: white;
+
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.info-message p {
+  margin: 0;
+
+  font-size: 12px;
+  line-height: 1.5;
+
+  color: #496579;
+}
+
+
+/* =========================================
+   BOTÓN
+========================================= */
+
+.btn-register {
+  width: 100%;
+
+  height: 48px;
+
+  border: none;
+
+  border-radius: 10px;
+
+  background: linear-gradient(
+    135deg,
+    #087ea4,
+    #0b91b8
+  );
+
+  color: white;
+
+  font-size: 14px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    opacity 0.2s ease;
+}
+
+.btn-register:hover:not(:disabled) {
+  transform: translateY(-1px);
+
+  box-shadow:
+    0 8px 18px rgba(8, 126, 164, 0.22);
+}
+
+.btn-register:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.btn-register:disabled {
+  cursor: not-allowed;
+
+  opacity: 0.55;
+
+  box-shadow: none;
+}
+
+
+/* =========================================
+   LOGIN
+========================================= */
+
+.login-link {
+  display: flex;
+
+  justify-content: center;
+  align-items: center;
+
+  gap: 5px;
+
+  margin-top: 25px;
+
+  font-size: 13px;
+
+  color: #64748b;
+}
+
+.login-link a {
+  color: #087ea4;
+
+  font-weight: 600;
+
+  text-decoration: none;
+
+  cursor: pointer;
+}
+
+.login-link a:hover {
+  text-decoration: underline;
+}
+
+
+/* =========================================
+   FOOTER DE SEGURIDAD
+========================================= */
+
+.security-footer {
+  display: flex;
+
+  align-items: center;
+
+  gap: 6px;
+
+  margin-top: 18px;
+
+  font-size: 11px;
+
+  color: #8293a3;
+}
+
+
+/* =========================================
+   RESPONSIVE
+========================================= */
+
+@media (max-width: 650px) {
+
+  .registro-page {
+    padding: 25px 15px;
+  }
+
+  .registro-card {
+    padding: 30px 22px;
+
+    border-radius: 16px;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr;
+
+    gap: 0;
+  }
+
+  .form-header h2 {
+    font-size: 24px;
+  }
+
+}
+
+@media (max-width: 400px) {
+
+  .brand {
+    margin-bottom: 18px;
+  }
+
+  .brand-icon {
+    width: 42px;
+    height: 42px;
+  }
+
+  .brand-text h1 {
+    font-size: 18px;
+  }
+
+  .registro-card {
+    padding: 25px 18px;
+  }
+
+}

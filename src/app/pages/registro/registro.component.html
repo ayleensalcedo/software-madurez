@@ -1,0 +1,210 @@
+<div class="registro-page">
+
+  <!-- Logo / encabezado -->
+  <header class="brand">
+    <div class="brand-icon">
+      <span>🛡️</span>
+    </div>
+
+    <div class="brand-text">
+      <h1>SecureMaturity</h1>
+      <p>Evaluación de Madurez</p>
+    </div>
+  </header>
+
+  <!-- Contenedor principal -->
+  <main class="registro-container">
+
+    <div class="registro-card">
+
+      <!-- Encabezado del formulario -->
+      <div class="form-header">
+        <h2>Crear una cuenta</h2>
+      </div>
+
+      <!-- Formulario -->
+      <form [formGroup]="registroForm" (ngSubmit)="registrar()">
+
+        <!-- Nombre y apellido -->
+        <div class="form-row">
+
+          <div class="form-group">
+            <label for="nombre">Nombre</label>
+
+            <input
+              id="nombre"
+              type="text"
+              formControlName="nombre"
+              placeholder="Ingresa tu nombre"
+              autocomplete="given-name"
+            />
+
+            <span
+              class="error"
+              *ngIf="campoInvalido('nombre')"
+            >
+              Ingresa tu nombre.
+            </span>
+          </div>
+
+          <div class="form-group">
+            <label for="apellido">Apellido</label>
+
+            <input
+              id="apellido"
+              type="text"
+              formControlName="apellido"
+              placeholder="Ingresa tu apellido"
+              autocomplete="family-name"
+            />
+
+            <span
+              class="error"
+              *ngIf="campoInvalido('apellido')"
+            >
+              Ingresa tu apellido.
+            </span>
+          </div>
+
+        </div>
+
+        <!-- Correo -->
+        <div class="form-group">
+          <label for="correo">Correo electrónico</label>
+
+          <div class="input-with-icon">
+            <span class="input-icon">✉</span>
+
+            <input
+              id="correo"
+              type="email"
+              formControlName="correo"
+              placeholder="ejemplo@empresa.com"
+              autocomplete="email"
+            />
+          </div>
+
+          <span
+            class="error"
+            *ngIf="campoInvalido('correo')"
+          >
+            Ingresa un correo electrónico válido.
+          </span>
+        </div>
+
+        <!-- Organización -->
+        <div class="form-group">
+          <label for="organizacion">Organización</label>
+
+          <div class="input-with-icon">
+
+            <input
+              id="organizacion"
+              type="text"
+              formControlName="organizacion"
+              placeholder="Nombre de la organización"
+              autocomplete="organization"
+            />
+          </div>
+
+          <span
+            class="error"
+            *ngIf="campoInvalido('organizacion')"
+          >
+            Ingresa el nombre de la organización.
+          </span>
+        </div>
+
+        <!-- Cargo -->
+        <div class="form-group">
+          <label for="cargo">Cargo</label>
+
+          <input
+            id="cargo"
+            type="text"
+            formControlName="cargo"
+            placeholder="Ej. Jefe de Ciberseguridad"
+          />
+
+          <span
+            class="error"
+            *ngIf="campoInvalido('cargo')"
+          >
+            Ingresa tu cargo.
+          </span>
+        </div>
+
+        <!-- Contraseñas -->
+        <div class="form-row">
+
+          <div class="form-group">
+            <label for="password">Contraseña</label>
+
+            <input
+              id="password"
+              type="password"
+              formControlName="password"
+              placeholder="Mínimo 8 caracteres"
+              autocomplete="new-password"
+            />
+
+            <span
+              class="error"
+              *ngIf="campoInvalido('password')"
+            >
+              La contraseña debe tener al menos 8 caracteres.
+            </span>
+          </div>
+
+          <div class="form-group">
+            <label for="confirmPassword">Confirmar contraseña</label>
+
+            <input
+              id="confirmPassword"
+              type="password"
+              formControlName="confirmPassword"
+              placeholder="Repite tu contraseña"
+              autocomplete="new-password"
+            />
+
+            <span
+              class="error"
+              *ngIf="registroForm.hasError('passwordMismatch') &&
+                     registroForm.get('confirmPassword')?.touched"
+            >
+              Las contraseñas no coinciden.
+            </span>
+          </div>
+
+        </div>
+
+        <!-- Botón -->
+        <button
+          type="submit"
+          class="btn-register"
+          [disabled]="registroForm.invalid"
+        >
+          Crear cuenta
+        </button>
+
+      </form>
+
+      <!-- Volver al login -->
+      <div class="login-link">
+        <span>¿Ya tienes una cuenta?</span>
+
+        <a (click)="irAlLogin()">
+          Iniciar sesión
+        </a>
+      </div>
+
+    </div>
+
+    <!-- Texto inferior -->
+    <div class="security-footer">
+      <span>Tu información será tratada de forma segura.</span>
+    </div>
+
+  </main>
+
+</div>

@@ -6,6 +6,7 @@ import { EvaluacionComponent } from './pages/evaluacion/evaluacion.component';
 import { ResultadosComponent } from './pages/resultados/resultados.component';
 import { DashboardComponent } from './pages/dashboard/dashboard.component';
 import { MenuComponent } from './pages/menu/menu.component';
+import { RegistroComponent } from './pages/registro/registro.component';
 
 export const routes: Routes = [
   {
@@ -18,6 +19,6 @@ export const routes: Routes = [
   {path: 'organizaciones', component: OrganizacionesComponent},
   {path: 'evaluacion', component: EvaluacionComponent},
   {path: 'resultados', component: ResultadosComponent},
-  {path: 'dashboard', component: DashboardComponent
-}
+  {path: 'dashboard', component: DashboardComponent},
+  {path: 'registro', component:RegistroComponent}
 ];

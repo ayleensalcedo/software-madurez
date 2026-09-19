@@ -66,6 +66,12 @@
   text-align: center;
 }
 
+.p-registro p{
+  color: #ffffff;
+  font-size: 12px;
+  font-family: 'Segoe UI', Roboto, sans-serif;
+}
+
 /* Formulario */
 form {
   width: 100%;
