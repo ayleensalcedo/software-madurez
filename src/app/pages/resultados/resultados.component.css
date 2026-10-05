@@ -1,0 +1,63 @@
+.resultados-container {
+  max-width: 900px;
+  margin: 32px auto;
+  padding: 0 24px;
+}
+
+.resultados-header {
+  margin-bottom: 24px;
+}
+
+.evaluaciones-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.evaluacion-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  border: 1px solid #dce6ed;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: box-shadow 0.2s ease;
+}
+
+.evaluacion-card:hover {
+  box-shadow: 0 4px 12px rgba(11, 42, 74, 0.08);
+}
+
+.evaluacion-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.evaluacion-info span {
+  font-size: 12px;
+  color: #718494;
+}
+
+.badge {
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.estado-en-curso { background: #fff4e0; color: #b8720a; }
+.estado-finalizada { background: #e0f0ff; color: #0464a4; }
+.estado-validada { background: #e2f7e8; color: #1a7f3c; }
+.estado-observada { background: #fde0e0; color: #c0392b; }
+
+.error-message {
+  color: #c0392b;
+}
+
+.sin-evaluaciones {
+  text-align: center;
+  padding: 48px 0;
+  color: #718494;
+}

@@ -1,0 +1,401 @@
+/* ==========================================
+CONTENEDOR GENERAL
+========================================== */
+
+.admin-container {
+  max-width: 1200px;
+  margin: 32px auto 64px;
+  padding: 0 24px;
+  font-family: "Inter", "Segoe UI", Arial, sans-serif;
+}
+
+.admin-header {
+  margin-bottom: 24px;
+}
+
+.admin-header h1 {
+  font-size: 24px;
+  font-weight: 800;
+  color: #162232;
+  margin: 0 0 6px;
+}
+
+.admin-header p {
+  color: #718494;
+  font-size: 14px;
+  margin: 0;
+}
+
+/* ==========================================
+TABS
+========================================== */
+
+.tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 28px;
+  padding: 6px;
+  background: #f4f8fa;
+  border-radius: 12px;
+  width: fit-content;
+}
+
+.tabs button {
+  padding: 10px 18px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 700;
+  color: #718494;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.tabs button:hover {
+  color: #0b2a4a;
+}
+
+.tabs button.active {
+  color: white;
+  background: linear-gradient(135deg, #0b2a4a, #087f98);
+  box-shadow: 0 3px 10px rgba(11, 42, 74, 0.25);
+}
+
+/* ==========================================
+MENSAJES
+========================================== */
+
+.error-message, .exito-message {
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 18px;
+}
+
+.error-message {
+  background: #fdeaea;
+  color: #c0392b;
+  border: 1px solid #f6cccc;
+}
+
+.exito-message {
+  background: #e6f7ec;
+  color: #1a7f3c;
+  border: 1px solid #c9ecd4;
+}
+
+/* ==========================================
+SECCIONES / TARJETAS
+========================================== */
+
+.crear-usuario, .lista-usuarios, .auditoria-lista {
+  background: white;
+  border: 1px solid #e6edf2;
+  border-radius: 14px;
+  padding: 22px 24px;
+  margin-bottom: 24px;
+  box-shadow: 0 2px 10px rgba(11, 42, 74, 0.04);
+}
+
+.crear-usuario h2, .lista-usuarios h2, .auditoria-lista h2 {
+  font-size: 15px;
+  font-weight: 800;
+  color: #162232;
+  margin: 0 0 16px;
+}
+
+.nota {
+  margin-top: 10px;
+  font-size: 12px;
+  color: #a3adb5;
+  font-style: italic;
+}
+
+/* ==========================================
+FORMULARIOS
+========================================== */
+
+.form-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.form-row input,
+.form-row select,
+.select-ancho {
+  padding: 9px 14px;
+  border: 1px solid #dce6ed;
+  border-radius: 9px;
+  font-size: 13px;
+  color: #162232;
+  background: #fafcfd;
+  transition: border-color 0.2s ease;
+  min-width: 160px;
+}
+
+.form-row input:focus,
+.form-row select:focus,
+.textarea-full:focus {
+  outline: none;
+  border-color: #10aebd;
+  background: white;
+}
+
+.textarea-full {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid #dce6ed;
+  border-radius: 9px;
+  font-family: inherit;
+  font-size: 13px;
+  margin-bottom: 12px;
+  display: block;
+  background: #fafcfd;
+  resize: vertical;
+}
+
+.select-ancho {
+  width: 100%;
+  max-width: 100%;
+}
+
+/* Botones de acción (Crear / Guardar) */
+.form-row button,
+.crear-usuario > button {
+  padding: 9px 20px;
+  border: none;
+  border-radius: 9px;
+  background: linear-gradient(135deg, #0b2a4a, #087f98);
+  color: white;
+  font-weight: 700;
+  font-size: 13px;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  white-space: nowrap;
+}
+
+.form-row button:hover,
+.crear-usuario > button:hover {
+  box-shadow: 0 4px 12px rgba(11, 42, 74, 0.25);
+  transform: translateY(-1px);
+}
+
+/* ==========================================
+CHECKBOX GRID (controles de una pregunta)
+========================================== */
+
+.checkbox-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 8px;
+  margin-bottom: 16px;
+  max-height: 220px;
+  overflow-y: auto;
+  padding: 10px;
+  border: 1px solid #eef2f5;
+  border-radius: 10px;
+  background: #fafcfd;
+}
+
+.checkbox-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12.5px;
+  color: #33414c;
+  padding: 4px 6px;
+  border-radius: 6px;
+  transition: background 0.15s ease;
+}
+
+.checkbox-item:hover {
+  background: #eef6f8;
+}
+
+.checkbox-item input {
+  accent-color: #10aebd;
+  width: 15px;
+  height: 15px;
+}
+
+/* ==========================================
+TABLAS
+========================================== */
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+thead tr {
+  border-bottom: 2px solid #eef2f5;
+}
+
+th {
+  text-align: left;
+  padding: 10px 14px;
+  font-size: 11px;
+  font-weight: 800;
+  color: #8a97a3;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+td {
+  text-align: left;
+  padding: 12px 14px;
+  border-bottom: 1px solid #f2f5f7;
+  font-size: 13px;
+  color: #33414c;
+}
+
+tbody tr:hover {
+  background: #fafcfd;
+}
+
+tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* ==========================================
+BADGES / ETIQUETAS
+========================================== */
+
+.badge {
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  display: inline-block;
+}
+
+.badge.activo { background: #e2f7e8; color: #1a7f3c; }
+.badge.inactivo { background: #fde0e0; color: #c0392b; }
+
+.tag-mini {
+  display: inline-block;
+  padding: 3px 10px;
+  margin: 2px 3px 2px 0;
+  border-radius: 12px;
+  background: #eef6f8;
+  color: #0b6d7a;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+/* ==========================================
+BOTONES DE TABLA
+========================================== */
+
+.btn-desactivar {
+  padding: 6px 14px;
+  border: none;
+  border-radius: 8px;
+  background: #fde0e0;
+  color: #c0392b;
+  font-weight: 700;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.btn-desactivar:hover {
+  background: #f8c9c9;
+}
+
+/* ==========================================
+RESPONSIVE
+========================================== */
+
+@media (max-width: 700px) {
+  .admin-container {
+    padding: 0 14px;
+  }
+
+  .form-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .form-row input,
+  .form-row select,
+  .form-row button {
+    width: 100%;
+  }
+
+  table, thead, tbody, th, td, tr {
+    display: block;
+  }
+
+  thead {
+    display: none;
+  }
+
+  tbody tr {
+    border: 1px solid #eef2f5;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    padding: 8px 0;
+  }
+
+  td {
+    border-bottom: none;
+    padding: 6px 14px;
+  }
+.niveles-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.nivel-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 10px 14px;
+  background: #fafcfd;
+  border: 1px solid #eef2f5;
+  border-radius: 9px;
+}
+
+.nivel-nombre {
+  min-width: 110px;
+  font-weight: 700;
+  font-size: 13px;
+  color: #162232;
+}
+
+.nivel-row label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: #718494;
+}
+
+.nivel-row input[type="number"] {
+  width: 70px;
+  padding: 6px 10px;
+  border: 1px solid #dce6ed;
+  border-radius: 7px;
+  font-size: 13px;
+}
+.radio-inline {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: #33414c;
+}
+
+.radio-inline input {
+  accent-color: #10aebd;
+}
+}

@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
-import {FormsModule } from '@angular/forms';
+import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../core/services/auth.service';
 
 @Component({
@@ -15,36 +15,33 @@ export class LoginComponent {
   private authService = inject(AuthService);
   private router = inject(Router);
 
-
   email: string = '';
   password: string = '';
 
   error: string = '';
-
+  cargando: boolean = false;
 
   iniciarSesion(): void {
+    this.error = '';
+    this.cargando = true;
 
-    const resultado = this.authService.login(
-      this.email,
-      this.password
-    );
+    this.authService.login(this.email, this.password).subscribe({
+      next: () => {
+        this.cargando = false;
+        this.router.navigate(['/menu']);
+      },
+      error: (err) => {
+        this.cargando = false;
 
-
-    if (resultado) {
-
-      this.router.navigate(['/menu']);
-
-    } else {
-
-      this.error = 'Correo o contraseña incorrectos';
-
-    }
-
-  }
-
-  goToRegister(event: Event): void {
-    event.preventDefault(); // Evita la recarga de la página
-    this.router.navigate(['/registro']); // Reemplaza '/registro' por tu ruta destino
+        if (err.status === 401) {
+          this.error = 'Correo o contraseña incorrectos';
+        } else if (err.status === 0) {
+          this.error = 'No se pudo conectar con el servidor';
+        } else {
+          this.error = 'Ocurrió un error al iniciar sesión';
+        }
+      }
+    });
   }
 
 

@@ -1,102 +1,91 @@
-import { Injectable } from '@angular/core';
-import { Usuario } from '../services/models/usuario.model';
-import { PLATFORM_ID, inject } from '@angular/core';
+import { Injectable, PLATFORM_ID, inject, signal } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { isPlatformBrowser } from '@angular/common';
+import { Observable, tap } from 'rxjs';
+import { environment } from '../../../environments/environment';
+import { LoginRequest, LoginResponse } from './models/auth.model';
+import { UsuarioResponse } from './models/usuario.model';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
+
   private platformId = inject(PLATFORM_ID);
+  private http = inject(HttpClient);
 
-  private usuarios: Usuario[] = [
-    {
-      id: 1,
-      nombre: 'Administrador',
-      email: 'admin@madurezai.com',
-      password: '123456',
-      rol: 'Administrador'
-    },
-    {
-      id: 2,
-      nombre: 'Consultor',
-      email: 'consultor@madurezai.com',
-      password: '123456',
-      rol: 'Consultor'
-    }
-  ];
+  private readonly apiUrl = `${environment.apiUrl}/auth`;
 
+  // Estado reactivo del usuario logueado, disponible en toda la app
+  private usuarioActual = signal<UsuarioResponse | null>(this.cargarUsuarioInicial());
+  usuario = this.usuarioActual.asReadonly();
 
-  login(email: string, password: string): boolean {
-
+  private cargarUsuarioInicial(): UsuarioResponse | null {
     if (!isPlatformBrowser(this.platformId)) {
-      return false;
+      return null;
     }
 
-    const usuario = this.usuarios.find(
-      u =>
-        u.email === email &&
-        u.password === password
-    );
-
-    if (!usuario) {
-      return false;
-    }
-
-    localStorage.setItem(
-      'usuario',
-      JSON.stringify(usuario)
-    );
-
-    return true;
+    const data = localStorage.getItem('usuario');
+    return data ? JSON.parse(data) : null;
   }
 
+  login(email: string, password: string): Observable<LoginResponse> {
+    const body: LoginRequest = { email, password };
 
-  logout(): void {
+    return this.http.post<LoginResponse>(`${this.apiUrl}/login`, body).pipe(
+      tap(respuesta => this.guardarSesion(respuesta))
+    );
+  }
 
+  private guardarSesion(respuesta: LoginResponse): void {
     if (!isPlatformBrowser(this.platformId)) {
       return;
     }
 
-    localStorage.removeItem('usuario');
+    const usuario: UsuarioResponse = {
+      id: 0,
+      nombre: respuesta.nombre,
+      email: respuesta.email,
+      rol: respuesta.rol,
+      estado: 'ACTIVO',
+      jefeId: null,
+      organizacionId: null,
+      organizacionNombre: null
+    };
 
+    localStorage.setItem('token', respuesta.token);
+    localStorage.setItem('usuario', JSON.stringify(usuario));
+
+    this.usuarioActual.set(usuario);
   }
 
+  logout(): void {
+    if (!isPlatformBrowser(this.platformId)) {
+      return;
+    }
 
-  getUsuario(): Usuario | null {
+    localStorage.removeItem('token');
+    localStorage.removeItem('usuario');
+    localStorage.removeItem('evaluacionActualId');
+    this.usuarioActual.set(null);
+  }
 
+  getToken(): string | null {
     if (!isPlatformBrowser(this.platformId)) {
       return null;
     }
-
-    const usuario = localStorage.getItem('usuario');
-
-    if (!usuario) {
-      return null;
-    }
-
-    return JSON.parse(usuario);
-
+    return localStorage.getItem('token');
   }
 
+  getUsuario(): UsuarioResponse | null {
+    return this.usuarioActual();
+  }
 
   estaLogueado(): boolean {
-
-    if (!isPlatformBrowser(this.platformId)) {
-      return false;
-    }
-
-    return localStorage.getItem('usuario') !== null;
-
+    return this.usuarioActual() !== null && this.getToken() !== null;
   }
-
 
   getRol(): string {
-
-    const usuario = this.getUsuario(); // ya está protegido internamente
-
-    return usuario?.rol ?? '';
-
+    return this.usuarioActual()?.rol ?? '';
   }
-
 }

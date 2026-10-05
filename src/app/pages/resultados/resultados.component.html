@@ -1,1 +1,40 @@
-<p>resultados works!</p>
+<app-header></app-header>
+
+<div class="resultados-container">
+
+  <header class="resultados-header">
+    <h1>Mis evaluaciones</h1>
+    <p>Historial de evaluaciones registradas.</p>
+  </header>
+
+  @if (cargando) {
+    <p>Cargando...</p>
+  } @else if (error) {
+    <p class="error-message">{{ error }}</p>
+  } @else if (evaluaciones.length === 0) {
+    <div class="sin-evaluaciones">
+      <p>Aún no tienes evaluaciones registradas.</p>
+    </div>
+  } @else {
+    <div class="evaluaciones-lista">
+      @for (ev of evaluaciones; track ev.id) {
+        <article class="evaluacion-card" (click)="continuarOVerResultado(ev)">
+          <div class="evaluacion-info">
+            <h3>{{ ev.organizacionNombre }}</h3>
+            <span>Iniciada: {{ ev.fechaInicio | date:'dd/MM/yyyy HH:mm' }}</span>
+            @if (ev.fechaFin) {
+              <span>Finalizada: {{ ev.fechaFin | date:'dd/MM/yyyy HH:mm' }}</span>
+            }
+          </div>
+
+          <div class="evaluacion-estado">
+            <span class="badge" [class]="claseEstado(ev.estado)">
+              {{ etiquetaEstado(ev.estado) }}
+            </span>
+          </div>
+        </article>
+      }
+    </div>
+  }
+
+</div>
