@@ -1,17 +1,24 @@
-export type ValorRespuesta = 1 | 2 | 3 | 4;
-
-export interface Recomendaciones {
-  INEXISTENTE: string;
-  PARCIAL: string;
+export interface ControlResponse {
+  id: number;
+  norma: string;
+  anexoA: string;
+  dominioId: number;
+  dominioNombre: string;
 }
 
-export interface Pregunta {
-
+export interface PreguntaResponse {
   id: number;
-  dominio: string;
-  pregunta: string;
-  controlesISO27001: string[];
-  controlesISO42001: string[];
-  recomendaciones: Recomendaciones;
-  respuesta?: ValorRespuesta|null;
+  texto: string;
+  dominioId: number;
+  dominioNombre: string;
+  controles: ControlResponse[];
+}
+export interface CrearControlRequest {
+  norma: string;
+  anexoA: string;
+  dominioId: number;
+}
+export interface CrearPreguntaRequest {
+  texto: string;
+  controlIds: number[];
 }

@@ -1,0 +1,74 @@
+<app-header></app-header>
+
+<div class="equipo-container">
+
+  <header class="equipo-header">
+    <h1>Evaluaciones de mi equipo</h1>
+    <p>Revisa, valida u observa las evaluaciones finalizadas por tus analistas.</p>
+  </header>
+
+  @if (error) {
+    <p class="error-message">{{ error }}</p>
+  }
+
+  @if (cargando) {
+    <p>Cargando...</p>
+  } @else if (evaluaciones.length === 0) {
+    <div class="sin-evaluaciones">
+      <p>Tu equipo aún no tiene evaluaciones registradas.</p>
+    </div>
+  } @else {
+    <div class="evaluaciones-lista">
+      @for (ev of evaluaciones; track ev.id) {
+        <article class="evaluacion-card">
+          <div class="evaluacion-info">
+            <h3>{{ ev.organizacionNombre }}</h3>
+            <span>Iniciada: {{ ev.fechaInicio | date:'dd/MM/yyyy HH:mm' }}</span>
+            @if (ev.fechaFin) {
+              <span>Finalizada: {{ ev.fechaFin | date:'dd/MM/yyyy HH:mm' }}</span>
+            }
+            @if (ev.observacion) {
+              <span class="observacion-texto">Observación: {{ ev.observacion }}</span>
+            }
+          </div>
+
+          <div class="evaluacion-acciones">
+            <span class="badge" [class]="claseEstado(ev.estado)">
+              {{ etiquetaEstado(ev.estado) }}
+            </span>
+
+            @if (puedeRevisar(ev)) {
+              <div class="botones-revision">
+                <button class="btn-validar" (click)="validar(ev)">Validar</button>
+                <button class="btn-observar" (click)="abrirObservar(ev)">Observar</button>
+              </div>
+            }
+          </div>
+        </article>
+      }
+    </div>
+  }
+
+  @if (evaluacionParaObservar) {
+    <div class="modal-overlay">
+      <div class="modal-box">
+        <h3>Observar evaluación</h3>
+        <p>{{ evaluacionParaObservar.organizacionNombre }}</p>
+
+        <textarea
+          [(ngModel)]="textoObservacion"
+          placeholder="Describe el motivo de la observación..."
+          rows="4"
+        ></textarea>
+
+        <div class="modal-botones">
+          <button class="btn-secondary" (click)="cancelarObservar()">Cancelar</button>
+          <button class="btn-primary" (click)="confirmarObservar()" [disabled]="!textoObservacion.trim()">
+            Enviar observación
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+
+</div>

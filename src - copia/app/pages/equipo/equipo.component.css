@@ -1,0 +1,150 @@
+.equipo-container {
+  max-width: 900px;
+  margin: 32px auto;
+  padding: 0 24px;
+}
+
+.equipo-header {
+  margin-bottom: 24px;
+}
+
+.evaluaciones-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.evaluacion-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  border: 1px solid #dce6ed;
+  border-radius: 10px;
+}
+
+.evaluacion-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.evaluacion-info span {
+  font-size: 12px;
+  color: #718494;
+}
+
+.observacion-texto {
+  color: #c0392b !important;
+  font-style: italic;
+}
+
+.evaluacion-acciones {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+.badge {
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.estado-en-curso { background: #fff4e0; color: #b8720a; }
+.estado-finalizada { background: #e0f0ff; color: #0464a4; }
+.estado-validada { background: #e2f7e8; color: #1a7f3c; }
+.estado-observada { background: #fde0e0; color: #c0392b; }
+
+.botones-revision {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-validar, .btn-observar {
+  padding: 6px 14px;
+  border-radius: 8px;
+  border: none;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.btn-validar {
+  background: #1a7f3c;
+  color: white;
+}
+
+.btn-observar {
+  background: #c0392b;
+  color: white;
+}
+
+.error-message {
+  color: #c0392b;
+  margin-bottom: 16px;
+}
+
+.sin-evaluaciones {
+  text-align: center;
+  padding: 48px 0;
+  color: #718494;
+}
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-box {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  width: 90%;
+  max-width: 420px;
+}
+
+.modal-box textarea {
+  width: 100%;
+  margin: 12px 0;
+  padding: 10px;
+  border: 1px solid #dce6ed;
+  border-radius: 8px;
+  font-family: inherit;
+}
+
+.modal-botones {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.modal-botones button {
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.btn-secondary {
+  background: #eef2f5;
+  color: #333;
+}
+
+.btn-primary {
+  background: #0464a4;
+  color: white;
+}
+
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

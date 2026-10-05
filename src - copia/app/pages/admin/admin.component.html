@@ -1,0 +1,224 @@
+<app-header></app-header>
+
+<div class="admin-container">
+
+  <header class="admin-header">
+    <h1>Panel de Administración</h1>
+    <p>Gestión de usuarios, catálogo de evaluación y auditoría técnica del sistema.</p>
+  </header>
+
+  <div class="tabs">
+    <button [class.active]="seccion === 'usuarios'" (click)="cambiarSeccion('usuarios')">
+      Usuarios
+    </button>
+    <button [class.active]="seccion === 'dominios'" (click)="cambiarSeccion('dominios')">
+      Dominios
+    </button>
+    <button [class.active]="seccion === 'controles'" (click)="cambiarSeccion('controles')">
+      Controles
+    </button>
+    <button [class.active]="seccion === 'auditoria'" (click)="cambiarSeccion('auditoria')">
+      Auditoría técnica
+    </button>
+  </div>
+
+  @if (error) {
+    <p class="error-message">{{ error }}</p>
+  }
+  @if (exito) {
+    <p class="exito-message">{{ exito }}</p>
+  }
+
+  @if (seccion === 'usuarios') {
+
+    <section class="crear-usuario">
+      <h2>Crear usuario</h2>
+
+      <div class="form-row">
+        <input placeholder="Nombre" [(ngModel)]="nuevoUsuario.nombre" name="nombre">
+        <input placeholder="Correo" [(ngModel)]="nuevoUsuario.email" name="email">
+        <input placeholder="Contraseña" type="password" [(ngModel)]="nuevoUsuario.password" name="password">
+
+        <select [(ngModel)]="nuevoUsuario.rol" name="rol">
+          <option value="JEFE_CIBERSEGURIDAD">Jefe de ciberseguridad</option>
+          <option value="GERENTE_GENERAL">Gerente general</option>
+        </select>
+
+        <button (click)="crearUsuario()">Crear</button>
+      </div>
+
+      <p class="nota">
+        Nota: los Analistas de ciberseguridad los registra directamente su Jefe, no el Administrador.
+      </p>
+    </section>
+
+    <section class="lista-usuarios">
+      <h2>Usuarios registrados</h2>
+
+      @if (cargando) {
+        <p>Cargando...</p>
+      } @else {
+        <table>
+          <thead>
+            <tr>
+              <th>Nombre</th>
+              <th>Correo</th>
+              <th>Rol</th>
+              <th>Estado</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (u of usuarios; track u.id) {
+              <tr>
+                <td>{{ u.nombre }}</td>
+                <td>{{ u.email }}</td>
+                <td>{{ etiquetaRol(u.rol) }}</td>
+                <td>
+                  <span class="badge" [class.activo]="u.estado === 'ACTIVO'" [class.inactivo]="u.estado === 'INACTIVO'">
+                    {{ u.estado }}
+                  </span>
+                </td>
+                <td>
+                  @if (u.estado === 'ACTIVO') {
+                    <button class="btn-desactivar" (click)="desactivar(u)">Desactivar</button>
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      }
+    </section>
+
+  } @else if (seccion === 'dominios') {
+
+    <section class="crear-usuario">
+      <h2>Crear dominio</h2>
+
+      <div class="form-row">
+        <input placeholder="Nombre del dominio" [(ngModel)]="nuevoDominio.nombre" name="nombreDominio">
+        <input placeholder="Descripción" [(ngModel)]="nuevoDominio.descripcion" name="descripcionDominio">
+        <button (click)="crearDominio()">Crear</button>
+      </div>
+    </section>
+
+    <section class="lista-usuarios">
+      <h2>Dominios configurados</h2>
+
+      @if (cargando) {
+        <p>Cargando...</p>
+      } @else {
+        <table>
+          <thead>
+            <tr>
+              <th>Nombre</th>
+              <th>Descripción</th>
+              <th>Peso relativo</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (d of dominios; track d.id) {
+              <tr>
+                <td>{{ d.nombre }}</td>
+                <td>{{ d.descripcion }}</td>
+                <td>{{ d.pesoRelativo | number:'1.1-1' }}%</td>
+                <td>
+                  <button class="btn-desactivar" (click)="eliminarDominio(d)">Eliminar</button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      }
+    </section>
+
+  } @else if (seccion === 'controles') {
+
+    <section class="crear-usuario">
+      <h2>Crear control</h2>
+
+      <div class="form-row">
+        <select [(ngModel)]="nuevoControl.norma" name="norma">
+          <option value="ISO_27001">ISO 27001</option>
+          <option value="ISO_42001">ISO 42001</option>
+        </select>
+
+        <input placeholder="Anexo A (ej. A.5.15)" [(ngModel)]="nuevoControl.anexoA" name="anexoA">
+
+        <select [(ngModel)]="nuevoControl.dominioId" name="dominioIdControl">
+          @for (d of dominios; track d.id) {
+            <option [value]="d.id">{{ d.nombre }}</option>
+          }
+        </select>
+
+        <button (click)="crearControl()">Crear</button>
+      </div>
+    </section>
+
+    <section class="lista-usuarios">
+      <h2>Controles registrados</h2>
+
+      @if (cargando) {
+        <p>Cargando...</p>
+      } @else {
+        <table>
+          <thead>
+            <tr>
+              <th>Norma</th>
+              <th>Anexo A</th>
+              <th>Dominio</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (c of controles; track c.id) {
+              <tr>
+                <td>{{ c.norma === 'ISO_27001' ? 'ISO 27001' : 'ISO 42001' }}</td>
+                <td>{{ c.anexoA }}</td>
+                <td>{{ c.dominioNombre }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      }
+    </section>
+
+  } @else {
+
+    <section class="auditoria-lista">
+      <h2>Historial de cambios de configuración</h2>
+
+      @if (cargando) {
+        <p>Cargando...</p>
+      } @else if (auditoria.length === 0) {
+        <p>Sin registros de auditoría.</p>
+      } @else {
+        <table>
+          <thead>
+            <tr>
+              <th>Fecha</th>
+              <th>Usuario</th>
+              <th>Entidad</th>
+              <th>Acción</th>
+              <th>Detalle</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (a of auditoria; track a.id) {
+              <tr>
+                <td>{{ a.fecha | date:'dd/MM/yyyy HH:mm' }}</td>
+                <td>{{ a.usuarioNombre }}</td>
+                <td>{{ a.entidadAfectada }}</td>
+                <td>{{ a.accion }}</td>
+                <td>{{ a.detalle }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      }
+    </section>
+
+  }
+
+</div>

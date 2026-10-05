@@ -1,99 +1,77 @@
-<div class="home-container">
-
-  <!-- HEADER -->
-
-  <header class="home-header">
-    <div class="header-content">
-      
-  <h1>Portal de Gobernanza y Seguridad IA</h1>
-
-  <p>
-    Evaluación de madurez y alineación normativa
-    <strong>ISO 27001</strong> e <strong>ISO 42001</strong>
-    para soluciones <strong>Text-to-SQL</strong>.
-  </p>
-</div>
-
-
-  </header>
-
-  <!-- MENU -->
-
-  <main class="menu-section">
-
-
-<br><br><br><br>
-<div class="section-title">
-  <span>Proceso de evaluación</span>
-  <h2>Gestiona tu evaluación de madurez</h2>
-  <p>Completa cada etapa para obtener una visión integral del nivel de seguridad de tu solución.</p>
-</div>
-
 <div class="menu-grid">
 
-  <!-- CARD 1 -->
-  <div class="menu-card highlight" routerLink="/evaluacion">
-
-    <div class="card-header">
-      <div class="icon-container">
-        <span class="card-icon">📋</span>
+  @if (esAnalista) {
+    <!-- CARD 1 -->
+    <div class="menu-card highlight">
+      <div class="card-header">
+        <div class="icon-container"><span class="card-icon">📋</span></div>
+      </div>
+      <div class="card-content">
+        <span class="card-label">Evaluación</span>
+        <h3>Iniciar Evaluación</h3>
+        <p>Responde las preguntas organizadas en los dominios principales de seguridad.</p>
+      </div>
+      <div class="card-footer">
+        <button class="btn-action primary" (click)="IniciarEvaluacion()">
+          Iniciar evaluación <span>→</span>
+        </button>
       </div>
     </div>
 
-    <div class="card-content">
-      <span class="card-label">Evaluación</span>
-
-      <h3>Iniciar Evaluación</h3>
-
-      <p>
-        Responde las 20 preguntas organizadas en
-        los 4 dominios principales de seguridad.
-      </p>
-    </div>
-
-    <div class="card-footer">
-      <button class="btn-action primary" (click)="Registrar()">
-        Iniciar evaluación
-        <span>→</span>
-      </button>
-    </div>
-
-  </div>  
-
-  <!-- CARD 2 -->
-  <div class="menu-card" routerLink="/registro-organizacion">
-
-    <div class="card-header">
-      <div class="icon-container">
-        <span class="card-icon">🏢</span>
+    <!-- CARD 2 -->
+    <div class="menu-card">
+      <div class="card-header">
+        <div class="icon-container"><span class="card-icon">🏢</span></div>
+      </div>
+      <div class="card-content">
+        <span class="card-label">Historial</span>
+        <h3>Evaluaciones Guardadas</h3>
+        <p>Accede a tus evaluaciones guardadas anteriormente.</p>
+      </div>
+      <div class="card-footer">
+        <button class="btn-action" (click)="VerEvaluaciones()">
+          Ver Evaluaciones <span>→</span>
+        </button>
       </div>
     </div>
+  }
 
-    <div class="card-content">
-      <span class="card-label">Historial</span>
-
-      <h3>Evaluaciones Guardadas</h3>
-
-      <p>
-        Accede a tus evaluaciones guardadas anteriormente.
-      </p>
+  @if (esJefe) {
+    <!-- CARD 3: solo para el Jefe -->
+    <div class="menu-card highlight">
+      <div class="card-header">
+        <div class="icon-container"><span class="card-icon">✅</span></div>
+      </div>
+      <div class="card-content">
+        <span class="card-label">Supervisión</span>
+        <h3>Evaluaciones de mi equipo</h3>
+        <p>Valida u observa las evaluaciones finalizadas por tus analistas.</p>
+      </div>
+      <div class="card-footer">
+        <button class="btn-action primary" (click)="VerEquipo()">
+          Revisar equipo <span>→</span>
+        </button>
+      </div>
     </div>
+  }
 
-    <div class="card-footer">
-      <button class="btn-action" (click)="Registrar()">
-        Ver Evaluaciones
-        <span>→</span>
-      </button>
+  @if (esAdmin) {
+    <!-- CARD 4: solo para el Admin -->
+    <div class="menu-card highlight">
+      <div class="card-header">
+        <div class="icon-container"><span class="card-icon">⚙️</span></div>
+      </div>
+      <div class="card-content">
+        <span class="card-label">Administración</span>
+        <h3>Panel de Administración</h3>
+        <p>Gestiona usuarios y consulta la auditoría técnica del sistema.</p>
+      </div>
+      <div class="card-footer">
+        <button class="btn-action primary" (click)="VerAdmin()">
+          Ir al panel <span>→</span>
+        </button>
+      </div>
     </div>
-
-  </div>
-
-
-  
-
-</div>
-```
-
-  </main>
+  }
 
 </div>

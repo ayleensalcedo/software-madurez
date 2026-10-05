@@ -1,39 +1,55 @@
-import { Component } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { Component, OnInit, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { HeaderComponent } from '../header/header.component';
+import { EvaluacionService } from '../../core/services/evaluacion.service';
 import { OrganizacionService } from '../../core/services/organizacion.service';
-import { Organizacion } from '../../core/services/models/organizacion.model';
+import { OrganizacionResponse } from '../../core/services/models/organizacion.model';
 
 @Component({
   selector: 'app-organizaciones',
-  imports: [HeaderComponent,FormsModule],
-  standalone:true,
+  standalone: true,
+  imports: [HeaderComponent],
   templateUrl: './organizaciones.component.html',
   styleUrl: './organizaciones.component.css'
 })
-export class OrganizacionesComponent {
-  organizacion: Organizacion = {
-    id: 0,
-    nombre: '',
-    sector: '',
-    responsable: '',
-    fechaEvaluacion: ''
-  };
+export class OrganizacionesComponent implements OnInit {
 
-  constructor(
-    private router: Router,
-    private organizacionService: OrganizacionService
-  ) {}
+  private evaluacionService = inject(EvaluacionService);
+  private organizacionService = inject(OrganizacionService);
+  private router = inject(Router);
 
-  IniciarEvaluacion(): void {
-    // completamos los campos que no vienen del formulario
-    this.organizacion.id = Date.now();
-    this.organizacion.fechaEvaluacion = new Date().toISOString();
+  organizacion: OrganizacionResponse | null = null;
 
-    this.organizacionService.guardarOrganizacion(this.organizacion);
-    this.router.navigate(['/evaluacion']);
+  cargando: boolean = true;
+  iniciando: boolean = false;
+  error: string = '';
+
+  ngOnInit(): void {
+    this.organizacionService.obtenerMiOrganizacion().subscribe({
+      next: (org) => {
+        this.organizacion = org;
+        this.cargando = false;
+      },
+      error: (err) => {
+        this.cargando = false;
+        this.error = err.error ?? 'No tienes una organización asignada. Contacta a tu Jefe de ciberseguridad.';
+      }
+    });
   }
 
+  IniciarEvaluacion(): void {
+    this.error = '';
+    this.iniciando = true;
 
+    this.evaluacionService.iniciarEvaluacion().subscribe({
+      next: () => {
+        this.iniciando = false;
+        this.router.navigate(['/evaluacion']);
+      },
+      error: (err) => {
+        this.iniciando = false;
+        this.error = err.error ?? 'No se pudo iniciar la evaluación';
+      }
+    });
+  }
 }
