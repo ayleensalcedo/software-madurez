@@ -176,7 +176,7 @@ export class EvaluacionComponent implements OnInit {
   }
 
   finalizando = false;
-  
+
   finalizarEvaluacion(): void {
     if (!this.todasRespondidas()) {
       this.error = 'Debes responder todas las preguntas antes de finalizar.';
@@ -185,14 +185,19 @@ export class EvaluacionComponent implements OnInit {
 
     if (this.finalizando) return;
     this.finalizando = true;
-    
+
     this.evaluacionService.finalizarEvaluacion(this.evaluacionId).pipe(
-      switchMap(() => this.evaluacionService.obtenerEvaluacion(this.evaluacionId))).subscribe({
+      switchMap(() => this.evaluacionService.obtenerEvaluacion(this.evaluacionId))
+    ).subscribe({
       next: () => {
-        next: () => this.router.navigate(['/dashboard']),
         this.finalizando = false;
-        this.error = err.error ?? 'No se pudo finalizar la evaluación';
+        this.router.navigate(['/dashboard']);
+      },
+      error: (err) => {
+        this.finalizando = false;
+        this.error = typeof err.error === 'string'
+          ? err.error
+          : (err.error?.message ?? 'No se pudo finalizar la evaluación');
       }
     });
-  }
 }
