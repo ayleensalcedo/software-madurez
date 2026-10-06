@@ -7,6 +7,7 @@ import { RespuestaService } from '../../core/services/respuesta.service';
 import { RecomendacionService } from '../../core/services/recomendacion.service';
 import { PreguntaResponse } from '../../core/services/models/pregunta.model';
 import { NivelImplementacion } from '../../core/services/models/respuesta.model';
+import { switchMap } from 'rxjs';
 
 @Component({
   selector: 'app-evaluacion',
@@ -174,17 +175,22 @@ export class EvaluacionComponent implements OnInit {
     return this.preguntas.every(p => this.respuestasGuardadas.has(p.id));
   }
 
+  finalizando = false;
+  
   finalizarEvaluacion(): void {
     if (!this.todasRespondidas()) {
       this.error = 'Debes responder todas las preguntas antes de finalizar.';
       return;
     }
 
-    this.evaluacionService.finalizarEvaluacion(this.evaluacionId).subscribe({
+    if (this.finalizando) return;
+    this.finalizando = true;
+    
+    this.evaluacionService.finalizarEvaluacion(this.evaluacionId).pipe(
+      switchMap(() => this.evaluacionService.obtenerEvaluacion(this.evaluacionId))).subscribe({
       next: () => {
-        this.router.navigate(['/dashboard']);
-      },
-      error: (err) => {
+        next: () => this.router.navigate(['/dashboard']),
+        this.finalizando = false;
         this.error = err.error ?? 'No se pudo finalizar la evaluación';
       }
     });
