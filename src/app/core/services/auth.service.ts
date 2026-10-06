@@ -14,7 +14,9 @@ export class AuthService {
   private platformId = inject(PLATFORM_ID);
   private http = inject(HttpClient);
 
-  private readonly apiUrl = `${environment.apiUrl}/auth`;
+  //private readonly apiUrl = `${environment.apiUrl}/auth`;
+
+  private readonly apiUrl = 'https://back-software-wfhs.onrender.com/api/auth';
 
   // Estado reactivo del usuario logueado, disponible en toda la app
   private usuarioActual = signal<UsuarioResponse | null>(this.cargarUsuarioInicial());
