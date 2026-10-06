@@ -112,6 +112,7 @@ export class DashboardComponent implements OnInit {
         }));
 
         this.cargando = false;
+        this.cargarPreguntasYRespuestas(evaluacionId);
       },
       error: (err) => {
         this.cargando = false;
