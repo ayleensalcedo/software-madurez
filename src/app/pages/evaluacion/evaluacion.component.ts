@@ -200,4 +200,5 @@ export class EvaluacionComponent implements OnInit {
           : (err.error?.message ?? 'No se pudo finalizar la evaluación');
       }
     });
+  }
 }
