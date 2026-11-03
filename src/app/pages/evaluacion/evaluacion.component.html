@@ -1,162 +1,137 @@
 <app-header></app-header>
-<div class="evaluation-container">
 
-  <!-- HEADER -->
-  <header class="evaluation-header">
-    <div>
-      <h1>Evaluación</h1>
-      <p>Evaluación de seguridad y gobernanza de IA (Text-to-SQL)</p>
-    </div>
+@if (cargando) {
 
-    <div class="organization-info">
-      <span>Organización</span>
-      <strong>{{ organizacionNombre }}</strong>
-    </div>
-  </header>
+  <div class="estado-carga"><p>Cargando preguntas...</p></div>
 
-  @if (cargando) {
-    <p>Cargando preguntas...</p>
-  } @else {
+} @else if (preguntas.length === 0) {
 
-  <!-- PROGRESS -->
-  <div class="progress-section">
-    <div class="progress-info">
-      <span>Progreso de evaluación</span>
-      <strong>{{ preguntaActual + 1 }} de {{ preguntas.length }} preguntas ({{ porcentajeProgreso }}%)</strong>
-    </div>
-
-    <div class="progress-bar">
-      <div class="progress-fill" [style.width.%]="porcentajeProgreso"></div>
-    </div>
+  <div class="estado-carga">
+    <p>{{ error || 'No hay preguntas disponibles para esta evaluación.' }}</p>
   </div>
 
+} @else {
 
-  <!-- DOMAINS -->
-  <div class="domains">
-    @for (dom of dominios; track dom.id) {
-      <div
-        class="domain"
-        [class.active]="pregunta.dominioNombre === dom.nombre"
-        (click)="irAlDominio(dom.nombre)"
-        style="cursor: pointer;"
-      >
-        <div class="domain-number">
-          {{ dom.id }}
+  <!-- ==========================================
+       AVANCE POR DOMINIO
+       ========================================== -->
+
+  <nav class="steps" aria-label="Avance por dominio">
+    <div class="steps-in" [style.--cols]="dominiosVista.length">
+
+      @for (d of dominiosVista; track d.id; let i = $index) {
+        <div class="step" [class.on]="d.activo">
+
+          <button type="button" class="step-label" (click)="irAlDominio(d.nombre)">
+            <span class="step-name">{{ i + 1 }} · {{ d.nombre }}</span>
+            <em>{{ d.respondidas }}/{{ d.indices.length }}</em>
+          </button>
+
+          <div class="seg">
+            @for (idx of d.indices; track idx; let n = $index) {
+              <button
+                type="button"
+                class="seg-item"
+                [class.ok]="estaRespondida(idx)"
+                [class.cur]="idx === preguntaActual"
+                [title]="'Pregunta ' + (n + 1) + ' de ' + d.nombre"
+                [attr.aria-label]="'Ir a la pregunta ' + (n + 1) + ' de ' + d.nombre"
+                [attr.aria-current]="idx === preguntaActual ? 'step' : null"
+                (click)="irAPregunta(idx)"
+              ></button>
+            }
+          </div>
+
         </div>
-        <div class="domain-info">
-          <strong>{{ dom.nombre }}</strong>
-          <span>{{ totalPreguntasPorDominio(dom.nombre) }} preguntas</span>
-        </div>
-      </div>
-    }
-  </div>
-
-
-  <!-- QUESTION CARD -->
-  <main class="question-container">
-
-    <div class="question-scroll">
-
-    <div class="question-header">
-      <span class="question-number">
-        Pregunta {{ preguntaActual + 1 }} de {{ preguntas.length }}
-      </span>
-
-      <span class="domain-badge">
-        {{ pregunta.dominioNombre }}
-      </span>
-    </div>
-
-    <h2>{{ pregunta.texto }}</h2>
-
-    <!-- ISO MAPPINGS -->
-    <div class="iso-tags">
-      @for (c of pregunta.controles; track c.id) {
-        <span class="tag" [class.tag-27001]="c.norma === 'ISO_27001'" [class.tag-42001]="c.norma === 'ISO_42001'">
-          {{ c.norma === 'ISO_27001' ? 'ISO 27001' : 'ISO 42001' }}: {{ c.anexoA }}
-        </span>
       }
-    </div>
-
-    @if (error) {
-      <p class="error-message">{{ error }}</p>
-    }
-
-    <!-- ANSWERS -->
-    <div class="answers">
-
-      <label class="answer-option" (click)="seleccionarRespuesta('NO_EXISTE')">
-        <input type="radio" name="respuesta" [checked]="respuestaActual === 'NO_EXISTE'">
-        <div class="answer-content">
-          <div class="answer-number">1</div>
-          <div>
-            <strong>No existe</strong>
-            <p>No existe ningún mecanismo o práctica relacionada con este aspecto.</p>
-          </div>
-        </div>
-      </label>
-
-      <label class="answer-option" (click)="seleccionarRespuesta('EXISTE_PARCIALMENTE')">
-        <input type="radio" name="respuesta" [checked]="respuestaActual === 'EXISTE_PARCIALMENTE'">
-        <div class="answer-content">
-          <div class="answer-number">2</div>
-          <div>
-            <strong>Existe parcialmente</strong>
-            <p>Existen algunas prácticas, pero su implementación es limitada.</p>
-          </div>
-        </div>
-      </label>
-
-      <label class="answer-option" (click)="seleccionarRespuesta('EXISTE_NO_FORMALIZADO')">
-        <input type="radio" name="respuesta" [checked]="respuestaActual === 'EXISTE_NO_FORMALIZADO'">
-        <div class="answer-content">
-          <div class="answer-number">3</div>
-          <div>
-            <strong>Existe, pero no formalizado</strong>
-            <p>La práctica existe, pero no se encuentra formalmente documentada.</p>
-          </div>
-        </div>
-      </label>
-
-      <label class="answer-option" (click)="seleccionarRespuesta('IMPLEMENTADO')">
-        <input type="radio" name="respuesta" [checked]="respuestaActual === 'IMPLEMENTADO'">
-        <div class="answer-content">
-          <div class="answer-number">4</div>
-          <div>
-            <strong>Implementado</strong>
-            <p>El mecanismo se encuentra implementado formalmente en la organización.</p>
-          </div>
-        </div>
-      </label>
 
     </div>
+  </nav>
 
-    @if (recomendacionActual) {
-      <div class="recomendacion-box">
-        <strong>Recomendación sugerida:</strong>
-        <p>{{ recomendacionActual }}</p>
+
+  <!-- ==========================================
+       PREGUNTA
+       ========================================== -->
+
+  <main class="stage">
+    <section class="q">
+
+      <div class="q-meta">
+        <span class="badge">{{ pregunta.dominioNombre }}</span>
+        <span class="q-num">Pregunta {{ preguntaActual + 1 }} de {{ preguntas.length }}</span>
+        <span class="q-org">{{ organizacionNombre }} · Text-to-SQL</span>
       </div>
-    }
 
-    </div>
+      <h2>{{ pregunta.texto }}</h2>
 
-    @if (mensajeAvance) {
-      <p class="avance-message">
-        <app-icon name="circle-check" /> {{ mensajeAvance }}
-      </p>
-    }
+      <div class="iso-tags">
+        @for (c of pregunta.controles; track c.id) {
+          <span class="tag" [class.tag-27001]="c.norma === 'ISO_27001'" [class.tag-42001]="c.norma === 'ISO_42001'">
+            {{ c.norma === 'ISO_27001' ? 'ISO 27001' : 'ISO 42001' }}: {{ c.anexoA }}
+          </span>
+        }
+      </div>
 
-    <!-- NAVIGATION -->
-    <div class="question-navigation">
+      @if (error) {
+        <p class="error-message" role="alert">{{ error }}</p>
+      }
+
+      <div class="answers" role="radiogroup" aria-label="Nivel de implementación">
+        @for (op of opciones; track op.valor) {
+          <label class="answer" [class.sel]="respuestaActual === op.valor">
+
+            <input
+              type="radio"
+              name="respuesta"
+              [checked]="respuestaActual === op.valor"
+              (change)="seleccionarRespuesta(op.valor)"
+            >
+
+            <span class="answer-top">
+              <span class="lv" [class]="'lv l' + op.numero">{{ op.numero }}</span>
+              <strong>{{ op.titulo }}</strong>
+
+              @if (respuestaActual === op.valor) {
+                <span class="saved" [class.saving]="guardandoActual">
+                  @if (guardandoActual) {
+                    Guardando...
+                  } @else {
+                    <app-icon name="check" /> Guardada
+                  }
+                </span>
+              }
+            </span>
+
+            <span class="answer-desc">{{ op.descripcion }}</span>
+
+          </label>
+        }
+      </div>
+
+      @if (mensajeAvance) {
+        <p class="avance-message" role="status">
+          <app-icon name="circle-check" /> {{ mensajeAvance }}
+        </p>
+      }
+
+    </section>
+  </main>
+
+
+  <!-- ==========================================
+       NAVEGACIÓN
+       ========================================== -->
+
+  <footer class="foot">
+    <div class="foot-in">
 
       <button type="button" class="btn-secondary" (click)="anterior()" [disabled]="preguntaActual === 0">
         <app-icon name="arrow-left" /> Anterior
       </button>
 
-      <span>{{ preguntaActual + 1 }} / {{ preguntas.length }}</span>
+      <span class="pos">{{ totalRespondidas }} de {{ preguntas.length }} respondidas · {{ porcentajeRespondido }}%</span>
 
-      <div class="nav-actions">
-
+      <div class="actions">
         <button type="button" class="btn-secondary" (click)="guardarAvance()" [disabled]="guardando || guardandoAvance">
           <app-icon name="save" /> Guardar avance
         </button>
@@ -166,17 +141,13 @@
             Siguiente <app-icon name="arrow-right" />
           </button>
         } @else {
-          <button type="button" class="btn-finalizar" (click)="finalizarEvaluacion()">
+          <button type="button" class="btn-primary" (click)="finalizarEvaluacion()" [disabled]="finalizando">
             Finalizar evaluación <app-icon name="check" />
           </button>
         }
-
       </div>
 
     </div>
+  </footer>
 
-  </main>
-
-  }
-
-</div>
+}
