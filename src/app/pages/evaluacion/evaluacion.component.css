@@ -8,14 +8,12 @@
 /*  CONTENEDOR PRINCIPAL */
 
 .evaluation-container {
-  min-height: 100vh;
-  height: auto;
   box-sizing: border-box;
   
 
-  padding: 32px 55px 60px;
-
-  background:#162232;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 32px 24px 64px;
 
   color: #172033;
 }
@@ -26,7 +24,7 @@
    ========================================================= */
 
 .evaluation-header {
-  max-width: 1400px;
+  max-width: none;
   margin: 0 auto 28px;
 
   display: flex;
@@ -38,18 +36,18 @@
 .evaluation-header h1 {
   margin: 0;
 
-  font-size: 30px;
-  font-weight: 750;
-  letter-spacing: -0.5px;
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: -0.3px;
 
-  color: white;
+  color: #0b2a4a;
 }
 
 .evaluation-header p {
-  margin: 7px 0 0;
+  margin: 6px 0 0;
 
   font-size: 14px;
-  color: #64748b;
+  color: #718494;
 }
 
 .organization-info {
@@ -57,10 +55,10 @@
 
   padding: 13px 18px;
 
-  background:#00ffd1;
+  background: #ffffff;
 
-  border: 1px solid #004674;
-  border-radius: 12px;
+  border: 1px solid #dce6ed;
+  border-radius: 14px;
 
   text-align: right;
 
@@ -77,14 +75,14 @@
   text-transform: uppercase;
   letter-spacing: 0.7px;
 
-  color: #0b0b0b;
+  color: #8a9aa7;
 }
 
 .organization-info strong {
   font-size: 14px;
   font-weight: 700;
 
-  color: #0b4772;
+  color: #0b2a4a;
 }
 
 
@@ -93,7 +91,7 @@
    ========================================================= */
 
 .progress-section {
-  max-width: 1400px;
+  max-width: none;
   margin: 0 auto 22px;
   padding: 18px 22px;
 
@@ -151,7 +149,7 @@
    ========================================================= */
 
 .domains {
-  max-width: 1400px;
+  max-width: none;
   margin: 0 auto 25px;
 
   display: grid;
@@ -602,7 +600,7 @@
 @media (max-width: 1100px) {
 
   .evaluation-container {
-    padding: 28px 30px 50px;
+    padding: 28px 24px 56px;
   }
 
   .domains {
@@ -656,4 +654,51 @@
     min-width: 105px;
   }
 
+}
+
+
+/* Iconos dentro de botones y acciones agrupadas */
+
+.btn-primary,
+.btn-secondary,
+.btn-finalizar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.btn-primary app-icon,
+.btn-secondary app-icon,
+.btn-finalizar app-icon {
+  font-size: 15px;
+}
+
+.nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.avance-message {
+  margin: 18px 0 0;
+  padding: 11px 14px;
+
+  display: flex;
+  align-items: center;
+  gap: 9px;
+
+  background: #e8f7f1;
+  border: 1px solid #bfe8d6;
+  border-radius: 10px;
+
+  color: #12785f;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+@media (max-width: 700px) {
+  .question-navigation { flex-wrap: wrap; }
+  .nav-actions { width: 100%; }
+  .nav-actions button { flex: 1; }
 }

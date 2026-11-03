@@ -1,3 +1,5 @@
+import { HeaderComponent } from '../header/header.component';
+import { IconComponent } from '../../shared/icon/icon.component';
 import { Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
@@ -5,7 +7,7 @@ import { AuthService } from '../../core/services/auth.service';
 @Component({
   selector: 'app-menu',
   standalone: true,
-  imports: [],
+  imports: [HeaderComponent, IconComponent],
   templateUrl: './menu.component.html',
   styleUrl: './menu.component.css'
 })

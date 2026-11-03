@@ -8,7 +8,7 @@
 <!-- Marca -->
 <div class="brand">
   <div class="brand-icon">
-    🛡️
+    <app-icon name="shield-check" />
   </div>
 
   <div class="brand-text">
@@ -24,7 +24,7 @@
    class="btn-home"
    title="Volver al menú principal" (click)="IrInicio()">
 
-  <span class="home-icon">⌂</span>
+  <app-icon class="home-icon" name="home" />
   <span>Inicio</span>
 
 </a>
@@ -65,7 +65,7 @@
    class="btn-logout"
    title="Cerrar sesión" (click)="Logout()">
 
-  <span class="logout-icon">↪</span>
+  <app-icon class="logout-icon" name="log-out" />
   <span>Salir</span>
 
 </a>

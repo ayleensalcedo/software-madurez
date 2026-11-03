@@ -1,4 +1,5 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { IconComponent } from '../../shared/icon/icon.component';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { HeaderComponent } from '../header/header.component';
 import { EvaluacionService } from '../../core/services/evaluacion.service';
@@ -12,11 +13,11 @@ import { switchMap } from 'rxjs';
 @Component({
   selector: 'app-evaluacion',
   standalone: true,
-  imports: [HeaderComponent],
+  imports: [HeaderComponent, IconComponent],
   templateUrl: './evaluacion.component.html',
   styleUrl: './evaluacion.component.css'
 })
-export class EvaluacionComponent implements OnInit {
+export class EvaluacionComponent implements OnInit, OnDestroy {
 
   private evaluacionService = inject(EvaluacionService);
   private preguntaService = inject(PreguntaService);
@@ -89,6 +90,7 @@ export class EvaluacionComponent implements OnInit {
     this.respuestaService.listarRespuestas(this.evaluacionId).subscribe({
       next: (respuestas) => {
         respuestas.forEach(r => this.respuestasGuardadas.set(r.preguntaId, r.nivelImplementacion));
+        this.posicionarEnPrimeraPendiente();
         this.cargando = false;
         this.actualizarRecomendacion();
       },
@@ -96,6 +98,12 @@ export class EvaluacionComponent implements OnInit {
         this.cargando = false;
       }
     });
+  }
+
+  // Al retomar una evaluación se continúa donde se quedó: primera pregunta sin responder
+  private posicionarEnPrimeraPendiente(): void {
+    const pendiente = this.preguntas.findIndex(p => !this.respuestasGuardadas.has(p.id));
+    this.preguntaActual = pendiente === -1 ? this.preguntas.length - 1 : pendiente;
   }
 
   get pregunta(): PreguntaResponse {
@@ -173,6 +181,33 @@ export class EvaluacionComponent implements OnInit {
 
   todasRespondidas(): boolean {
     return this.preguntas.every(p => this.respuestasGuardadas.has(p.id));
+  }
+
+  mensajeAvance: string = '';
+  guardandoAvance: boolean = false;
+  private temporizadorAvance?: ReturnType<typeof setTimeout>;
+
+  get totalRespondidas(): number {
+    return this.preguntas.filter(p => this.respuestasGuardadas.has(p.id)).length;
+  }
+
+  /**
+   * Cada respuesta se registra en el servidor en cuanto se selecciona, por lo que
+   * el avance ya está persistido. Esta acción lo confirma y devuelve al usuario a
+   * "Mis evaluaciones", desde donde puede retomar la evaluación en curso.
+   */
+  guardarAvance(): void {
+    if (this.guardando || this.guardandoAvance) return;
+
+    this.error = '';
+    this.guardandoAvance = true;
+    this.mensajeAvance = `Avance guardado: ${this.totalRespondidas} de ${this.preguntas.length} preguntas respondidas.`;
+
+    this.temporizadorAvance = setTimeout(() => this.router.navigate(['/resultados']), 1200);
+  }
+
+  ngOnDestroy(): void {
+    clearTimeout(this.temporizadorAvance);
   }
 
   finalizando = false;
