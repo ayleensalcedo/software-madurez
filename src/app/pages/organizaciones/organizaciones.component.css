@@ -1,6 +1,7 @@
 /* Contenedor: centra la tarjeta bajo el header común */
 .organization-container {
   min-height: calc(100vh - 76px);
+  min-height: calc(100dvh - 76px);
   display: flex;
   justify-content: center;
   align-items: center;

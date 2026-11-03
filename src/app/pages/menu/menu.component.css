@@ -9,6 +9,7 @@
 
 .menu-page {
   min-height: calc(100vh - 76px);
+  min-height: calc(100dvh - 76px);
   background: #0b1628;
 }
 

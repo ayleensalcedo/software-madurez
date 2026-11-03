@@ -4,6 +4,7 @@
 
 .dashboard-container {
   min-height: calc(100vh - 76px);
+  min-height: calc(100dvh - 76px);
 
   padding: 32px 24px 64px;
 
@@ -1076,4 +1077,85 @@
     flex-wrap: wrap;
   }
 
+}
+
+/* =====================================================
+   PANTALLA A 100vh (escritorio)
+   Una sola vista sin desplazar la página: los tres paneles
+   inferiores llenan el alto restante y se desplazan por dentro.
+   En ventanas pequeñas se mantiene el diseño apilado.
+   ===================================================== */
+
+@media (min-width: 1100px) and (min-height: 720px) {
+
+  .dashboard-container {
+    height: calc(100vh - 76px);
+    height: calc(100dvh - 76px);
+    min-height: 0;
+    overflow: hidden;
+
+    display: grid;
+    grid-template-columns:
+      minmax(0, 1.15fr) minmax(0, 1fr) minmax(0, 1.1fr);
+    grid-template-rows: auto auto auto minmax(0, 1fr) auto;
+    gap: 14px;
+
+    padding: 16px max(24px, calc((100% - 1200px) / 2)) 16px;
+  }
+
+  .dashboard-header,
+  .kpi-grid,
+  .methodology-note {
+    grid-column: 1 / -1;
+    max-width: none;
+    margin: 0;
+  }
+
+  .dashboard-header { align-items: flex-end; }
+  .dashboard-header h1 { margin: 2px 0 2px; font-size: 24px; }
+  .dashboard-header p { font-size: 13px; }
+
+  .top-grid,
+  .analysis-grid {
+    display: contents;
+  }
+
+  .organization-card {
+    grid-column: 1;
+    min-height: 0;
+    padding: 16px 20px;
+  }
+
+  .organization-card h2 { margin: 10px 0; }
+
+  .maturity-card {
+    grid-column: 2 / 4;
+    margin: 0;
+  }
+
+  .coverage-panel { grid-column: 1; }
+  .radar-panel { grid-column: 2; }
+  .recommendations-panel { grid-column: 3; }
+
+  .coverage-panel,
+  .radar-panel,
+  .recommendations-panel {
+    max-width: none;
+    min-height: 0;
+    margin: 0;
+    padding: 16px 18px;
+    overflow-y: auto;
+  }
+
+  .panel-header { margin-bottom: 12px; }
+
+  .radar-container {
+    height: auto;
+    min-height: 200px;
+  }
+
+  .methodology-note {
+    padding: 8px 14px;
+    align-items: center;
+  }
 }

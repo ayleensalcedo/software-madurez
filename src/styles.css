@@ -6,8 +6,31 @@
 }
 html,
 body {
-  min-height: 100%;
+  height: 100%;
   margin: 0;
+  overflow: hidden;
+}
+
+/* Cada pantalla ocupa exactamente el alto de la ventana (100vh).
+   Si el contenido no cabe, se desplaza dentro de la pantalla y el header
+   (sticky) permanece visible. */
+app-root {
+  display: block;
+  height: 100vh;
+  height: 100dvh;
+}
+
+app-menu,
+app-organizaciones,
+app-resultados,
+app-equipo,
+app-dashboard,
+app-admin,
+app-login {
+  display: block;
+  height: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 /* Tipografía y base global del proyecto */
