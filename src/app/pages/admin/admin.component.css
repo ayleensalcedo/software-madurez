@@ -1,32 +1,4 @@
 /* ==========================================
-CONTENEDOR GENERAL
-========================================== */
-
-.admin-container {
-  max-width: 1200px;
-  margin: 32px auto 64px;
-  padding: 0 24px;
-  font-family: inherit;
-}
-
-.admin-header {
-  margin-bottom: 24px;
-}
-
-.admin-header h1 {
-  font-size: 24px;
-  font-weight: 800;
-  color: #162232;
-  margin: 0 0 6px;
-}
-
-.admin-header p {
-  color: #718494;
-  font-size: 14px;
-  margin: 0;
-}
-
-/* ==========================================
 TABS
 ========================================== */
 
@@ -36,7 +8,7 @@ TABS
   gap: 6px;
   margin-bottom: 28px;
   padding: 6px;
-  background: #f4f8fa;
+  background: #e9f0f5;
   border-radius: 12px;
   width: fit-content;
 }

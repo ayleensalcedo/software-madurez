@@ -136,24 +136,38 @@
       </div>
     }
 
+    @if (mensajeAvance) {
+      <p class="avance-message">
+        <app-icon name="circle-check" /> {{ mensajeAvance }}
+      </p>
+    }
+
     <!-- NAVIGATION -->
     <div class="question-navigation">
 
       <button type="button" class="btn-secondary" (click)="anterior()" [disabled]="preguntaActual === 0">
-        ← Anterior
+        <app-icon name="arrow-left" /> Anterior
       </button>
 
       <span>{{ preguntaActual + 1 }} / {{ preguntas.length }}</span>
 
-      @if (preguntaActual < preguntas.length - 1) {
-        <button type="button" class="btn-primary" (click)="siguiente()">
-          Siguiente →
+      <div class="nav-actions">
+
+        <button type="button" class="btn-secondary" (click)="guardarAvance()" [disabled]="guardando || guardandoAvance">
+          <app-icon name="save" /> Guardar avance
         </button>
-      } @else {
-        <button type="button" class="btn-finalizar" (click)="finalizarEvaluacion()">
-          Finalizar evaluación ✓
-        </button>
-      }
+
+        @if (preguntaActual < preguntas.length - 1) {
+          <button type="button" class="btn-primary" (click)="siguiente()">
+            Siguiente <app-icon name="arrow-right" />
+          </button>
+        } @else {
+          <button type="button" class="btn-finalizar" (click)="finalizarEvaluacion()">
+            Finalizar evaluación <app-icon name="check" />
+          </button>
+        }
+
+      </div>
 
     </div>
 

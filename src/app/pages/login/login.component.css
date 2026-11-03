@@ -130,3 +130,77 @@ button:hover {
   background-color: #00b89f;
   transform: translateY(-1px);
 }
+
+button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Pop up de inicio de sesión fallido */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 20px;
+
+  background: rgba(8, 13, 20, 0.72);
+}
+
+.modal-box {
+  width: 100%;
+  max-width: 400px;
+
+  padding: 32px 28px 26px;
+
+  background: #1a2332;
+  border: 1px solid #324158;
+  border-radius: 14px;
+
+  text-align: center;
+
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55);
+}
+
+.modal-icon {
+  width: 52px;
+  height: 52px;
+  margin: 0 auto 16px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
+
+  background: rgba(239, 83, 80, 0.14);
+  color: #ef5350;
+
+  font-size: 28px;
+}
+
+.modal-box h3 {
+  margin: 0 0 8px;
+
+  color: #ffffff;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.modal-box p {
+  margin: 0 0 22px;
+
+  color: #a0aec0;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.modal-button {
+  margin-top: 0;
+}

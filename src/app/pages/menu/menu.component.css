@@ -204,7 +204,9 @@ CARDS
 .menu-grid {
 display: grid;
 
-grid-template-columns: repeat(3, 1fr);
+/* Tarjetas de igual tamaño, centradas: simétrico con 1, 2 o 3 opciones */
+grid-template-columns: repeat(auto-fit, minmax(280px, 360px));
+justify-content: center;
 
 gap: 24px;
 
@@ -412,7 +414,7 @@ border-color 0.25s ease,
 transform 0.25s ease;
 }
 
-.btn-action span {
+.btn-action app-icon {
 font-size: 18px;
 
 transition: transform 0.25s ease;
@@ -425,7 +427,7 @@ border-color: #0b2a4a;
 color: white;
 }
 
-.menu-card:hover .btn-action span {
+.menu-card:hover .btn-action app-icon {
 transform: translateX(4px);
 }
 
@@ -440,8 +442,6 @@ border: 1px solid rgba(16, 174, 189, 0.35);
 
 box-shadow:
 0 12px 35px rgba(16, 174, 189, 0.13);
-
-transform: translateY(-8px);
 }
 
 .menu-card.highlight::before {
@@ -451,7 +451,7 @@ background: #10aebd;
 }
 
 .menu-card.highlight:hover {
-transform: translateY(-13px);
+transform: translateY(-5px);
 
 box-shadow:
 0 22px 45px rgba(16, 174, 189, 0.18);
@@ -515,22 +515,8 @@ RESPONSIVE - TABLET
 padding: 55px 25px 80px;
 }
 
-.menu-grid {
-grid-template-columns: 1fr;
-max-width: 650px;
-margin: auto;
-}
-
 .menu-card {
 min-height: 280px;
-}
-
-.menu-card.highlight {
-transform: none;
-}
-
-.menu-card.highlight:hover {
-transform: translateY(-8px);
 }
 
 }
@@ -620,4 +606,16 @@ ACCESSIBILITY
 .menu-card:focus-within {
 outline: 3px solid rgba(16, 174, 189, 0.25);
 outline-offset: 3px;
+}
+
+
+/* Iconos SVG */
+
+.card-icon {
+color: #087f98;
+}
+
+/* Portal de inicio: cabecera centrada sobre la cuadrícula centrada */
+.page-header {
+text-align: center;
 }

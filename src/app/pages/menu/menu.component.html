@@ -1,10 +1,19 @@
+<app-header></app-header>
+
+<div class="page">
+
+  <header class="page-header">
+    <h1>Portal de Gobernanza IA</h1>
+    <p>Selecciona una opción para continuar con la evaluación de madurez de seguridad.</p>
+  </header>
+
 <div class="menu-grid">
 
   @if (esAnalista) {
     <!-- CARD 1 -->
     <div class="menu-card highlight">
       <div class="card-header">
-        <div class="icon-container"><span class="card-icon">📋</span></div>
+        <div class="icon-container"><app-icon class="card-icon" name="clipboard-list" /></div>
       </div>
       <div class="card-content">
         <span class="card-label">Evaluación</span>
@@ -13,7 +22,7 @@
       </div>
       <div class="card-footer">
         <button class="btn-action primary" (click)="IniciarEvaluacion()">
-          Iniciar evaluación <span>→</span>
+          Iniciar evaluación <app-icon name="arrow-right" />
         </button>
       </div>
     </div>
@@ -21,7 +30,7 @@
     <!-- CARD 2 -->
     <div class="menu-card">
       <div class="card-header">
-        <div class="icon-container"><span class="card-icon">🏢</span></div>
+        <div class="icon-container"><app-icon class="card-icon" name="building" /></div>
       </div>
       <div class="card-content">
         <span class="card-label">Historial</span>
@@ -30,7 +39,7 @@
       </div>
       <div class="card-footer">
         <button class="btn-action" (click)="VerEvaluaciones()">
-          Ver Evaluaciones <span>→</span>
+          Ver Evaluaciones <app-icon name="arrow-right" />
         </button>
       </div>
     </div>
@@ -40,7 +49,7 @@
     <!-- CARD 3: solo para el Jefe -->
     <div class="menu-card highlight">
       <div class="card-header">
-        <div class="icon-container"><span class="card-icon">✅</span></div>
+        <div class="icon-container"><app-icon class="card-icon" name="user-check" /></div>
       </div>
       <div class="card-content">
         <span class="card-label">Supervisión</span>
@@ -49,7 +58,7 @@
       </div>
       <div class="card-footer">
         <button class="btn-action primary" (click)="VerEquipo()">
-          Revisar equipo <span>→</span>
+          Revisar equipo <app-icon name="arrow-right" />
         </button>
       </div>
     </div>
@@ -59,7 +68,7 @@
     <!-- CARD 4: solo para el Admin -->
     <div class="menu-card highlight">
       <div class="card-header">
-        <div class="icon-container"><span class="card-icon">⚙️</span></div>
+        <div class="icon-container"><app-icon class="card-icon" name="settings" /></div>
       </div>
       <div class="card-content">
         <span class="card-label">Administración</span>
@@ -68,10 +77,12 @@
       </div>
       <div class="card-footer">
         <button class="btn-action primary" (click)="VerAdmin()">
-          Ir al panel <span>→</span>
+          Ir al panel <app-icon name="arrow-right" />
         </button>
       </div>
     </div>
   }
+
+</div>
 
 </div>

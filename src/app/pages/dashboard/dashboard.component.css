@@ -5,9 +5,7 @@
 .dashboard-container {
   min-height: calc(100vh - 76px);
 
-  padding: 35px 40px 55px;
-
-  background: #f4f8fb;
+  padding: 32px 24px 64px;
 
   color: #0b2a4a;
 
@@ -22,7 +20,7 @@
    ===================================================== */
 
 .dashboard-header {
-  max-width: 1180px;
+  max-width: 1200px;
 
   margin: 0 auto 28px;
 
@@ -50,7 +48,7 @@
 .dashboard-header h1 {
   margin: 6px 0 5px;
 
-  font-size: 29px;
+  font-size: 28px;
   font-weight: 800;
 
   color: #0b2a4a;
@@ -62,7 +60,7 @@
 
   color: #718494;
 
-  font-size: 13px;
+  font-size: 14px;
 }
 
 
@@ -95,7 +93,7 @@
    ===================================================== */
 
 .top-grid {
-  max-width: 1180px;
+  max-width: 1200px;
 
   margin: auto;
 
@@ -395,7 +393,7 @@
    ===================================================== */
 
 .kpi-grid {
-  max-width: 1180px;
+  max-width: 1200px;
 
   margin: 18px auto;
 
@@ -481,7 +479,7 @@
    ===================================================== */
 
 .analysis-grid {
-  max-width: 1180px;
+  max-width: 1200px;
 
   margin: auto;
 
@@ -719,7 +717,7 @@
    ===================================================== */
 
 .recommendations-panel {
-  max-width: 1180px;
+  max-width: 1200px;
 
   margin: 18px auto 0;
 }
@@ -948,7 +946,7 @@
    ===================================================== */
 
 .methodology-note {
-  max-width: 1180px;
+  max-width: 1200px;
 
   margin: 15px auto 0;
 
@@ -1013,7 +1011,7 @@
 @media (max-width: 950px) {
 
   .dashboard-container {
-    padding: 28px 25px 45px;
+    padding: 28px 24px 56px;
   }
 
   .top-grid {
