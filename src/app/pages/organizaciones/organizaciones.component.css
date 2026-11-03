@@ -17,7 +17,7 @@
   border: 1px solid #233348;
   border-radius: 16px;
   padding: 40px;
-  font-family: 'Segoe UI', Roboto, sans-serif;
+  font-family: inherit;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
 }
 

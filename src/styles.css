@@ -9,3 +9,16 @@ body {
   min-height: 100%;
   margin: 0;
 }
+
+/* Tipografía global del proyecto */
+body {
+  font-family: "IBM Plex Sans", "Segoe UI", Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+button,
+input,
+select,
+textarea {
+  font-family: inherit;
+}

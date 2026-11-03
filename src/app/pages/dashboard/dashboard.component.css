@@ -7,21 +7,11 @@
 
   padding: 35px 40px 55px;
 
-  background:
-    radial-gradient(
-      circle at 90% 0%,
-      rgba(16, 174, 189, 0.08),
-      transparent 28%
-    ),
-    #f4f8fb;
+  background: #f4f8fb;
 
   color: #0b2a4a;
 
-  font-family:
-    "Inter",
-    "Segoe UI",
-    Arial,
-    sans-serif;
+  font-family: inherit;
 
   box-sizing: border-box;
 }

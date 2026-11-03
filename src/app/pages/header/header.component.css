@@ -22,7 +22,7 @@ border-bottom: 1px solid #233348;
 
 box-shadow: 0 4px 18px rgba(11, 42, 74, 0.06);
 
-font-family: "Inter", "Segoe UI", Arial, sans-serif;
+font-family: inherit;
 
 box-sizing: border-box;
 }
@@ -61,11 +61,7 @@ justify-content: center;
 
 border-radius: 12px;
 
-background: linear-gradient(
-135deg,
-#0b2a4a,
-#087f98
-);
+background: #0b2a4a;
 
 color: white;
 
@@ -243,12 +239,7 @@ justify-content: center;
 
 border-radius: 50%;
 
-background:
-linear-gradient(
-135deg,
-#10aebd,
-#087f98
-);
+background: #087f98;
 
 color: white;
 

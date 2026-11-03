@@ -6,7 +6,7 @@ CONTENEDOR GENERAL
   max-width: 1200px;
   margin: 32px auto 64px;
   padding: 0 24px;
-  font-family: "Inter", "Segoe UI", Arial, sans-serif;
+  font-family: inherit;
 }
 
 .admin-header {
@@ -59,7 +59,7 @@ TABS
 
 .tabs button.active {
   color: white;
-  background: linear-gradient(135deg, #0b2a4a, #087f98);
+  background: #0b2a4a;
   box-shadow: 0 3px 10px rgba(11, 42, 74, 0.25);
 }
 
@@ -171,7 +171,7 @@ FORMULARIOS
   padding: 9px 20px;
   border: none;
   border-radius: 9px;
-  background: linear-gradient(135deg, #0b2a4a, #087f98);
+  background: #0b2a4a;
   color: white;
   font-weight: 700;
   font-size: 13px;
