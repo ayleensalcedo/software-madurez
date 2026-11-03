@@ -3,7 +3,7 @@
   box-sizing: border-box;
   margin: 0;
   padding: 0;
-  font-family: 'Segoe UI', Roboto, sans-serif;
+  font-family: inherit;
 }
 
 
@@ -17,8 +17,9 @@
 /* 3. Panel Izquierdo (Imagen de fondo + overlay para leer el texto) */
 .login-sidebar {
   flex: 1;
-  background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), 
-                    url('https://cdn.pixabay.com/animation/2025/08/15/07/22/07-22-21-420_512.gif');
+  /* Overlay sólido sobre la imagen para legibilidad del texto */
+  box-shadow: inset 0 0 0 100vmax rgba(0, 0, 0, 0.5);
+  background-image: url('https://cdn.pixabay.com/animation/2025/08/15/07/22/07-22-21-420_512.gif');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -69,7 +70,7 @@
 .p-registro p{
   color: #ffffff;
   font-size: 12px;
-  font-family: 'Segoe UI', Roboto, sans-serif;
+  font-family: inherit;
 }
 
 /* Formulario */

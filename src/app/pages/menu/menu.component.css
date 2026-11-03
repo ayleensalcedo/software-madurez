@@ -4,21 +4,10 @@ HOME - PORTAL DE GOBERNANZA IA
 
 .home-container {
 min-height: 100vh;
-background:
-radial-gradient(
-circle at 10% 10%,
-rgba(16, 174, 189, 0.10),
-transparent 30%
-),
-radial-gradient(
-circle at 90% 80%,
-rgba(35, 119, 180, 0.08),
-transparent 30%
-),
-#f5f9fc;
+background: #f5f9fc;
 
 color: #0b2a4a;
-font-family: "Inter", "Segoe UI", Arial, sans-serif;
+font-family: inherit;
 
 display: flex;
 flex-direction: column;
@@ -32,13 +21,7 @@ HEADER
 position: relative;
 overflow: hidden;
 
-background:
-linear-gradient(
-135deg,
-#0b2a4a 0%,
-#0d3b63 55%,
-#087f98 100%
-);
+background: #0b2a4a;
 
 color: white;
 padding: 65px 30px 90px;
@@ -315,11 +298,7 @@ justify-content: center;
 
 border-radius: 16px;
 
-background: linear-gradient(
-135deg,
-#e8f9fb,
-#d8f3f7
-);
+background: #e8f9fb;
 
 border: 1px solid rgba(16, 174, 189, 0.12);
 
@@ -455,12 +434,7 @@ HIGHLIGHT CARD
 ========================================= */
 
 .menu-card.highlight {
-background:
-linear-gradient(
-145deg,
-#ffffff 0%,
-#f1fbfc 100%
-);
+background: #ffffff;
 
 border: 1px solid rgba(16, 174, 189, 0.35);
 
@@ -473,11 +447,7 @@ transform: translateY(-8px);
 .menu-card.highlight::before {
 transform: scaleX(1);
 
-background: linear-gradient(
-90deg,
-#10aebd,
-#1688b0
-);
+background: #10aebd;
 }
 
 .menu-card.highlight:hover {
@@ -493,11 +463,7 @@ color: #078492;
 }
 
 .menu-card.highlight .btn-action.primary {
-background: linear-gradient(
-135deg,
-#10aebd,
-#087f98
-);
+background: #087f98;
 
 border-color: transparent;
 

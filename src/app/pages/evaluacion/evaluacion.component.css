@@ -138,11 +138,7 @@
 .progress-fill {
   height: 100%;
 
-  background: linear-gradient(
-    90deg,
-    #1261a0,
-    #16b8c4
-  );
+  background: #1261a0;
 
   border-radius: 20px;
 
@@ -195,11 +191,7 @@
 }
 
 .domain.active {
-  background: linear-gradient(
-    135deg,
-    #eefaff,
-    #f6fdff
-  );
+  background: #eefaff;
 
   border: 1.5px solid #18aebe;
 
@@ -230,11 +222,7 @@
 }
 
 .domain.active .domain-number {
-  background: linear-gradient(
-    135deg,
-    #1261a0,
-    #13aebb
-  );
+  background: #1261a0;
 
   color: white;
 
@@ -448,11 +436,7 @@
 }
 
 .answer-option input:checked + .answer-content {
-  background: linear-gradient(
-    90deg,
-    #effbfc,
-    #f8fdff
-  );
+  background: #effbfc;
 
   border: 1.5px solid #14aab9;
 
@@ -486,11 +470,7 @@
 }
 
 .answer-option input:checked + .answer-content .answer-number {
-  background: linear-gradient(
-    135deg,
-    #1261a0,
-    #14b6c3
-  );
+  background: #1261a0;
 
   color: white;
 
@@ -572,11 +552,7 @@
 .btn-finalizar {
   border: none;
 
-  background: linear-gradient(
-    135deg,
-    #1261a0,
-    #10aebd
-  );
+  background: #1261a0;
 
   color: white;
 
