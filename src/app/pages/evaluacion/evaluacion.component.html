@@ -23,8 +23,11 @@
         <div class="step" [class.on]="d.activo">
 
           <button type="button" class="step-label" (click)="irAlDominio(d.nombre)">
-            <span class="step-name">{{ i + 1 }} · {{ d.nombre }}</span>
-            <em>{{ d.respondidas }}/{{ d.indices.length }}</em>
+            <span class="step-name">
+              @if (d.activo) { <i class="step-dot"></i> }
+              {{ i + 1 }} · {{ d.nombre }}
+            </span>
+            <em class="step-count">{{ d.respondidas }}/{{ d.indices.length }}</em>
           </button>
 
           <div class="seg">
@@ -57,16 +60,24 @@
     <section class="q">
 
       <div class="q-meta">
-        <span class="badge">{{ pregunta.dominioNombre }}</span>
-        <span class="q-num">Pregunta {{ preguntaActual + 1 }} de {{ preguntas.length }}</span>
-        <span class="q-org">{{ organizacionNombre }} · Text-to-SQL</span>
+        <span class="meta-pill">
+          <b>{{ pregunta.dominioNombre }}</b>
+          <i class="sep"></i>
+          <span class="meta-num">Pregunta {{ preguntaActual + 1 }} de {{ preguntas.length }}</span>
+        </span>
+
+        <span class="org-pill">
+          <app-icon name="building" />
+          {{ organizacionNombre }}<i class="sep"></i><b>Text-to-SQL</b>
+        </span>
       </div>
 
       <h2>{{ pregunta.texto }}</h2>
 
       <div class="iso-tags">
-        @for (c of pregunta.controles; track c.id) {
+        @for (c of controlesOrdenados; track c.id) {
           <span class="tag" [class.tag-27001]="c.norma === 'ISO_27001'" [class.tag-42001]="c.norma === 'ISO_42001'">
+            <i class="tag-dot"></i>
             {{ c.norma === 'ISO_27001' ? 'ISO 27001' : 'ISO 42001' }}: {{ c.anexoA }}
           </span>
         }
@@ -87,22 +98,22 @@
               (change)="seleccionarRespuesta(op.valor)"
             >
 
-            <span class="answer-top">
-              <span class="lv" [class]="'lv l' + op.numero">{{ op.numero }}</span>
-              <strong>{{ op.titulo }}</strong>
+            <span class="lv" [class]="'l' + op.numero">{{ op.numero }}</span>
 
-              @if (respuestaActual === op.valor) {
-                <span class="saved" [class.saving]="guardandoActual">
-                  @if (guardandoActual) {
-                    Guardando...
-                  } @else {
-                    <app-icon name="check" /> Guardada
-                  }
-                </span>
-              }
+            <span class="answer-text">
+              <strong>{{ op.titulo }}</strong>
+              <span class="answer-desc">{{ op.descripcion }}</span>
             </span>
 
-            <span class="answer-desc">{{ op.descripcion }}</span>
+            @if (respuestaActual === op.valor) {
+              <span class="saved" [class.saving]="guardandoActual">
+                @if (guardandoActual) {
+                  Guardando...
+                } @else {
+                  <app-icon name="check" /> Guardada
+                }
+              </span>
+            }
 
           </label>
         }
@@ -129,11 +140,15 @@
         <app-icon name="arrow-left" /> Anterior
       </button>
 
-      <span class="pos">{{ totalRespondidas }} de {{ preguntas.length }} respondidas · {{ porcentajeRespondido }}%</span>
+      <span class="pos">
+        <b>{{ totalRespondidas }}</b> de {{ preguntas.length }} respondidas
+        <i class="sep"></i>
+        <span class="pct">{{ porcentajeRespondido }}%</span>
+      </span>
 
       <div class="actions">
         <button type="button" class="btn-secondary" (click)="guardarAvance()" [disabled]="guardando || guardandoAvance">
-          <app-icon name="save" /> Guardar avance
+          <app-icon name="bookmark" /> Guardar avance
         </button>
 
         @if (preguntaActual < preguntas.length - 1) {
