@@ -129,3 +129,78 @@ button:hover {
   background-color: #00b89f;
   transform: translateY(-1px);
 }
+
+/* Ventana: correo o contraseña incorrectos (rojo pastel) */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(8, 13, 20, 0.62);
+}
+
+.modal-box {
+  width: 100%;
+  max-width: 400px;
+  padding: 32px 28px 26px;
+  background: #fdeaea;
+  border: 1px solid #f5c6c6;
+  border-radius: 16px;
+  text-align: center;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
+}
+
+.modal-icon {
+  width: 56px;
+  height: 56px;
+  margin: 0 auto 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: #f9cfcf;
+  color: #cf4a4a;
+}
+
+.modal-icon svg {
+  width: 30px;
+  height: 30px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.modal-box h3 {
+  margin: 0 0 8px;
+  color: #9b2c2c;
+  font-size: 19px;
+  font-weight: 700;
+}
+
+.modal-box p {
+  margin: 0 0 22px;
+  color: #7a3b3b;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.modal-button {
+  margin-top: 0;
+  background-color: #cf4a4a;
+  color: #ffffff;
+}
+
+.modal-button:hover {
+  background-color: #b94141;
+}
+
+.modal-button:focus-visible {
+  outline: 2px solid #9b2c2c;
+  outline-offset: 3px;
+}
