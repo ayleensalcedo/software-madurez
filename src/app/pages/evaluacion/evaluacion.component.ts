@@ -1,5 +1,5 @@
 import { IconComponent } from '../../shared/icon/icon.component';
-import { Component, OnDestroy, OnInit, inject } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { HeaderComponent } from '../header/header.component';
 import { EvaluacionService } from '../../core/services/evaluacion.service';
@@ -16,7 +16,7 @@ import { switchMap } from 'rxjs';
   templateUrl: './evaluacion.component.html',
   styleUrl: './evaluacion.component.css'
 })
-export class EvaluacionComponent implements OnInit, OnDestroy {
+export class EvaluacionComponent implements OnInit {
 
   private evaluacionService = inject(EvaluacionService);
   private preguntaService = inject(PreguntaService);
@@ -211,9 +211,14 @@ export class EvaluacionComponent implements OnInit, OnDestroy {
     return this.preguntas.every(p => this.respuestasGuardadas.has(p.id));
   }
 
-  mensajeAvance: string = '';
-  guardandoAvance: boolean = false;
-  private temporizadorAvance?: ReturnType<typeof setTimeout>;
+  // Ventana de confirmación que aparece al guardar el avance
+  avanceGuardado = false;
+
+  // Al abrirse la ventana, el foco pasa al botón "Entendido"
+  @ViewChild('btnEntendido')
+  set btnEntendido(ref: ElementRef<HTMLButtonElement> | undefined) {
+    ref?.nativeElement.focus();
+  }
 
   get totalRespondidas(): number {
     return this.preguntas.filter(p => this.respuestasGuardadas.has(p.id)).length;
@@ -221,21 +226,18 @@ export class EvaluacionComponent implements OnInit, OnDestroy {
 
   /**
    * Cada respuesta se registra en el servidor en cuanto se selecciona, por lo que
-   * el avance ya está persistido. Esta acción lo confirma y devuelve al usuario a
-   * "Mis evaluaciones", desde donde puede retomar la evaluación en curso.
+   * el avance ya está persistido. Esta acción lo confirma con una ventana; al pulsar
+   * "Entendido" se vuelve al panel principal.
    */
   guardarAvance(): void {
-    if (this.guardando || this.guardandoAvance) return;
+    if (this.guardando || this.avanceGuardado) return;
 
     this.error = '';
-    this.guardandoAvance = true;
-    this.mensajeAvance = `Avance guardado: ${this.totalRespondidas} de ${this.preguntas.length} preguntas respondidas.`;
-
-    this.temporizadorAvance = setTimeout(() => this.router.navigate(['/resultados']), 1200);
+    this.avanceGuardado = true;
   }
 
-  ngOnDestroy(): void {
-    clearTimeout(this.temporizadorAvance);
+  entendido(): void {
+    this.router.navigate(['/menu']);
   }
 
   finalizando = false;

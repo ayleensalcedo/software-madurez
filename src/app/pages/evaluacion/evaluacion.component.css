@@ -307,20 +307,6 @@
 .saved app-icon { font-size: 12px; }
 .saved.saving { background: #eef3f7; color: #5d7288; }
 
-.avance-message {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  margin: 18px 0 0;
-  padding: 11px 14px;
-  border: 1px solid #bfe8d6;
-  border-radius: 10px;
-  background: #e8f7f1;
-  color: #12785f;
-  font-size: 13px;
-  font-weight: 600;
-}
-
 /* ---------- Navegación ---------- */
 
 .foot {
@@ -426,3 +412,71 @@
   .actions { flex: 1; gap: 8px; }
   .actions > * { flex: 1; }
 }
+
+/* ---------- Ventana: evaluación guardada (mismo formato que el pop up del login) ---------- */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(8, 13, 20, 0.72);
+}
+
+.modal-box {
+  width: 100%;
+  max-width: 400px;
+  padding: 32px 28px 26px;
+  background: #1a2332;
+  border: 1px solid #324158;
+  border-radius: 14px;
+  text-align: center;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55);
+}
+
+.modal-icon {
+  width: 52px;
+  height: 52px;
+  margin: 0 auto 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: rgba(18, 163, 111, 0.16);
+  color: #2ed39a;
+  font-size: 28px;
+}
+
+.modal-box h3 {
+  margin: 0 0 8px;
+  color: #ffffff;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.modal-box p {
+  margin: 0 0 22px;
+  color: #a0aec0;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.modal-button {
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: 8px;
+  background: #00d2b5;
+  color: #0d1520;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.1s ease;
+}
+
+.modal-button:hover { background: #00b89f; transform: translateY(-1px); }
+.modal-button:focus-visible { outline: 2px solid #ffffff; outline-offset: 3px; }

@@ -1,4 +1,4 @@
-<app-header></app-header>
+<app-header [attr.inert]="avanceGuardado ? '' : null"></app-header>
 
 @if (cargando) {
 
@@ -16,7 +16,7 @@
        AVANCE POR DOMINIO
        ========================================== -->
 
-  <nav class="steps" aria-label="Avance por dominio">
+  <nav class="steps" aria-label="Avance por dominio" [attr.inert]="avanceGuardado ? '' : null">
     <div class="steps-in" [style.--cols]="dominiosVista.length">
 
       @for (d of dominiosVista; track d.id; let i = $index) {
@@ -56,7 +56,7 @@
        PREGUNTA
        ========================================== -->
 
-  <main class="stage">
+  <main class="stage" [attr.inert]="avanceGuardado ? '' : null">
     <section class="q">
 
       <div class="q-meta">
@@ -119,11 +119,6 @@
         }
       </div>
 
-      @if (mensajeAvance) {
-        <p class="avance-message" role="status">
-          <app-icon name="circle-check" /> {{ mensajeAvance }}
-        </p>
-      }
 
     </section>
   </main>
@@ -133,7 +128,7 @@
        NAVEGACIÓN
        ========================================== -->
 
-  <footer class="foot">
+  <footer class="foot" [attr.inert]="avanceGuardado ? '' : null">
     <div class="foot-in">
 
       <button type="button" class="btn-secondary" (click)="anterior()" [disabled]="preguntaActual === 0">
@@ -147,7 +142,7 @@
       </span>
 
       <div class="actions">
-        <button type="button" class="btn-secondary" (click)="guardarAvance()" [disabled]="guardando || guardandoAvance">
+        <button type="button" class="btn-secondary" (click)="guardarAvance()" [disabled]="guardando || avanceGuardado">
           <app-icon name="bookmark" /> Guardar avance
         </button>
 
@@ -164,5 +159,41 @@
 
     </div>
   </footer>
+
+}
+
+
+<!-- ==========================================
+     VENTANA: EVALUACIÓN GUARDADA
+     ========================================== -->
+
+@if (avanceGuardado) {
+
+  <div class="modal-overlay">
+
+    <div
+      class="modal-box"
+      role="alertdialog"
+      aria-modal="true"
+      aria-labelledby="guardado-titulo"
+      aria-describedby="guardado-mensaje"
+    >
+
+      <div class="modal-icon">
+        <app-icon name="circle-check" />
+      </div>
+
+      <h3 id="guardado-titulo">Evaluación guardada</h3>
+      <p id="guardado-mensaje">
+        Tu avance se guardó correctamente. Podrás retomar la evaluación desde "Evaluaciones guardadas".
+      </p>
+
+      <button #btnEntendido type="button" class="modal-button" (click)="entendido()">
+        Entendido
+      </button>
+
+    </div>
+
+  </div>
 
 }
