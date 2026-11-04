@@ -2,9 +2,25 @@
 
 <div class="page">
 
-  <header class="page-header">
-    <h1>Evaluaciones de mi equipo</h1>
-    <p>Revisa, valida u observa las evaluaciones finalizadas por tus analistas.</p>
+  <header class="page-header cabecera">
+    <div>
+      <h1>Evaluaciones de mi equipo</h1>
+      <p>Revisa, valida u observa las evaluaciones finalizadas por tus analistas.</p>
+    </div>
+
+    <div class="comparar-bloque">
+      <span class="comparar-ayuda">
+        @if (seleccion.length === 2) {
+          2 evaluaciones seleccionadas
+        } @else {
+          Marca "Comparar" en dos evaluaciones finalizadas ({{ seleccion.length }}/2)
+        }
+      </span>
+
+      <button type="button" class="btn-comparar" (click)="compararEvaluaciones()" [disabled]="seleccion.length !== 2">
+        <app-icon name="git-compare" /> Comparar evaluaciones
+      </button>
+    </div>
   </header>
 
   @if (error) {
@@ -20,7 +36,22 @@
   } @else {
     <div class="evaluaciones-lista">
       @for (ev of evaluaciones; track ev.id) {
-        <article class="evaluacion-card">
+        <article class="evaluacion-card" [class.seleccionada]="estaSeleccionada(ev)">
+          @if (tieneResultados(ev)) {
+            <label class="casilla" [class.bloqueada]="casillaBloqueada(ev)">
+              <input
+                type="checkbox"
+                [checked]="estaSeleccionada(ev)"
+                [disabled]="casillaBloqueada(ev)"
+                (change)="alternarSeleccion(ev)"
+                [attr.aria-label]="'Comparar la evaluación #' + ev.id + ' de ' + ev.organizacionNombre"
+              >
+              <span>Comparar</span>
+            </label>
+          } @else {
+            <span class="casilla vacia"></span>
+          }
+
           <div class="evaluacion-info">
             <h3>{{ ev.organizacionNombre }}</h3>
             <span>Iniciada: {{ ev.fechaInicio | date:'dd/MM/yyyy HH:mm' }}</span>
@@ -37,12 +68,16 @@
               {{ etiquetaEstado(ev.estado) }}
             </span>
 
-            @if (puedeRevisar(ev)) {
-              <div class="botones-revision">
+            <div class="botones-revision">
+              @if (tieneResultados(ev)) {
+                <button class="btn-resultados" (click)="verResultados(ev)">Ver resultados</button>
+              }
+
+              @if (puedeRevisar(ev)) {
                 <button class="btn-validar" (click)="validar(ev)">Validar</button>
                 <button class="btn-observar" (click)="abrirObservar(ev)">Observar</button>
-              </div>
-            }
+              }
+            </div>
           </div>
         </article>
       }

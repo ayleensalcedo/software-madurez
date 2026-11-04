@@ -1,5 +1,7 @@
 import { IconComponent } from '../../shared/icon/icon.component';
-import { Component, ElementRef, OnInit, ViewChild, inject } from '@angular/core';
+import { ModalComponent } from '../../shared/modal/modal.component';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
+import { NgTemplateOutlet } from '@angular/common';
 import { Router } from '@angular/router';
 import { HeaderComponent } from '../header/header.component';
 import { EvaluacionService } from '../../core/services/evaluacion.service';
@@ -12,11 +14,11 @@ import { switchMap } from 'rxjs';
 @Component({
   selector: 'app-evaluacion',
   standalone: true,
-  imports: [HeaderComponent, IconComponent],
+  imports: [HeaderComponent, IconComponent, ModalComponent, NgTemplateOutlet],
   templateUrl: './evaluacion.component.html',
   styleUrl: './evaluacion.component.css'
 })
-export class EvaluacionComponent implements OnInit {
+export class EvaluacionComponent implements OnInit, OnDestroy {
 
   private evaluacionService = inject(EvaluacionService);
   private preguntaService = inject(PreguntaService);
@@ -134,17 +136,22 @@ export class EvaluacionComponent implements OnInit {
   }
 
   // Avance por dominio: índices de sus preguntas y cuántas están respondidas
-  get dominiosVista(): { id: number; nombre: string; indices: number[]; respondidas: number; activo: boolean }[] {
+  get dominiosVista(): { id: number; nombre: string; indices: number[]; respondidas: number; porcentaje: number; completo: boolean; activo: boolean }[] {
     return this.dominios.map(d => {
       const indices = this.preguntas
         .map((p, i) => (p.dominioId === d.id ? i : -1))
         .filter(i => i !== -1);
 
+      const respondidas = indices.filter(i => this.estaRespondida(i)).length;
+      const porcentaje = indices.length ? Math.round((respondidas / indices.length) * 100) : 0;
+
       return {
         id: d.id,
         nombre: d.nombre,
         indices,
-        respondidas: indices.filter(i => this.estaRespondida(i)).length,
+        respondidas,
+        porcentaje,
+        completo: indices.length > 0 && respondidas === indices.length,
         activo: indices.includes(this.preguntaActual)
       };
     });
@@ -183,6 +190,11 @@ export class EvaluacionComponent implements OnInit {
 
   siguiente(): void {
     if (this.preguntaActual < this.preguntas.length - 1) {
+      // Avanzar sin responder está permitido, pero se advierte
+      if (!this.respuestaActual) {
+        this.avisar('Esta pregunta aún no tiene respuesta. Podrás volver a ella antes de finalizar.');
+      }
+
       this.preguntaActual++;
     }
   }
@@ -211,17 +223,82 @@ export class EvaluacionComponent implements OnInit {
     return this.preguntas.every(p => this.respuestasGuardadas.has(p.id));
   }
 
-  // Ventana de confirmación que aparece al guardar el avance
-  avanceGuardado = false;
-
-  // Al abrirse la ventana, el foco pasa al botón "Entendido"
-  @ViewChild('btnEntendido')
-  set btnEntendido(ref: ElementRef<HTMLButtonElement> | undefined) {
-    ref?.nativeElement.focus();
-  }
-
   get totalRespondidas(): number {
     return this.preguntas.filter(p => this.respuestasGuardadas.has(p.id)).length;
+  }
+
+  get totalPendientes(): number {
+    return this.preguntas.length - this.totalRespondidas;
+  }
+
+  // ===== Advertencia no bloqueante =====
+
+  advertencia = '';
+  private temporizadorAdvertencia?: ReturnType<typeof setTimeout>;
+
+  private avisar(texto: string): void {
+    clearTimeout(this.temporizadorAdvertencia);
+    this.advertencia = texto;
+    this.temporizadorAdvertencia = setTimeout(() => (this.advertencia = ''), 5000);
+  }
+
+  cerrarAdvertencia(): void {
+    clearTimeout(this.temporizadorAdvertencia);
+    this.advertencia = '';
+  }
+
+  ngOnDestroy(): void {
+    clearTimeout(this.temporizadorAdvertencia);
+  }
+
+  // ===== Preguntas pendientes =====
+
+  // Se activa tras un intento de finalizar con preguntas sin responder: las marca en rojo en la barra de avance
+  mostrarOmitidas = false;
+
+  esOmitida(indice: number): boolean {
+    return this.mostrarOmitidas && !this.estaRespondida(indice);
+  }
+
+  // Preguntas sin responder agrupadas por dominio (con su número en la evaluación)
+  get pendientesPorDominio(): { id: number; posicion: number; nombre: string; preguntas: { indice: number; numero: number }[] }[] {
+    return this.dominiosVista
+      .map((d, i) => ({
+        id: d.id,
+        posicion: i + 1,
+        nombre: d.nombre,
+        preguntas: d.indices.filter(idx => !this.estaRespondida(idx)).map(idx => ({ indice: idx, numero: idx + 1 }))
+      }))
+      .filter(d => d.preguntas.length > 0);
+  }
+
+  // Mensaje de bloqueo al intentar finalizar con preguntas pendientes
+  get lineasBloqueo(): string[] {
+    return this.pendientesPorDominio.map(d =>
+      `Existen ${d.preguntas.length} pregunta(s) pendiente(s) por responder en el dominio ${d.nombre}.`
+    );
+  }
+
+  irAPendiente(indice: number): void {
+    this.ventana = null;
+    this.irAPregunta(indice);
+  }
+
+  irAPrimeraPendiente(): void {
+    const primera = this.pendientesPorDominio[0]?.preguntas[0];
+    if (primera) this.irAPendiente(primera.indice);
+  }
+
+  // ===== Ventanas emergentes =====
+
+  ventana: 'guardado' | 'pendientes' | 'bloqueo' | 'confirmar' | null = null;
+
+  cerrarVentana(): void {
+    this.ventana = null;
+  }
+
+  abrirPendientes(): void {
+    this.ventana = 'pendientes';
   }
 
   /**
@@ -230,21 +307,46 @@ export class EvaluacionComponent implements OnInit {
    * "Entendido" se vuelve al panel principal.
    */
   guardarAvance(): void {
-    if (this.guardando || this.avanceGuardado) return;
+    if (this.guardando || this.ventana) return;
 
     this.error = '';
-    this.avanceGuardado = true;
+    this.ventana = 'guardado';
   }
 
   entendido(): void {
     this.router.navigate(['/menu']);
   }
 
+  // ===== Finalizar =====
+
   finalizando = false;
 
-  finalizarEvaluacion(): void {
+  intentarFinalizar(): void {
+    if (this.finalizando || this.ventana) return;
+
+    if (this.guardando) {
+      this.avisar('Se está guardando una respuesta. Inténtalo de nuevo en un momento.');
+      return;
+    }
+
+    this.error = '';
+
+    // Con preguntas sin responder no se puede finalizar: se detallan y se marcan en rojo
+    if (this.totalPendientes > 0) {
+      this.mostrarOmitidas = true;
+      this.ventana = 'bloqueo';
+      return;
+    }
+
+    this.ventana = 'confirmar';
+  }
+
+  confirmarFinalizacion(): void {
+    this.ventana = null;
+
     if (!this.todasRespondidas()) {
-      this.error = 'Debes responder todas las preguntas antes de finalizar.';
+      this.mostrarOmitidas = true;
+      this.ventana = 'bloqueo';
       return;
     }
 
