@@ -32,6 +32,42 @@
           </button>
         }
       </div>
+
+      <div class="dates">
+        <span class="dates-label">Iniciada</span>
+
+        <label class="date">
+          <span>Desde</span>
+          <input
+            type="date"
+            name="desde"
+            [(ngModel)]="desde"
+            [attr.max]="hasta || null"
+            (click)="abrirCalendario($event)"
+            aria-label="Fecha de inicio desde"
+          >
+        </label>
+
+        <span class="dash">—</span>
+
+        <label class="date">
+          <span>Hasta</span>
+          <input
+            type="date"
+            name="hasta"
+            [(ngModel)]="hasta"
+            [attr.min]="desde || null"
+            (click)="abrirCalendario($event)"
+            aria-label="Fecha de inicio hasta"
+          >
+        </label>
+
+        @if (hayFiltroFecha) {
+          <button type="button" class="clear" (click)="limpiarFechas()" title="Limpiar fechas" aria-label="Limpiar fechas">
+            <app-icon name="x" />
+          </button>
+        }
+      </div>
     </div>
 
     <div class="scroll">
@@ -48,9 +84,15 @@
 
         <p class="vacio">Aún no tienes evaluaciones registradas.</p>
 
+      } @else if (rangoInvalido) {
+
+        <p class="vacio error" role="alert">El rango de fechas no es válido: "Desde" es posterior a "Hasta".</p>
+
       } @else if (filtradas.length === 0) {
 
-        <p class="vacio">No hay evaluaciones en este estado.</p>
+        <p class="vacio">
+          {{ hayFiltroFecha ? 'No hay evaluaciones en este estado para el rango de fechas seleccionado.' : 'No hay evaluaciones en este estado.' }}
+        </p>
 
       } @else {
 
