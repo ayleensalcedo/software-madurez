@@ -1,40 +1,126 @@
 <app-header></app-header>
 
-<div class="page">
+<div class="eval-page">
 
-  <header class="page-header">
-    <h1>Mis evaluaciones</h1>
-    <p>Historial de evaluaciones registradas.</p>
+  <header class="head">
+    <div>
+      <span class="eyebrow">Evaluaciones</span>
+      <h1>Mis evaluaciones</h1>
+      <p>Historial de evaluaciones registradas, organizadas por estado.</p>
+    </div>
+
+    <button type="button" class="btn" (click)="nuevaEvaluacion()">
+      <app-icon name="plus" /> Nueva evaluación
+    </button>
   </header>
 
-  @if (cargando) {
-    <p>Cargando...</p>
-  } @else if (error) {
-    <p class="error-message">{{ error }}</p>
-  } @else if (evaluaciones.length === 0) {
-    <div class="sin-evaluaciones">
-      <p>Aún no tienes evaluaciones registradas.</p>
-    </div>
-  } @else {
-    <div class="evaluaciones-lista">
-      @for (ev of evaluaciones; track ev.id) {
-        <article class="evaluacion-card" (click)="continuarOVerResultado(ev)">
-          <div class="evaluacion-info">
-            <h3>{{ ev.organizacionNombre }}</h3>
-            <span>Iniciada: {{ ev.fechaInicio | date:'dd/MM/yyyy HH:mm' }}</span>
-            @if (ev.fechaFin) {
-              <span>Finalizada: {{ ev.fechaFin | date:'dd/MM/yyyy HH:mm' }}</span>
-            }
-          </div>
+  <section class="panel">
 
-          <div class="evaluacion-estado">
-            <span class="badge" [class]="claseEstado(ev.estado)">
-              {{ etiquetaEstado(ev.estado) }}
-            </span>
-          </div>
-        </article>
-      }
+    <div class="bar">
+      <div class="tabs" role="tablist" aria-label="Estado de la evaluación">
+        @for (p of pestanas; track p.etiqueta) {
+          <button
+            type="button"
+            role="tab"
+            class="tab"
+            [class.on]="pestanaActiva === p.estado"
+            [attr.aria-selected]="pestanaActiva === p.estado"
+            (click)="pestanaActiva = p.estado"
+          >
+            {{ p.etiqueta }}
+            <span class="n">{{ contador(p.estado) }}</span>
+          </button>
+        }
+      </div>
+
+      <label class="search">
+        <app-icon name="search" />
+        <input type="search" placeholder="Buscar organización" [(ngModel)]="busqueda" name="busquedaEvaluaciones">
+      </label>
     </div>
-  }
+
+    <div class="scroll">
+
+      @if (cargando) {
+
+        <p class="vacio">Cargando...</p>
+
+      } @else if (error) {
+
+        <p class="vacio error" role="alert">{{ error }}</p>
+
+      } @else if (evaluaciones.length === 0) {
+
+        <p class="vacio">Aún no tienes evaluaciones registradas.</p>
+
+      } @else if (filtradas.length === 0) {
+
+        <p class="vacio">No hay evaluaciones que coincidan con el filtro.</p>
+
+      } @else {
+
+        <table>
+          <thead>
+            <tr>
+              <th>Organización</th>
+              <th>Iniciada</th>
+              <th>Finalizada</th>
+              <th>Estado</th>
+              <th></th>
+            </tr>
+          </thead>
+
+          <tbody>
+            @for (ev of filtradas; track ev.id) {
+              <tr (click)="continuarOVerResultado(ev)">
+
+                <td>
+                  <div class="org">
+                    <div class="ic" [class]="claseEstado(ev.estado)">
+                      <app-icon [name]="iconoEstado(ev.estado)" />
+                    </div>
+
+                    <div>
+                      <b>{{ ev.organizacionNombre }}</b>
+                      <small>Evaluación #{{ ev.id }}</small>
+
+                      @if (ev.estado === 'OBSERVADA' && ev.observacion) {
+                        <div class="obs">
+                          <app-icon name="circle-alert" />
+                          <span>{{ ev.observacion }}</span>
+                        </div>
+                      }
+                    </div>
+                  </div>
+                </td>
+
+                <td class="fecha">{{ ev.fechaInicio | date:'dd/MM/yyyy HH:mm' }}</td>
+                <td class="fecha">{{ ev.fechaFin ? (ev.fechaFin | date:'dd/MM/yyyy HH:mm') : '—' }}</td>
+
+                <td>
+                  <span class="pill" [class]="claseEstado(ev.estado)"><i></i>{{ etiquetaEstado(ev.estado) }}</span>
+                </td>
+
+                <td class="acc">
+                  @if (ev.estado === 'EN_CURSO') {
+                    <button type="button" class="act primary" (click)="continuarOVerResultado(ev); $event.stopPropagation()">
+                      Continuar <app-icon name="arrow-right" />
+                    </button>
+                  } @else {
+                    <button type="button" class="act" (click)="continuarOVerResultado(ev); $event.stopPropagation()">
+                      <app-icon name="eye" /> Ver resultados
+                    </button>
+                  }
+                </td>
+
+              </tr>
+            }
+          </tbody>
+        </table>
+
+      }
+
+    </div>
+  </section>
 
 </div>

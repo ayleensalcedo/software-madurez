@@ -4,10 +4,12 @@ import { HeaderComponent } from '../header/header.component';
 import { EvaluacionService } from '../../core/services/evaluacion.service';
 import { EvaluacionResponse } from '../../core/services/models/evaluacion.model';
 import { DatePipe } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { IconComponent, NombreIcono } from '../../shared/icon/icon.component';
 @Component({
   selector: 'app-resultados',
   standalone: true,
-  imports: [HeaderComponent, DatePipe],
+  imports: [HeaderComponent, IconComponent, DatePipe, FormsModule],
   templateUrl: './resultados.component.html',
   styleUrl: './resultados.component.css'
 })
@@ -17,6 +19,18 @@ export class ResultadosComponent implements OnInit {
   private router = inject(Router);
 
   evaluaciones: EvaluacionResponse[] = [];
+
+  // Pestañas por estado (null = todas)
+  readonly pestanas: { estado: string | null; etiqueta: string }[] = [
+    { estado: null, etiqueta: 'Todas' },
+    { estado: 'EN_CURSO', etiqueta: 'En curso' },
+    { estado: 'FINALIZADA', etiqueta: 'Finalizadas' },
+    { estado: 'VALIDADA', etiqueta: 'Validadas' },
+    { estado: 'OBSERVADA', etiqueta: 'Observadas' }
+  ];
+
+  pestanaActiva: string | null = null;
+  busqueda = '';
   cargando: boolean = true;
   error: string = '';
 
@@ -31,7 +45,9 @@ export class ResultadosComponent implements OnInit {
       },
       error: (err) => {
         this.cargando = false;
-        this.error = err.error ?? 'No se pudieron cargar las evaluaciones';
+        this.error = typeof err.error === 'string' && err.error
+          ? err.error
+          : 'No se pudieron cargar las evaluaciones';
       }
     });
   }
@@ -64,5 +80,37 @@ export class ResultadosComponent implements OnInit {
       case 'OBSERVADA': return 'estado-observada';
       default: return '';
     }
+  }
+
+  // ===== Pestañas y filtros =====
+
+  contador(estado: string | null): number {
+    return estado ? this.evaluaciones.filter(e => e.estado === estado).length : this.evaluaciones.length;
+  }
+
+  get filtradas(): EvaluacionResponse[] {
+    const q = this.busqueda.trim().toLowerCase();
+
+    return this.evaluaciones.filter(e =>
+      (!this.pestanaActiva || e.estado === this.pestanaActiva) &&
+      (!q ||
+        e.organizacionNombre.toLowerCase().includes(q) ||
+        String(e.id).includes(q) ||
+        (e.observacion ?? '').toLowerCase().includes(q))
+    );
+  }
+
+  iconoEstado(estado: string): NombreIcono {
+    switch (estado) {
+      case 'EN_CURSO': return 'clock';
+      case 'FINALIZADA': return 'clipboard-check';
+      case 'VALIDADA': return 'shield-check';
+      case 'OBSERVADA': return 'circle-alert';
+      default: return 'clipboard-list';
+    }
+  }
+
+  nuevaEvaluacion(): void {
+    this.router.navigate(['/organizaciones']);
   }
 }
