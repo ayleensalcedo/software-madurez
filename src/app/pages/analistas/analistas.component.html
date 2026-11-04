@@ -23,6 +23,16 @@
     <p class="banner ok" role="status"><app-icon name="circle-check" /> {{ exito }}</p>
   }
 
+  @if (modoRespaldo && !cargando) {
+    <p class="banner aviso" role="note">
+      <app-icon name="info" />
+      <span>
+        El servidor no permite listar usuarios a tu cuenta. Se muestran los analistas que creas desde este navegador
+        y los que aparecen en las evaluaciones de tu equipo.
+      </span>
+    </p>
+  }
+
   <section class="card">
 
     <div class="card-h">

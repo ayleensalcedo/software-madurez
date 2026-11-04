@@ -1,10 +1,12 @@
-import { Component, HostListener, OnInit, inject } from '@angular/core';
+import { Component, HostListener, OnInit, PLATFORM_ID, inject } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { HeaderComponent } from '../header/header.component';
 import { IconComponent } from '../../shared/icon/icon.component';
 import { AuthService } from '../../core/services/auth.service';
 import { UsuarioService } from '../../core/services/usuario.service';
+import { EvaluacionService } from '../../core/services/evaluacion.service';
 import { UsuarioResponse } from '../../core/services/models/usuario.model';
 
 @Component({
@@ -18,7 +20,9 @@ export class AnalistasComponent implements OnInit {
 
   private authService = inject(AuthService);
   private usuarioService = inject(UsuarioService);
+  private evaluacionService = inject(EvaluacionService);
   private router = inject(Router);
+  private platformId = inject(PLATFORM_ID);
 
   // Registro del propio jefe (la sesión solo guarda nombre, correo y rol)
   private jefe: UsuarioResponse | null = null;
@@ -26,6 +30,9 @@ export class AnalistasComponent implements OnInit {
 
   busqueda = '';
   filtro: 'TODOS' | 'ACTIVOS' | 'INACTIVOS' = 'TODOS';
+
+  // true cuando el servidor no deja listar usuarios al Jefe y se usa el respaldo local
+  modoRespaldo = false;
 
   cargando = true;
   error = '';
@@ -64,6 +71,7 @@ export class AnalistasComponent implements OnInit {
 
     this.usuarioService.listarUsuarios().subscribe({
       next: (usuarios) => {
+        this.modoRespaldo = false;
         const correo = this.authService.getUsuario()?.email?.toLowerCase();
         this.jefe = usuarios.find(u => u.email.toLowerCase() === correo) ?? null;
 
@@ -73,11 +81,76 @@ export class AnalistasComponent implements OnInit {
         );
         this.cargando = false;
       },
-      error: (err) => {
-        this.cargando = false;
-        this.error = this.mensajeError(err, 'No se pudo cargar la lista de analistas.');
-      }
+      // El servidor no lista usuarios a un Jefe: se arma el equipo con lo que sí se conoce
+      error: () => this.cargarRespaldo()
     });
+  }
+
+  // ===== Respaldo sin cambios en el backend =====
+  // Equipo = analistas creados desde este navegador (guardados localmente)
+  //        + analistas que figuran en las evaluaciones del equipo (solo se conoce su id).
+
+  private get claveLocal(): string {
+    return `equipoAnalistas:${(this.authService.getUsuario()?.email ?? '').toLowerCase()}`;
+  }
+
+  private leerLocal(): UsuarioResponse[] {
+    if (!isPlatformBrowser(this.platformId)) return [];
+    try {
+      const datos = JSON.parse(localStorage.getItem(this.claveLocal) ?? '[]');
+      return Array.isArray(datos) ? datos : [];
+    } catch {
+      return [];
+    }
+  }
+
+  private guardarLocal(lista: UsuarioResponse[]): void {
+    if (!isPlatformBrowser(this.platformId)) return;
+    try {
+      localStorage.setItem(this.claveLocal, JSON.stringify(lista));
+    } catch { /* sin espacio o bloqueado */ }
+  }
+
+  private cargarRespaldo(): void {
+    this.modoRespaldo = true;
+    const locales = this.leerLocal();
+
+    this.evaluacionService.listarEvaluacionesEquipo().subscribe({
+      next: (evaluaciones) => this.armarRespaldo(locales, evaluaciones.map(e => ({ id: e.analistaId, org: e.organizacionNombre }))),
+      error: () => this.armarRespaldo(locales, [])
+    });
+  }
+
+  private armarRespaldo(locales: UsuarioResponse[], deEvaluaciones: { id: number; org: string }[]): void {
+    const lista = [...locales];
+
+    for (const e of deEvaluaciones) {
+      if (e.id && !lista.some(a => a.id === e.id)) {
+        lista.push({
+          id: e.id,
+          nombre: `Analista #${e.id}`,
+          email: 'Dato no disponible (sin acceso a la lista de usuarios)',
+          rol: 'ANALISTA_CIBERSEGURIDAD',
+          estado: 'ACTIVO',
+          jefeId: null,
+          organizacionId: null,
+          organizacionNombre: e.org
+        });
+      }
+    }
+
+    this.analistas = lista;
+    this.cargando = false;
+  }
+
+  private registrarLocal(analista: UsuarioResponse): void {
+    const lista = this.leerLocal().filter(a => a.id !== analista.id);
+    lista.push(analista);
+    this.guardarLocal(lista);
+  }
+
+  private marcarInactivoLocal(id: number): void {
+    this.guardarLocal(this.leerLocal().map(a => a.id === id ? { ...a, estado: 'INACTIVO' } : a));
   }
 
   get filtrados(): UsuarioResponse[] {
@@ -130,6 +203,8 @@ export class AnalistasComponent implements OnInit {
       ...(this.jefe?.organizacionId ? { organizacionId: this.jefe.organizacionId } : {})
     }).subscribe({
       next: (creado) => {
+        // Se recuerda localmente por si el servidor no permite listar usuarios
+        if (creado?.id) this.registrarLocal({ ...creado, rol: creado.rol ?? 'ANALISTA_CIBERSEGURIDAD', estado: creado.estado ?? 'ACTIVO' });
         this.guardando = false;
         this.creando = false;
         this.exito = `Analista ${creado?.nombre ?? this.nuevo.nombre} creado correctamente.`;
@@ -163,6 +238,7 @@ export class AnalistasComponent implements OnInit {
         this.desactivando = false;
         this.porDesactivar = null;
         this.exito = `${a.nombre} desactivado correctamente.`;
+        this.marcarInactivoLocal(a.id);
         this.cargar();
       },
       error: (err) => {
