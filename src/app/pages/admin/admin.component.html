@@ -139,7 +139,7 @@
                     </td>
                     <td class="acc">
                       @if (u.estado === 'ACTIVO') {
-                        <button type="button" class="icon-btn danger" (click)="pedirDesactivar(u)"
+                        <button type="button" class="icon-btn danger" (click)="desactivar(u)"
                                 title="Desactivar usuario" [attr.aria-label]="'Desactivar a ' + u.nombre">
                           <app-icon name="user-x" />
                         </button>
@@ -193,21 +193,6 @@
                   </tr>
                 }
               </tbody>
-
-              <tfoot>
-                <tr class="total" [class.mal]="!pesosCompletos">
-                  <td colspan="2">
-                    Total
-                    @if (!pesosCompletos) {
-                      <span class="total-aviso"><app-icon name="circle-alert" /> Los pesos deben sumar 100%</span>
-                    }
-                  </td>
-                  <td>
-                    <span class="pill" [class.ana]="pesosCompletos" [class.bad]="!pesosCompletos">{{ totalPesos | number:'1.1-1' }}%</span>
-                  </td>
-                  <td></td>
-                </tr>
-              </tfoot>
             </table>
           }
         </div>
@@ -448,47 +433,11 @@
           </label>
         </div>
 
-        <form class="filtros" (ngSubmit)="buscarAuditoria()">
-          <label class="filtro">
-            <span>Usuario</span>
-            <select [(ngModel)]="auditoriaUsuario" name="auditoriaUsuario">
-              <option value="">Todos</option>
-              @for (u of usuariosAuditoria; track u) {
-                <option [value]="u">{{ u }}</option>
-              }
-            </select>
-          </label>
-
-          <label class="filtro">
-            <span>Desde</span>
-            <input type="date" [(ngModel)]="auditoriaDesde" name="auditoriaDesde" [attr.max]="auditoriaHasta || null">
-          </label>
-
-          <label class="filtro">
-            <span>Hasta</span>
-            <input type="date" [(ngModel)]="auditoriaHasta" name="auditoriaHasta" [attr.min]="auditoriaDesde || null">
-          </label>
-
-          <button type="submit" class="btn buscar" [disabled]="rangoAuditoriaInvalido">
-            <app-icon name="search" /> Buscar
-          </button>
-
-          @if (hayFiltrosAuditoria || auditoriaUsuario || auditoriaDesde || auditoriaHasta) {
-            <button type="button" class="btn ghost" (click)="limpiarFiltrosAuditoria()">
-              <app-icon name="x" /> Limpiar
-            </button>
-          }
-
-          @if (rangoAuditoriaInvalido) {
-            <span class="filtro-error"><app-icon name="circle-alert" /> "Desde" es posterior a "Hasta"</span>
-          }
-        </form>
-
         <div class="table-wrap">
           @if (cargando) {
             <p class="vacio">Cargando...</p>
           } @else if (auditoriaFiltrada.length === 0) {
-            <p class="vacio">{{ hayFiltrosAuditoria || busqueda || filtroAccion ? 'No hay registros que coincidan con los filtros.' : 'Sin registros de auditoría.' }}</p>
+            <p class="vacio">Sin registros de auditoría.</p>
           } @else {
             <table>
               <thead><tr><th>Fecha</th><th>Usuario</th><th>Entidad</th><th>Acción</th><th>Detalle</th></tr></thead>
@@ -646,19 +595,13 @@
             <textarea id="p-texto" class="field" rows="3" placeholder="Texto de la pregunta" [(ngModel)]="nuevaPregunta.texto" name="textoPregunta"></textarea>
           </div>
 
-          <div class="sec" [class.err]="controlesSinSeleccion">Controles asociados</div>
-          <p class="hint" [class.err]="controlesSinSeleccion">
-            @if (controlesSinSeleccion) {
-              Selecciona al menos un control para la pregunta.
-            } @else {
-              El dominio se hereda de los controles seleccionados.
-            }
-          </p>
+          <div class="sec">Controles asociados</div>
+          <p class="hint">El dominio se hereda de los controles seleccionados.</p>
 
           @if (cargando) {
             <p class="vacio">Cargando controles...</p>
           } @else {
-            <div class="checks" [class.err]="controlesSinSeleccion">
+            <div class="checks">
               @for (c of controles; track c.id) {
                 <label class="check-item" [class.on]="controlEstaSeleccionado(c.id)">
                   <input type="checkbox" [checked]="controlEstaSeleccionado(c.id)" (change)="toggleControlSeleccionado(c.id)">
@@ -709,25 +652,4 @@
     </div>
 
   </aside>
-}
-
-
-<!-- ==========================================
-     CONFIRMAR DESACTIVACIÓN DE USUARIO
-     ========================================== -->
-
-@if (usuarioPorDesactivar; as u) {
-
-  <app-modal titulo="Desactivar usuario" icono="user-x" tono="warn" [cerrable]="true" (cerrar)="cancelarDesactivar()">
-
-    <p class="m-texto">¿Está seguro de que desea desactivar esta cuenta?</p>
-    <p class="m-detalle"><b>{{ u.nombre }}</b> · {{ u.email }}</p>
-
-    <ng-container acciones>
-      <button type="button" class="mbtn ghost" data-autofocus (click)="cancelarDesactivar()">Cancelar</button>
-      <button type="button" class="mbtn danger" (click)="confirmarDesactivar()">Confirmar</button>
-    </ng-container>
-
-  </app-modal>
-
 }

@@ -11,32 +11,8 @@
 <div class="menu-grid">
 
   @if (esAnalista) {
-    <!-- CARD 0: solo si el analista tiene una evaluación en curso -->
-    @if (enCurso; as e) {
-      <div class="menu-card highlight">
-        <div class="card-header">
-          <div class="icon-container"><app-icon class="card-icon" name="clock" /></div>
-        </div>
-        <div class="card-content">
-          <span class="card-label">En curso</span>
-          <h3>Continuar evaluación en curso</h3>
-          <p class="card-org">{{ e.evaluacion.organizacionNombre }}</p>
-
-          <div class="card-progress" role="progressbar" [attr.aria-valuenow]="e.porcentaje" aria-valuemin="0" aria-valuemax="100">
-            <i [style.width.%]="e.porcentaje"></i>
-          </div>
-          <p class="card-progress-text"><b>{{ e.respondidas }}</b> de {{ e.total }} respondidas · {{ e.porcentaje }}%</p>
-        </div>
-        <div class="card-footer">
-          <button class="btn-action primary" (click)="ContinuarEvaluacion()">
-            Continuar <app-icon name="arrow-right" />
-          </button>
-        </div>
-      </div>
-    }
-
     <!-- CARD 1 -->
-    <div class="menu-card" [class.highlight]="!enCurso">
+    <div class="menu-card highlight">
       <div class="card-header">
         <div class="icon-container"><app-icon class="card-icon" name="clipboard-list" /></div>
       </div>
@@ -46,7 +22,7 @@
         <p>Responde las preguntas organizadas en los dominios principales de seguridad.</p>
       </div>
       <div class="card-footer">
-        <button class="btn-action" [class.primary]="!enCurso" (click)="IniciarEvaluacion()">
+        <button class="btn-action primary" (click)="IniciarEvaluacion()">
           Iniciar evaluación <app-icon name="arrow-right" />
         </button>
       </div>

@@ -26,7 +26,6 @@ app-resultados,
 app-equipo,
 app-dashboard,
 app-admin,
-app-comparativa,
 app-login {
   display: block;
   height: 100%;
@@ -81,31 +80,3 @@ select,
 textarea {
   font-family: inherit;
 }
-/* =========================================
-   Botones de las ventanas emergentes (app-modal)
-   ========================================= */
-
-.mbtn {
-  flex: 1;
-  padding: 13px 16px;
-  border: 1px solid transparent;
-  border-radius: 8px;
-  font-family: inherit;
-  font-size: 14.5px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: background 0.2s ease, transform 0.1s ease;
-}
-
-.mbtn:hover:not(:disabled) { transform: translateY(-1px); }
-.mbtn:disabled { opacity: 0.6; cursor: not-allowed; }
-.mbtn:focus-visible { outline: 2px solid #ffffff; outline-offset: 3px; }
-
-.mbtn.primary { background: #00d2b5; color: #0d1520; }
-.mbtn.primary:hover:not(:disabled) { background: #00b89f; }
-
-.mbtn.danger { background: #ef5350; color: #ffffff; }
-.mbtn.danger:hover:not(:disabled) { background: #e0403d; }
-
-.mbtn.ghost { background: transparent; border-color: #3a4a60; color: #cbd5e1; }
-.mbtn.ghost:hover:not(:disabled) { background: rgba(255, 255, 255, 0.06); }

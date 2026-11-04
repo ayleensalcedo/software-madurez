@@ -3,7 +3,6 @@ import { DatePipe, DecimalPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HeaderComponent } from '../header/header.component';
 import { IconComponent, NombreIcono } from '../../shared/icon/icon.component';
-import { ModalComponent } from '../../shared/modal/modal.component';
 import { UsuarioService } from '../../core/services/usuario.service';
 import { AuditoriaService } from '../../core/services/auditoria.service';
 import { DominioService } from '../../core/services/dominio.service';
@@ -25,7 +24,7 @@ type Seccion = 'usuarios' | 'dominios' | 'controles' | 'preguntas' | 'recomendac
 @Component({
   selector: 'app-admin',
   standalone: true,
-  imports: [HeaderComponent, IconComponent, ModalComponent, DatePipe, DecimalPipe, FormsModule],
+  imports: [HeaderComponent, IconComponent, DatePipe, DecimalPipe, FormsModule],
   templateUrl: './admin.component.html',
   styleUrl: './admin.component.css'
 })
@@ -79,14 +78,6 @@ export class AdminComponent implements OnInit {
   busqueda = '';
   filtroRol: 'TODOS' | 'JEFE' | 'GERENTE' | 'ANALISTA' | 'INACTIVOS' = 'TODOS';
   filtroAccion = '';
-
-  // Filtros de auditoría que se aplican con el botón "Buscar" (borrador) y los aplicados
-  auditoriaUsuario = '';
-  auditoriaDesde = '';
-  auditoriaHasta = '';
-  private aplicadoUsuario = '';
-  private aplicadoDesde = '';
-  private aplicadoHasta = '';
 
   usuarios: UsuarioResponse[] = [];
   auditoria: AuditoriaTecnicaResponse[] = [];
@@ -153,7 +144,6 @@ export class AdminComponent implements OnInit {
 
   abrirPanel(): void {
     this.error = ''; this.exito = '';
-    this.controlesSinSeleccion = false;
     this.panelAbierto = true;
   }
 
@@ -170,7 +160,6 @@ export class AdminComponent implements OnInit {
     this.busqueda = '';
     this.filtroRol = 'TODOS';
     this.filtroAccion = '';
-    this.limpiarFiltrosAuditoria();
 
     if (seccion === 'usuarios' && this.usuarios.length === 0) this.cargarUsuarios();
     if (seccion === 'auditoria' && this.auditoria.length === 0) this.cargarAuditoria();
@@ -210,23 +199,6 @@ export class AdminComponent implements OnInit {
       },
       error: (err) => this.error = err.error ?? 'No se pudo crear el usuario'
     });
-  }
-
-  // Usuario cuya desactivación espera confirmación
-  usuarioPorDesactivar: UsuarioResponse | null = null;
-
-  pedirDesactivar(usuario: UsuarioResponse): void {
-    this.usuarioPorDesactivar = usuario;
-  }
-
-  cancelarDesactivar(): void {
-    this.usuarioPorDesactivar = null;
-  }
-
-  confirmarDesactivar(): void {
-    const usuario = this.usuarioPorDesactivar;
-    this.usuarioPorDesactivar = null;
-    if (usuario) this.desactivar(usuario);
   }
 
   desactivar(usuario: UsuarioResponse): void {
@@ -346,11 +318,7 @@ export class AdminComponent implements OnInit {
     });
   }
 
-  // Se activa al intentar crear una pregunta sin controles: resalta la sección en rojo
-  controlesSinSeleccion = false;
-
   toggleControlSeleccionado(controlId: number): void {
-    this.controlesSinSeleccion = false;
     const idx = this.nuevaPregunta.controlIds.indexOf(controlId);
     if (idx === -1) {
       this.nuevaPregunta.controlIds.push(controlId);
@@ -368,7 +336,6 @@ export class AdminComponent implements OnInit {
 
     if (this.nuevaPregunta.controlIds.length === 0) {
       this.error = 'Selecciona al menos un control para la pregunta';
-      this.controlesSinSeleccion = true;
       return;
     }
 
@@ -475,15 +442,6 @@ export class AdminComponent implements OnInit {
 
   // ===== Ayudas de vista =====
 
-  // Suma de los pesos relativos de los dominios (debe ser 100%)
-  get totalPesos(): number {
-    return this.dominios.reduce((suma, d) => suma + (d.pesoRelativo ?? 0), 0);
-  }
-
-  get pesosCompletos(): boolean {
-    return Math.abs(this.totalPesos - 100) < 0.05;
-  }
-
   get totalActivos(): number {
     return this.usuarios.filter(u => u.estado === 'ACTIVO').length;
   }
@@ -530,52 +488,17 @@ export class AdminComponent implements OnInit {
     return Array.from(new Set(this.auditoria.map(a => a.accion)));
   }
 
-  get usuariosAuditoria(): string[] {
-    return Array.from(new Set(this.auditoria.map(a => a.usuarioNombre))).sort((x, y) => x.localeCompare(y));
-  }
-
-  get rangoAuditoriaInvalido(): boolean {
-    return !!(this.auditoriaDesde && this.auditoriaHasta && this.auditoriaDesde > this.auditoriaHasta);
-  }
-
-  get hayFiltrosAuditoria(): boolean {
-    return !!(this.aplicadoUsuario || this.aplicadoDesde || this.aplicadoHasta);
-  }
-
-  // Fecha local (yyyy-MM-dd) de una fecha ISO, la misma que se muestra en la tabla
-  private diaLocal(iso: string): string {
-    const d = new Date(iso);
-    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-  }
-
-  buscarAuditoria(): void {
-    if (this.rangoAuditoriaInvalido) return;
-    this.aplicadoUsuario = this.auditoriaUsuario;
-    this.aplicadoDesde = this.auditoriaDesde;
-    this.aplicadoHasta = this.auditoriaHasta;
-  }
-
-  limpiarFiltrosAuditoria(): void {
-    this.auditoriaUsuario = this.auditoriaDesde = this.auditoriaHasta = '';
-    this.aplicadoUsuario = this.aplicadoDesde = this.aplicadoHasta = '';
-  }
-
   get auditoriaFiltrada(): AuditoriaTecnicaResponse[] {
     const q = this.busqueda.trim().toLowerCase();
 
-    return this.auditoria.filter(a => {
-      const dia = this.diaLocal(a.fecha);
-
-      return (!this.filtroAccion || a.accion === this.filtroAccion) &&
-        (!this.aplicadoUsuario || a.usuarioNombre === this.aplicadoUsuario) &&
-        (!this.aplicadoDesde || dia >= this.aplicadoDesde) &&
-        (!this.aplicadoHasta || dia <= this.aplicadoHasta) &&
-        (!q ||
-          a.usuarioNombre.toLowerCase().includes(q) ||
-          a.entidadAfectada.toLowerCase().includes(q) ||
-          a.accion.toLowerCase().includes(q) ||
-          (a.detalle ?? '').toLowerCase().includes(q));
-    });
+    return this.auditoria.filter(a =>
+      (!this.filtroAccion || a.accion === this.filtroAccion) &&
+      (!q ||
+        a.usuarioNombre.toLowerCase().includes(q) ||
+        a.entidadAfectada.toLowerCase().includes(q) ||
+        a.accion.toLowerCase().includes(q) ||
+        (a.detalle ?? '').toLowerCase().includes(q))
+    );
   }
 
   claseAccion(accion: string): string {
