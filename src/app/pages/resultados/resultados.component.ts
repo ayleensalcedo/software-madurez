@@ -4,12 +4,11 @@ import { HeaderComponent } from '../header/header.component';
 import { EvaluacionService } from '../../core/services/evaluacion.service';
 import { EvaluacionResponse } from '../../core/services/models/evaluacion.model';
 import { DatePipe } from '@angular/common';
-import { FormsModule } from '@angular/forms';
 import { IconComponent, NombreIcono } from '../../shared/icon/icon.component';
 @Component({
   selector: 'app-resultados',
   standalone: true,
-  imports: [HeaderComponent, IconComponent, DatePipe, FormsModule],
+  imports: [HeaderComponent, IconComponent, DatePipe],
   templateUrl: './resultados.component.html',
   styleUrl: './resultados.component.css'
 })
@@ -30,7 +29,6 @@ export class ResultadosComponent implements OnInit {
   ];
 
   pestanaActiva: string | null = null;
-  busqueda = '';
   cargando: boolean = true;
   error: string = '';
 
@@ -89,15 +87,9 @@ export class ResultadosComponent implements OnInit {
   }
 
   get filtradas(): EvaluacionResponse[] {
-    const q = this.busqueda.trim().toLowerCase();
-
-    return this.evaluaciones.filter(e =>
-      (!this.pestanaActiva || e.estado === this.pestanaActiva) &&
-      (!q ||
-        e.organizacionNombre.toLowerCase().includes(q) ||
-        String(e.id).includes(q) ||
-        (e.observacion ?? '').toLowerCase().includes(q))
-    );
+    return this.pestanaActiva
+      ? this.evaluaciones.filter(e => e.estado === this.pestanaActiva)
+      : this.evaluaciones;
   }
 
   iconoEstado(estado: string): NombreIcono {

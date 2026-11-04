@@ -32,11 +32,6 @@
           </button>
         }
       </div>
-
-      <label class="search">
-        <app-icon name="search" />
-        <input type="search" placeholder="Buscar organización" [(ngModel)]="busqueda" name="busquedaEvaluaciones">
-      </label>
     </div>
 
     <div class="scroll">
@@ -55,7 +50,7 @@
 
       } @else if (filtradas.length === 0) {
 
-        <p class="vacio">No hay evaluaciones que coincidan con el filtro.</p>
+        <p class="vacio">No hay evaluaciones en este estado.</p>
 
       } @else {
 
