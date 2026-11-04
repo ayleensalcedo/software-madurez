@@ -89,14 +89,24 @@
       </div>
 
 
+      <!-- MENSAJE DE ERROR -->
+
+      @if (error) {
+
+        <div class="login-error">
+          {{ error }}
+        </div>
+
+      }
+
+
       <!-- BOTÓN -->
 
       <button
         type="submit"
         class="login-button"
-        [disabled]="cargando"
       >
-        {{ cargando ? 'Verificando...' : 'Iniciar sesión' }}
+        Iniciar sesión
       </button>
 
 
@@ -107,38 +117,3 @@
   </div>
 
 </div>
-
-
-<!-- =====================================================
-     POP UP: INICIO DE SESIÓN FALLIDO
-     ===================================================== -->
-
-@if (mostrarError) {
-
-  <div class="modal-overlay" (click)="cerrarError()">
-
-    <div
-      class="modal-box"
-      role="alertdialog"
-      aria-modal="true"
-      aria-labelledby="login-error-titulo"
-      aria-describedby="login-error-mensaje"
-      (click)="$event.stopPropagation()"
-    >
-
-      <div class="modal-icon">
-        <app-icon name="circle-alert" />
-      </div>
-
-      <h3 id="login-error-titulo">Inicio de sesión fallido</h3>
-      <p id="login-error-mensaje">{{ error }}</p>
-
-      <button type="button" class="modal-button" (click)="cerrarError()" autofocus>
-        Aceptar
-      </button>
-
-    </div>
-
-  </div>
-
-}
