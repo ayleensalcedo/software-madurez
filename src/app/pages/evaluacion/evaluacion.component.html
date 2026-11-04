@@ -1,4 +1,4 @@
-<app-header></app-header>
+<app-header [attr.inert]="avanceGuardado ? '' : null"></app-header>
 
 @if (cargando) {
 
@@ -16,7 +16,7 @@
        AVANCE POR DOMINIO
        ========================================== -->
 
-  <nav class="steps" aria-label="Avance por dominio">
+  <nav class="steps" aria-label="Avance por dominio" [attr.inert]="avanceGuardado ? '' : null">
     <div class="steps-in" [style.--cols]="dominiosVista.length">
 
       @for (d of dominiosVista; track d.id; let i = $index) {
@@ -25,19 +25,9 @@
           <button type="button" class="step-label" (click)="irAlDominio(d.nombre)">
             <span class="step-name">
               @if (d.activo) { <i class="step-dot"></i> }
-              <span class="step-text" [title]="d.nombre">{{ i + 1 }} · {{ d.nombre }}</span>
+              {{ i + 1 }} · {{ d.nombre }}
             </span>
-
-            <span class="step-info">
-              <em class="step-count" [class.full]="d.completo" [title]="d.respondidas + '/' + d.indices.length + ' · ' + d.porcentaje + '%'">
-                {{ d.respondidas }}/{{ d.indices.length }} ·
-                @if (d.completo) {
-                  <span class="done"><app-icon name="circle-check" /> Completado</span>
-                } @else {
-                  {{ d.porcentaje }}%
-                }
-              </em>
-            </span>
+            <em class="step-count">{{ d.respondidas }}/{{ d.indices.length }}</em>
           </button>
 
           <div class="seg">
@@ -47,7 +37,6 @@
                 class="seg-item"
                 [class.ok]="estaRespondida(idx)"
                 [class.cur]="idx === preguntaActual"
-                [class.omitida]="esOmitida(idx)"
                 [title]="'Pregunta ' + (n + 1) + ' de ' + d.nombre"
                 [attr.aria-label]="'Ir a la pregunta ' + (n + 1) + ' de ' + d.nombre"
                 [attr.aria-current]="idx === preguntaActual ? 'step' : null"
@@ -67,7 +56,7 @@
        PREGUNTA
        ========================================== -->
 
-  <main class="stage">
+  <main class="stage" [attr.inert]="avanceGuardado ? '' : null">
     <section class="q">
 
       <div class="q-meta">
@@ -135,42 +124,25 @@
   </main>
 
 
-  @if (advertencia) {
-    <div class="toast" role="status">
-      <app-icon name="triangle-alert" />
-      <span>{{ advertencia }}</span>
-      <button type="button" class="toast-x" (click)="cerrarAdvertencia()" aria-label="Cerrar aviso"><app-icon name="x" /></button>
-    </div>
-  }
-
-
   <!-- ==========================================
        NAVEGACIÓN
        ========================================== -->
 
-  <footer class="foot">
+  <footer class="foot" [attr.inert]="avanceGuardado ? '' : null">
     <div class="foot-in">
 
       <button type="button" class="btn-secondary" (click)="anterior()" [disabled]="preguntaActual === 0">
         <app-icon name="arrow-left" /> Anterior
       </button>
 
-      <div class="centro">
-        <span class="pos">
-          <b>{{ totalRespondidas }}</b> de {{ preguntas.length }} respondidas
-          <i class="sep"></i>
-          <span class="pct">{{ porcentajeRespondido }}%</span>
-        </span>
-
-        @if (totalPendientes > 0) {
-          <button type="button" class="pend-link" (click)="abrirPendientes()">
-            <app-icon name="list-checks" /> Ver preguntas pendientes ({{ totalPendientes }})
-          </button>
-        }
-      </div>
+      <span class="pos">
+        <b>{{ totalRespondidas }}</b> de {{ preguntas.length }} respondidas
+        <i class="sep"></i>
+        <span class="pct">{{ porcentajeRespondido }}%</span>
+      </span>
 
       <div class="actions">
-        <button type="button" class="btn-secondary" (click)="guardarAvance()" [disabled]="guardando || !!ventana">
+        <button type="button" class="btn-secondary" (click)="guardarAvance()" [disabled]="guardando || avanceGuardado">
           <app-icon name="bookmark" /> Guardar avance
         </button>
 
@@ -179,7 +151,7 @@
             Siguiente <app-icon name="arrow-right" />
           </button>
         } @else {
-          <button type="button" class="btn-primary" (click)="intentarFinalizar()" [disabled]="finalizando">
+          <button type="button" class="btn-primary" (click)="finalizarEvaluacion()" [disabled]="finalizando">
             Finalizar evaluación <app-icon name="check" />
           </button>
         }
@@ -192,87 +164,36 @@
 
 
 <!-- ==========================================
-     RESUMEN DE PREGUNTAS PENDIENTES (por dominio)
+     VENTANA: EVALUACIÓN GUARDADA
      ========================================== -->
 
-<ng-template #resumen>
-  <ul class="pend-lista">
-    @for (d of pendientesPorDominio; track d.id) {
-      <li>
-        <span class="pend-dom">Dominio {{ d.posicion }} · {{ d.nombre }}</span>
+@if (avanceGuardado) {
 
-        <span class="pend-nums">
-          {{ d.preguntas.length === 1 ? 'Pregunta' : 'Preguntas' }}
-          @for (q of d.preguntas; track q.indice; let i = $index; let ultimo = $last) {
-            @if (ultimo && i > 0) { <span class="pend-sep">y</span> }
-            <span class="pend-item"><button type="button" class="pend-chip" (click)="irAPendiente(q.indice)" [title]="'Ir a la pregunta ' + q.numero">{{ q.numero }}</button>@if (i < d.preguntas.length - 2) {<span class="pend-sep">,</span>}</span>
-          }
-        </span>
-      </li>
-    }
-  </ul>
-</ng-template>
+  <div class="modal-overlay">
 
+    <div
+      class="modal-box"
+      role="alertdialog"
+      aria-modal="true"
+      aria-labelledby="guardado-titulo"
+      aria-describedby="guardado-mensaje"
+    >
 
-<!-- ==========================================
-     VENTANAS EMERGENTES
-     ========================================== -->
+      <div class="modal-icon">
+        <app-icon name="circle-check" />
+      </div>
 
-@switch (ventana) {
+      <h3 id="guardado-titulo">Evaluación guardada</h3>
+      <p id="guardado-mensaje">
+        Tu avance se guardó correctamente. Podrás retomar la evaluación desde "Evaluaciones guardadas".
+      </p>
 
-  @case ('guardado') {
-    <app-modal titulo="Evaluación guardada" icono="circle-check" tono="ok">
-      <p class="m-texto">Tu avance se guardó correctamente. Podrás retomar la evaluación desde "Evaluaciones guardadas".</p>
+      <button #btnEntendido type="button" class="modal-button" (click)="entendido()">
+        Entendido
+      </button>
 
-      <ng-container acciones>
-        <button type="button" class="mbtn primary" data-autofocus (click)="entendido()">Entendido</button>
-      </ng-container>
-    </app-modal>
-  }
+    </div>
 
-  @case ('pendientes') {
-    <app-modal titulo="Preguntas pendientes" icono="list-checks" tono="info" [ancha]="true" [cerrable]="true" (cerrar)="cerrarVentana()">
-      <p class="m-texto">Pulsa el número de una pregunta para ir directamente a ella.</p>
-      <ng-container [ngTemplateOutlet]="resumen" />
-
-      <ng-container acciones>
-        <button type="button" class="mbtn ghost" (click)="cerrarVentana()">Cerrar</button>
-        <button type="button" class="mbtn primary" data-autofocus (click)="irAPrimeraPendiente()">Ir a la primera pendiente</button>
-      </ng-container>
-    </app-modal>
-  }
-
-  @case ('bloqueo') {
-    <app-modal titulo="No se puede finalizar" icono="triangle-alert" tono="danger" [ancha]="true" [cerrable]="true" (cerrar)="cerrarVentana()">
-      @if (lineasBloqueo.length === 1) {
-        <p class="m-texto">No se puede finalizar la evaluación. {{ lineasBloqueo[0] }}</p>
-      } @else {
-        <p class="m-texto">No se puede finalizar la evaluación.</p>
-        <ul class="m-lista">
-          @for (linea of lineasBloqueo; track linea) {
-            <li>{{ linea }}</li>
-          }
-        </ul>
-      }
-
-      <ng-container [ngTemplateOutlet]="resumen" />
-
-      <ng-container acciones>
-        <button type="button" class="mbtn ghost" (click)="cerrarVentana()">Cerrar</button>
-        <button type="button" class="mbtn primary" data-autofocus (click)="irAPrimeraPendiente()">Ir a la primera pendiente</button>
-      </ng-container>
-    </app-modal>
-  }
-
-  @case ('confirmar') {
-    <app-modal titulo="Finalizar evaluación" icono="circle-alert" tono="warn" [cerrable]="true" (cerrar)="cerrarVentana()">
-      <p class="m-texto">¿Deseas finalizar la evaluación? Ya no podrás modificar las respuestas.</p>
-
-      <ng-container acciones>
-        <button type="button" class="mbtn ghost" data-autofocus (click)="cerrarVentana()">Cancelar</button>
-        <button type="button" class="mbtn primary" (click)="confirmarFinalizacion()">Finalizar</button>
-      </ng-container>
-    </app-modal>
-  }
+  </div>
 
 }

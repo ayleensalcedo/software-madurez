@@ -1,23 +1,20 @@
 import { Component, OnInit, inject } from '@angular/core';
-import { Router } from '@angular/router';
 import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HeaderComponent } from '../header/header.component';
 import { EvaluacionService } from '../../core/services/evaluacion.service';
 import { EvaluacionResponse } from '../../core/services/models/evaluacion.model';
-import { IconComponent } from '../../shared/icon/icon.component';
 
 @Component({
   selector: 'app-equipo',
   standalone: true,
-  imports: [HeaderComponent, IconComponent, DatePipe, FormsModule],
+  imports: [HeaderComponent, DatePipe, FormsModule],
   templateUrl: './equipo.component.html',
   styleUrl: './equipo.component.css'
 })
 export class EquipoComponent implements OnInit {
 
   private evaluacionService = inject(EvaluacionService);
-  private router = inject(Router);
 
   evaluaciones: EvaluacionResponse[] = [];
   cargando: boolean = true;
@@ -44,46 +41,6 @@ export class EquipoComponent implements OnInit {
         this.error = err.error ?? 'No se pudieron cargar las evaluaciones del equipo';
       }
     });
-  }
-
-  // ===== Resultados y comparación =====
-
-  // Evaluaciones elegidas con la casilla "Comparar" (máximo dos)
-  seleccion: number[] = [];
-
-  // Tiene resultados (ya no está en curso)
-  tieneResultados(evaluacion: EvaluacionResponse): boolean {
-    return evaluacion.estado !== 'EN_CURSO';
-  }
-
-  estaSeleccionada(evaluacion: EvaluacionResponse): boolean {
-    return this.seleccion.includes(evaluacion.id);
-  }
-
-  // Con dos elegidas, las demás casillas se deshabilitan
-  casillaBloqueada(evaluacion: EvaluacionResponse): boolean {
-    return this.seleccion.length >= 2 && !this.estaSeleccionada(evaluacion);
-  }
-
-  alternarSeleccion(evaluacion: EvaluacionResponse): void {
-    if (this.estaSeleccionada(evaluacion)) {
-      this.seleccion = this.seleccion.filter(id => id !== evaluacion.id);
-    } else if (this.seleccion.length < 2) {
-      this.seleccion = [...this.seleccion, evaluacion.id];
-    }
-  }
-
-  compararEvaluaciones(): void {
-    if (this.seleccion.length !== 2) return;
-
-    this.router.navigate(['/equipo/comparar'], {
-      queryParams: { a: this.seleccion[0], b: this.seleccion[1] }
-    });
-  }
-
-  verResultados(evaluacion: EvaluacionResponse): void {
-    this.evaluacionService.setEvaluacionActual(evaluacion);
-    this.router.navigate(['/dashboard']);
   }
 
   puedeRevisar(evaluacion: EvaluacionResponse): boolean {
