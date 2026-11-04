@@ -9,6 +9,7 @@ import { MenuComponent } from './pages/menu/menu.component';
 import { authGuard } from './core/guards/auth.guard';
 import { EquipoComponent } from './pages/equipo/equipo.component';
 import { AdminComponent } from './pages/admin/admin.component';
+import { ComparativaComponent } from './pages/comparativa/comparativa.component';
 
 export const routes: Routes = [
   {
@@ -23,5 +24,6 @@ export const routes: Routes = [
   { path: 'resultados', component: ResultadosComponent, canActivate: [authGuard] },
   { path: 'dashboard', component: DashboardComponent, canActivate: [authGuard] },
   { path: 'equipo', component: EquipoComponent, canActivate: [authGuard] },
+  { path: 'equipo/comparar', component: ComparativaComponent, canActivate: [authGuard] },
   { path: 'admin', component: AdminComponent, canActivate: [authGuard] },
 ];

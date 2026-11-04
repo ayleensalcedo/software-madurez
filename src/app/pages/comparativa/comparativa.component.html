@@ -1,0 +1,149 @@
+<app-header></app-header>
+
+<div class="page comp">
+
+  <button type="button" class="volver" (click)="volver()">
+    <app-icon name="arrow-left" /> Volver a Evaluaciones de mi equipo
+  </button>
+
+  <header class="page-header">
+    <h1>Vista comparativa</h1>
+    <p>Compara la cobertura global, el nivel de madurez y la cobertura por dominio de dos evaluaciones.</p>
+  </header>
+
+  @if (cargando) {
+
+    <p class="estado">Cargando comparación...</p>
+
+  } @else if (error || !anterior || !reciente) {
+
+    <p class="estado error" role="alert">{{ error || 'No se pudo cargar la comparación.' }}</p>
+
+  } @else {
+
+    <!-- ==========================================
+         LAS DOS EVALUACIONES, LADO A LADO
+         ========================================== -->
+
+    <section class="lados">
+
+      @for (lado of [anterior, reciente]; track lado.evaluacion.id; let i = $index) {
+        <article class="lado" [class.reciente]="i === 1">
+
+          <div class="lado-top">
+            <span class="lado-etiqueta">{{ i === 0 ? 'Evaluación anterior' : 'Evaluación reciente' }}</span>
+            <span class="badge" [class]="claseEstado(lado.evaluacion.estado)">{{ etiquetaEstado(lado.evaluacion.estado) }}</span>
+          </div>
+
+          <h2>{{ lado.evaluacion.organizacionNombre }}</h2>
+          <p class="lado-fecha">
+            Iniciada el {{ lado.evaluacion.fechaInicio | date:'dd/MM/yyyy' }}
+            @if (lado.evaluacion.fechaFin) {
+              · Finalizada el {{ lado.evaluacion.fechaFin | date:'dd/MM/yyyy' }}
+            }
+          </p>
+
+          <div class="lado-metricas">
+            <div>
+              <small>Cobertura global</small>
+              <b class="grande">{{ lado.cobertura }}<span>%</span></b>
+            </div>
+
+            <div>
+              <small>Nivel de madurez</small>
+              <b class="nivel">{{ lado.resultado.nivelMadurez }}</b>
+            </div>
+          </div>
+
+        </article>
+
+        @if (i === 0) {
+          <div class="centro" [class]="'centro ' + tipo(diferenciaGlobal)" aria-label="Diferencia de cobertura global">
+            <span class="centro-icono">
+              @switch (tipo(diferenciaGlobal)) {
+                @case ('mejora') { <app-icon name="arrow-up" /> }
+                @case ('retroceso') { <app-icon name="triangle-alert" /> }
+                @default { <app-icon name="equal" /> }
+              }
+            </span>
+            <b>{{ texto(diferenciaGlobal) }}</b>
+            <small>cobertura global</small>
+          </div>
+        }
+      }
+
+    </section>
+
+
+    <!-- ==========================================
+         COBERTURA POR DOMINIO
+         ========================================== -->
+
+    <section class="tarjeta">
+
+      <div class="tarjeta-h">
+        <div>
+          <h2>Cobertura por dominio</h2>
+          <small>
+            <span class="leyenda mejora"></span> {{ mejoras }} {{ mejoras === 1 ? 'mejora' : 'mejoras' }}
+            <span class="leyenda retroceso"></span> {{ retrocesos }} {{ retrocesos === 1 ? 'retroceso' : 'retrocesos' }}
+          </small>
+        </div>
+
+        <div class="nivel-cambio">
+          <span>Nivel</span>
+          <b>{{ anterior.resultado.nivelMadurez }}</b>
+          <app-icon name="arrow-right" />
+          <b>{{ reciente.resultado.nivelMadurez }}</b>
+        </div>
+      </div>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Dominio</th>
+            <th>Anterior</th>
+            <th>Reciente</th>
+            <th class="der">Diferencia</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          @for (f of filas; track f.nombre) {
+            <tr [class]="tipo(f.diferencia)">
+              <td><b>{{ f.nombre }}</b></td>
+
+              <td>
+                <div class="celda">
+                  <span class="valor">{{ f.antes === null ? '—' : f.antes + '%' }}</span>
+                  <div class="barra"><i [class]="claseCobertura(f.antes)" [style.width.%]="f.antes ?? 0"></i></div>
+                </div>
+              </td>
+
+              <td>
+                <div class="celda">
+                  <span class="valor">{{ f.despues === null ? '—' : f.despues + '%' }}</span>
+                  <div class="barra"><i [class]="claseCobertura(f.despues)" [style.width.%]="f.despues ?? 0"></i></div>
+                </div>
+              </td>
+
+              <td class="der">
+                <span class="dif" [class]="'dif ' + tipo(f.diferencia)">
+                  @switch (tipo(f.diferencia)) {
+                    @case ('mejora') { <app-icon name="arrow-up" /> }
+                    @case ('retroceso') { <app-icon name="triangle-alert" /> }
+                    @case ('igual') { <app-icon name="equal" /> }
+                  }
+                  {{ texto(f.diferencia) }}
+                </span>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+
+    </section>
+
+  }
+
+</div>
