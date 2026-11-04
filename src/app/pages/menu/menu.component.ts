@@ -94,6 +94,10 @@ export class MenuComponent implements OnInit {
     this.router.navigate(['/resultados']);
   }
 
+  VerAnalistas(): void {
+    this.router.navigate(['/analistas']);
+  }
+
   VerEquipo(): void {
     this.router.navigate(['/equipo']);
   }

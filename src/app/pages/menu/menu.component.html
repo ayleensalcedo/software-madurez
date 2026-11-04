@@ -89,6 +89,23 @@
         </button>
       </div>
     </div>
+
+    <!-- CARD 3b: gestión de analistas, solo para el Jefe -->
+    <div class="menu-card">
+      <div class="card-header">
+        <div class="icon-container"><app-icon class="card-icon" name="users" /></div>
+      </div>
+      <div class="card-content">
+        <span class="card-label">Equipo</span>
+        <h3>Gestionar mi equipo</h3>
+        <p>Crea y desactiva las cuentas de los analistas de ciberseguridad a tu cargo.</p>
+      </div>
+      <div class="card-footer">
+        <button class="btn-action" (click)="VerAnalistas()">
+          Gestionar analistas <app-icon name="arrow-right" />
+        </button>
+      </div>
+    </div>
   }
 
   @if (esAdmin) {
