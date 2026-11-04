@@ -200,16 +200,13 @@ export class DashboardComponent implements OnInit {
     };
   }
 
-  // El nombre del analista solo está disponible si el usuario tiene acceso a la lista de usuarios
+  // GET /usuarios es solo del Administrador: el nombre sale de los analistas que este Jefe creó
   private cargarAnalista(evaluacion: EvaluacionResponse): void {
-    this.analista = `Analista #${evaluacion.analistaId}`;
-    this.usuarioService.listarUsuarios().subscribe({
-      next: (usuarios) => {
-        const a = usuarios.find(u => u.id === evaluacion.analistaId);
-        if (a) this.analista = a.nombre;
-      },
-      error: () => { /* se conserva el identificador */ }
-    });
+    const local = this.usuarioService
+      .leerEquipoLocal(this.authService.getUsuario()?.email)
+      .find(u => u.id === evaluacion.analistaId);
+
+    this.analista = local?.nombre ?? `Analista #${evaluacion.analistaId}`;
   }
 
   // ===== Informes en PDF =====

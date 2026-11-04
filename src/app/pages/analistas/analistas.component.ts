@@ -1,5 +1,4 @@
-import { Component, HostListener, OnInit, PLATFORM_ID, inject } from '@angular/core';
-import { isPlatformBrowser } from '@angular/common';
+import { Component, HostListener, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { HeaderComponent } from '../header/header.component';
@@ -22,17 +21,12 @@ export class AnalistasComponent implements OnInit {
   private usuarioService = inject(UsuarioService);
   private evaluacionService = inject(EvaluacionService);
   private router = inject(Router);
-  private platformId = inject(PLATFORM_ID);
 
-  // Registro del propio jefe (la sesión solo guarda nombre, correo y rol)
-  private jefe: UsuarioResponse | null = null;
   analistas: UsuarioResponse[] = [];
 
   busqueda = '';
   filtro: 'TODOS' | 'ACTIVOS' | 'INACTIVOS' = 'TODOS';
 
-  // true cuando el servidor no deja listar usuarios al Jefe y se usa el respaldo local
-  modoRespaldo = false;
 
   cargando = true;
   error = '';
@@ -43,10 +37,6 @@ export class AnalistasComponent implements OnInit {
   guardando = false;
   errorFormulario = '';
   nuevo = { nombre: '', email: '', password: '' };
-
-  // Desactivar analista (ventana de confirmación)
-  porDesactivar: UsuarioResponse | null = null;
-  desactivando = false;
 
   ngOnInit(): void {
     if (this.authService.getRol() !== 'JEFE_CIBERSEGURIDAD') {
@@ -65,55 +55,20 @@ export class AnalistasComponent implements OnInit {
     return mensaje || porDefecto;
   }
 
+  // El backend solo lista usuarios al Administrador (GET /usuarios responde 400 a un Jefe),
+  // así que el equipo se arma con lo que sí se conoce.
   cargar(): void {
     this.cargando = true;
     this.error = '';
-
-    this.usuarioService.listarUsuarios().subscribe({
-      next: (usuarios) => {
-        this.modoRespaldo = false;
-        const correo = this.authService.getUsuario()?.email?.toLowerCase();
-        this.jefe = usuarios.find(u => u.email.toLowerCase() === correo) ?? null;
-
-        // Solo sus analistas: si conocemos su id se filtra por jefeId
-        this.analistas = usuarios.filter(u =>
-          u.rol === 'ANALISTA_CIBERSEGURIDAD' && (!this.jefe || u.jefeId === this.jefe.id)
-        );
-        this.cargando = false;
-      },
-      // El servidor no lista usuarios a un Jefe: se arma el equipo con lo que sí se conoce
-      error: () => this.cargarRespaldo()
-    });
+    this.cargarRespaldo();
   }
 
   // ===== Respaldo sin cambios en el backend =====
   // Equipo = analistas creados desde este navegador (guardados localmente)
   //        + analistas que figuran en las evaluaciones del equipo (solo se conoce su id).
 
-  private get claveLocal(): string {
-    return `equipoAnalistas:${(this.authService.getUsuario()?.email ?? '').toLowerCase()}`;
-  }
-
-  private leerLocal(): UsuarioResponse[] {
-    if (!isPlatformBrowser(this.platformId)) return [];
-    try {
-      const datos = JSON.parse(localStorage.getItem(this.claveLocal) ?? '[]');
-      return Array.isArray(datos) ? datos : [];
-    } catch {
-      return [];
-    }
-  }
-
-  private guardarLocal(lista: UsuarioResponse[]): void {
-    if (!isPlatformBrowser(this.platformId)) return;
-    try {
-      localStorage.setItem(this.claveLocal, JSON.stringify(lista));
-    } catch { /* sin espacio o bloqueado */ }
-  }
-
   private cargarRespaldo(): void {
-    this.modoRespaldo = true;
-    const locales = this.leerLocal();
+    const locales = this.usuarioService.leerEquipoLocal(this.authService.getUsuario()?.email);
 
     this.evaluacionService.listarEvaluacionesEquipo().subscribe({
       next: (evaluaciones) => this.armarRespaldo(locales, evaluaciones.map(e => ({ id: e.analistaId, org: e.organizacionNombre }))),
@@ -141,16 +96,6 @@ export class AnalistasComponent implements OnInit {
 
     this.analistas = lista;
     this.cargando = false;
-  }
-
-  private registrarLocal(analista: UsuarioResponse): void {
-    const lista = this.leerLocal().filter(a => a.id !== analista.id);
-    lista.push(analista);
-    this.guardarLocal(lista);
-  }
-
-  private marcarInactivoLocal(id: number): void {
-    this.guardarLocal(this.leerLocal().map(a => a.id === id ? { ...a, estado: 'INACTIVO' } : a));
   }
 
   get filtrados(): UsuarioResponse[] {
@@ -198,13 +143,15 @@ export class AnalistasComponent implements OnInit {
       nombre: this.nuevo.nombre.trim(),
       email: this.nuevo.email.trim(),
       password: this.nuevo.password,
-      rol: 'ANALISTA_CIBERSEGURIDAD',
-      // El analista queda en la organización del jefe
-      ...(this.jefe?.organizacionId ? { organizacionId: this.jefe.organizacionId } : {})
+      // El servidor asocia el analista al jefe que lo crea
+      rol: 'ANALISTA_CIBERSEGURIDAD'
     }).subscribe({
       next: (creado) => {
-        // Se recuerda localmente por si el servidor no permite listar usuarios
-        if (creado?.id) this.registrarLocal({ ...creado, rol: creado.rol ?? 'ANALISTA_CIBERSEGURIDAD', estado: creado.estado ?? 'ACTIVO' });
+        // El servidor no permite listar el equipo: se recuerda en este navegador
+        if (creado?.id) {
+          this.usuarioService.registrarAnalistaLocal(this.authService.getUsuario()?.email,
+            { ...creado, rol: creado.rol ?? 'ANALISTA_CIBERSEGURIDAD', estado: creado.estado ?? 'ACTIVO' });
+        }
         this.guardando = false;
         this.creando = false;
         this.exito = `Analista ${creado?.nombre ?? this.nuevo.nombre} creado correctamente.`;
@@ -217,42 +164,9 @@ export class AnalistasComponent implements OnInit {
     });
   }
 
-  // ===== Desactivar =====
-
-  pedirDesactivar(a: UsuarioResponse): void {
-    this.porDesactivar = a;
-  }
-
-  cancelarDesactivar(): void {
-    if (!this.desactivando) this.porDesactivar = null;
-  }
-
-  confirmarDesactivar(): void {
-    const a = this.porDesactivar;
-    if (!a || this.desactivando) return;
-    this.desactivando = true;
-    this.error = ''; this.exito = '';
-
-    this.usuarioService.desactivarUsuario(a.id).subscribe({
-      next: () => {
-        this.desactivando = false;
-        this.porDesactivar = null;
-        this.exito = `${a.nombre} desactivado correctamente.`;
-        this.marcarInactivoLocal(a.id);
-        this.cargar();
-      },
-      error: (err) => {
-        this.desactivando = false;
-        this.porDesactivar = null;
-        this.error = this.mensajeError(err, 'No se pudo desactivar al analista.');
-      }
-    });
-  }
-
   @HostListener('document:keydown.escape')
   cerrarVentanas(): void {
     this.cerrarCrear();
-    this.cancelarDesactivar();
   }
 
   volver(): void {
