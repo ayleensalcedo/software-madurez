@@ -117,3 +117,45 @@
   </div>
 
 </div>
+
+
+<!-- =====================================================
+     VENTANA: CORREO O CONTRASEÑA INCORRECTOS
+     ===================================================== -->
+
+@if (mostrarCredenciales) {
+
+  <div class="modal-overlay" (click)="cerrarCredenciales()">
+
+    <div
+      class="modal-box"
+      role="alertdialog"
+      aria-modal="true"
+      aria-labelledby="credenciales-titulo"
+      aria-describedby="credenciales-mensaje"
+      (click)="$event.stopPropagation()"
+    >
+
+      <div class="modal-icon">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <circle cx="12" cy="12" r="10"></circle>
+          <path d="M12 8v4"></path>
+          <path d="M12 16h.01"></path>
+        </svg>
+      </div>
+
+      <h3 id="credenciales-titulo">Credenciales incorrectas</h3>
+
+      <p id="credenciales-mensaje">
+        El correo electrónico o la contraseña son incorrectos. Verifica tus datos e inténtalo nuevamente.
+      </p>
+
+      <button #btnEntendido type="button" class="modal-button" (click)="cerrarCredenciales()">
+        Entendido
+      </button>
+
+    </div>
+
+  </div>
+
+}

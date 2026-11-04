@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, ElementRef, HostListener, ViewChild, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../core/services/auth.service';
@@ -21,6 +21,15 @@ export class LoginComponent {
   error: string = '';
   cargando: boolean = false;
 
+  // Ventana que avisa que el correo o la contraseña son incorrectos
+  mostrarCredenciales: boolean = false;
+
+  // Al abrirse la ventana, el foco pasa a su botón
+  @ViewChild('btnEntendido')
+  set btnEntendido(ref: ElementRef<HTMLButtonElement> | undefined) {
+    ref?.nativeElement.focus();
+  }
+
   iniciarSesion(): void {
     this.error = '';
     this.cargando = true;
@@ -33,8 +42,8 @@ export class LoginComponent {
       error: (err) => {
         this.cargando = false;
 
-        if (err.status === 401) {
-          this.error = 'Correo o contraseña incorrectos';
+        if (err.status === 400 || err.status === 401 || err.status === 403) {
+          this.mostrarCredenciales = true;
         } else if (err.status === 0) {
           this.error = 'No se pudo conectar con el servidor';
         } else {
@@ -44,5 +53,22 @@ export class LoginComponent {
     });
   }
 
+  cerrarCredenciales(): void {
+    this.mostrarCredenciales = false;
 
+    // Se devuelve el cursor a la contraseña para corregirla
+    setTimeout(() => document.getElementById('password')?.focus());
+  }
+
+  @HostListener('document:keydown', ['$event'])
+  alPulsarTecla(evento: KeyboardEvent): void {
+    if (!this.mostrarCredenciales) return;
+
+    if (evento.key === 'Escape') {
+      this.cerrarCredenciales();
+    } else if (evento.key === 'Tab') {
+      // Con la ventana abierta, el foco se queda en su botón
+      evento.preventDefault();
+    }
+  }
 }
