@@ -72,5 +72,3 @@ td { padding: 14px 20px; border-top: 1px solid #eef3f6; font-size: 14px; color: 
 .form-error { margin: 0 0 14px !important; padding: 10px 12px; border-radius: 8px; background: rgba(240, 90, 90, 0.16); color: #f58a8a !important; font-size: 13px !important; }
 .form-box .pop-botones { margin-top: 8px; }
 
-.banner.aviso { background: #fff7e0; border: 1px solid #f1d38a; color: #8a5a00; align-items: flex-start; }
-.banner.aviso app-icon { margin-top: 2px; }

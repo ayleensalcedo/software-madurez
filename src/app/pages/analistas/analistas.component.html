@@ -9,7 +9,7 @@
   <header class="top">
     <div>
       <h1>Gestionar mi equipo</h1>
-      <p>Crea y administra las cuentas de los analistas de ciberseguridad a tu cargo.</p>
+      <p>Crea y consulta las cuentas de los analistas de ciberseguridad a tu cargo.</p>
     </div>
     <button type="button" class="btn" (click)="abrirCrear()">
       <app-icon name="plus" /> Nuevo analista
@@ -21,16 +21,6 @@
   }
   @if (exito) {
     <p class="banner ok" role="status"><app-icon name="circle-check" /> {{ exito }}</p>
-  }
-
-  @if (!cargando) {
-    <p class="banner aviso" role="note">
-      <app-icon name="info" />
-      <span>
-        El sistema no entrega la lista de usuarios al Jefe. Aquí aparecen los analistas que creas desde este navegador
-        y los que figuran en las evaluaciones de tu equipo. La desactivación de cuentas la realiza el Administrador.
-      </span>
-    </p>
   }
 
   <section class="card">
