@@ -119,6 +119,11 @@ export class EvaluacionComponent implements OnInit, OnDestroy {
     return this.pendientes.get(this.pregunta.id) ?? this.respuestasGuardadas.get(this.pregunta.id);
   }
 
+  // Normas de la pregunta con ISO 27001 primero, para un orden consistente
+  get controlesOrdenados() {
+    return this.pregunta.controles.slice().sort((a, b) => a.norma.localeCompare(b.norma));
+  }
+
   get porcentajeRespondido(): number {
     if (this.preguntas.length === 0) return 0;
     return Math.round((this.totalRespondidas / this.preguntas.length) * 100);

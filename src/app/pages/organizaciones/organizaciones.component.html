@@ -1,25 +1,63 @@
 <app-header></app-header>
-<div class="organization-container">
 
-  <div class="organization-card">
+<div class="org-page">
 
-    @if (cargando) {
+  @if (cargando) {
+
+    <div class="card estado">
       <p>Cargando...</p>
-    } @else if (error) {
-      <p class="error-message">{{ error }}</p>
-    } @else if (organizacion) {
+    </div>
 
+  } @else if (!organizacion) {
+
+    <div class="card">
+      <div class="ico ico-error"><app-icon name="circle-alert" /></div>
+      <span class="eyebrow">Nueva evaluación</span>
+      <h1>No se pudo continuar</h1>
+      <p class="banner" role="alert">{{ error }}</p>
+
+      <button type="button" class="link" (click)="volver()">
+        <app-icon name="arrow-left" /> Volver al inicio
+      </button>
+    </div>
+
+  } @else {
+
+    <div class="card">
+
+      <div class="ico"><app-icon name="building" /></div>
+
+      <span class="eyebrow">Nueva evaluación</span>
       <h1>{{ organizacion.nombre }}</h1>
-      <p>Sector: {{ organizacion.sector }}</p>
+      <span class="pill">Sector · {{ organizacion.sector }}</span>
 
-      <p>Vas a iniciar una nueva evaluación de madurez para esta organización.</p>
+      <p class="desc">
+        Vas a iniciar una nueva evaluación de madurez de seguridad y gobernanza de IA para esta organización.
+      </p>
 
-      <button type="button" (click)="IniciarEvaluacion()" [disabled]="iniciando">
+      <hr>
+
+      <ul class="list">
+        <li><app-icon name="circle-check" /> Responde las preguntas organizadas por dominio de seguridad.</li>
+        <li><app-icon name="circle-check" /> Cada respuesta se guarda automáticamente.</li>
+        <li><app-icon name="circle-check" /> Puedes pausar y retomarla desde "Mis evaluaciones".</li>
+      </ul>
+
+      @if (error) {
+        <p class="banner" role="alert">{{ error }}</p>
+      }
+
+      <button type="button" class="btn" (click)="IniciarEvaluacion()" [disabled]="iniciando">
         {{ iniciando ? 'Iniciando...' : 'Comenzar evaluación' }}
+        <app-icon name="arrow-right" />
       </button>
 
-    }
+      <button type="button" class="link" (click)="volver()" [disabled]="iniciando">
+        <app-icon name="arrow-left" /> Volver al inicio
+      </button>
 
-  </div>
+    </div>
+
+  }
 
 </div>
