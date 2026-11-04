@@ -23,17 +23,51 @@
 
     </div>
 
-    <div class="evaluation-date">
+    <div class="header-right">
 
-      <span>Evaluación realizada</span>
+      <div class="header-actions">
 
-      <strong>
-        {{ fechaEvaluacion | date:'dd/MM/yyyy' }}
-      </strong>
+        <button
+          type="button"
+          class="btn-informe"
+          (click)="exportarInforme()"
+          [disabled]="!informeListo || generandoInforme">
+          <app-icon name="download" />
+          {{ generandoInforme ? 'Generando...' : 'Exportar informe (PDF)' }}
+        </button>
+
+        @if (puedeInformeFinal) {
+          <button
+            type="button"
+            class="btn-informe principal"
+            (click)="descargarInformeFinal()"
+            [disabled]="!informeListo || generandoInforme">
+            <app-icon name="file-text" />
+            Descargar informe final
+          </button>
+        }
+
+      </div>
+
+      <div class="evaluation-date">
+
+        <span>Evaluación realizada</span>
+
+        <strong>
+          {{ fechaEvaluacion | date:'dd/MM/yyyy' }}
+        </strong>
+
+      </div>
 
     </div>
 
   </header>
+
+  @if (errorInforme) {
+    <p class="informe-error" role="alert">
+      <app-icon name="circle-alert" /> {{ errorInforme }}
+    </p>
+  }
 
 
   <!-- ==========================================
@@ -105,6 +139,25 @@
 
         </div>
 
+
+        <!-- TENDENCIA respecto a la evaluación anterior -->
+          @if (tendencia; as t) {
+            <div class="trend" [class]="t.tipo">
+              <span class="trend-badge">
+                <app-icon [name]="t.tipo === 'sube' ? 'arrow-up' : t.tipo === 'baja' ? 'arrow-down' : 'equal'" />
+                {{ t.tipo === 'sube' ? 'Subió' : t.tipo === 'baja' ? 'Bajó' : 'Se mantuvo' }}
+              </span>
+
+              <span class="trend-detalle">
+                Anterior ({{ t.fecha | date:'dd/MM/yyyy' }}): {{ t.nivelAnterior }} · {{ t.coberturaAnterior }}%
+                @if (t.diferencia !== 0) {
+                  ({{ t.diferencia > 0 ? '+' : '' }}{{ t.diferencia }} pts)
+                }
+              </span>
+            </div>
+          } @else if (tendenciaEstado === 'sin-anterior') {
+            <div class="trend sin">Sin evaluación anterior para comparar</div>
+          }
 
         <div class="score-circle"
              [style.--progress]="coberturaGlobal + '%'">
@@ -565,6 +618,12 @@
                 <span class="recommendation-domain">
 
                   {{ item.pregunta.dominio }}
+
+                </span>
+
+                <span class="domain-weight" title="Peso relativo del dominio en la evaluación">
+
+                  Peso del dominio {{ item.pregunta.pesoDominio }}%
 
                 </span>
 

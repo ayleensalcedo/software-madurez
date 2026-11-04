@@ -9,6 +9,11 @@ import { RecomendacionService } from '../../core/services/recomendacion.service'
 import { PreguntaService } from '../../core/services/pregunta.service';
 import { RespuestaService } from '../../core/services/respuesta.service';
 import { PreguntaResponse } from '../../core/services/models/pregunta.model';
+import { EvaluacionResponse } from '../../core/services/models/evaluacion.model';
+import { AuthService } from '../../core/services/auth.service';
+import { UsuarioService } from '../../core/services/usuario.service';
+import { InformeService, DatosInforme } from '../../core/services/informe.service';
+import { catchError, firstValueFrom, map, of, switchMap } from 'rxjs';
 
 interface ResultadoDominioVista {
   nombre: string;
@@ -26,6 +31,8 @@ interface RecomendacionVista {
     pregunta: string;
     controlesISO27001: string[];
     controlesISO42001: string[];
+    /** Peso relativo del dominio, en porcentaje. */
+    pesoDominio: number;
   };
   prioridad: 'ALTA' | 'MEDIA';
   recomendacion: string;
@@ -45,6 +52,9 @@ export class DashboardComponent implements OnInit {
   private recomendacionService = inject(RecomendacionService);
   private preguntaService = inject(PreguntaService);
   private respuestaService = inject(RespuestaService);
+  private authService = inject(AuthService);
+  private usuarioService = inject(UsuarioService);
+  private informeService = inject(InformeService);
   private router = inject(Router);
 
   Math = Math;
@@ -70,6 +80,18 @@ export class DashboardComponent implements OnInit {
   cargando = true;
   error = '';
 
+  // Evaluación que se está mostrando
+  evaluacion: EvaluacionResponse | null = null;
+
+  // Tendencia respecto a la evaluación anterior de la misma organización
+  tendencia: { tipo: 'sube' | 'baja' | 'igual'; nivelAnterior: string; coberturaAnterior: number; diferencia: number; fecha: Date } | null = null;
+  tendenciaEstado: 'cargando' | 'sin-anterior' | 'listo' | 'error' = 'cargando';
+
+  // Informes en PDF
+  recomendacionesListas = false;
+  generandoInforme = false;
+  errorInforme = '';
+
   private readonly ORDEN_NIVELES = ['Inicial', 'Básico', 'Definido', 'Gestionado', 'Optimizado'];
 
   ngOnInit(): void {
@@ -85,6 +107,7 @@ export class DashboardComponent implements OnInit {
       return;
     }
 
+    this.evaluacion = evaluacion;
     this.organizacion = evaluacion.organizacionNombre;
     if (evaluacion.fechaFin) {
       this.fechaEvaluacion = new Date(evaluacion.fechaFin);
@@ -114,6 +137,7 @@ export class DashboardComponent implements OnInit {
 
         this.cargando = false;
         this.cargarPreguntasYRespuestas(evaluacionId);
+        this.cargarTendencia();
       },
       error: (err) => {
         this.cargando = false;
@@ -149,6 +173,148 @@ export class DashboardComponent implements OnInit {
     });
   }
 
+  // ===== Tendencia =====
+
+  get esJefe(): boolean {
+    return this.authService.getRol() === 'JEFE_CIBERSEGURIDAD';
+  }
+
+  // Compara con la evaluación finalizada anterior de la misma organización
+  private cargarTendencia(): void {
+    const actual = this.evaluacion;
+    if (!actual) return;
+
+    const lista$ = this.esJefe
+      ? this.evaluacionService.listarEvaluacionesEquipo()
+      : this.evaluacionService.listarMisEvaluaciones();
+
+    lista$.pipe(
+      switchMap(lista => {
+        const inicioActual = new Date(actual.fechaInicio).getTime();
+
+        const anterior = lista
+          .filter(e =>
+            e.organizacionId === actual.organizacionId &&
+            e.id !== actual.id &&
+            e.estado !== 'EN_CURSO' &&
+            new Date(e.fechaInicio).getTime() < inicioActual
+          )
+          .sort((a, b) => new Date(b.fechaInicio).getTime() - new Date(a.fechaInicio).getTime())[0];
+
+        if (!anterior) return of(null);
+
+        return this.resultadoService.obtenerResultado(anterior.id).pipe(
+          map(resultado => ({ anterior, resultado }))
+        );
+      })
+    ).subscribe({
+      next: (datos) => {
+        if (!datos) {
+          this.tendencia = null;
+          this.tendenciaEstado = 'sin-anterior';
+          return;
+        }
+
+        const coberturaAnterior = Math.round(datos.resultado.coberturaGlobal);
+        const diferencia = this.coberturaGlobal - coberturaAnterior;
+
+        this.tendencia = {
+          tipo: diferencia > 0 ? 'sube' : diferencia < 0 ? 'baja' : 'igual',
+          nivelAnterior: datos.resultado.nivelMadurez,
+          coberturaAnterior,
+          diferencia,
+          fecha: new Date(datos.anterior.fechaFin ?? datos.anterior.fechaInicio)
+        };
+        this.tendenciaEstado = 'listo';
+      },
+      error: () => { this.tendenciaEstado = 'error'; }
+    });
+  }
+
+  // ===== Informes en PDF =====
+
+  get informeListo(): boolean {
+    return !this.cargando && !this.error && this.recomendacionesListas;
+  }
+
+  // El informe final lo descarga el jefe cuando la evaluación ya fue validada
+  get puedeInformeFinal(): boolean {
+    return this.esJefe && this.evaluacion?.estado === 'VALIDADA';
+  }
+
+  private datosInforme(): DatosInforme {
+    return {
+      organizacion: this.organizacion,
+      plataforma: this.solucion,
+      fecha: this.fechaEvaluacion,
+      coberturaGlobal: this.coberturaGlobal,
+      nivel: this.nombreMadurez,
+      dominios: this.resultadosDominio.map(d => ({
+        nombre: d.nombre,
+        cobertura: d.cobertura,
+        peso: Math.round(d.peso * 1000) / 10
+      })),
+      recomendaciones: this.recomendaciones.map(r => ({
+        prioridad: r.prioridad,
+        dominio: r.pregunta.dominio,
+        pesoDominio: r.pregunta.pesoDominio,
+        preguntaId: r.pregunta.id,
+        pregunta: r.pregunta.pregunta,
+        recomendacion: r.recomendacion,
+        controles: [
+          ...r.pregunta.controlesISO27001.filter(Boolean).map(c => `ISO 27001: ${c}`),
+          ...r.pregunta.controlesISO42001.filter(Boolean).map(c => `ISO 42001: ${c}`)
+        ]
+      }))
+    };
+  }
+
+  async exportarInforme(): Promise<void> {
+    if (!this.informeListo || this.generandoInforme) return;
+
+    this.generandoInforme = true;
+    this.errorInforme = '';
+
+    try {
+      await this.informeService.generar(this.datosInforme(), false);
+    } catch {
+      this.errorInforme = 'No se pudo generar el informe. Inténtalo nuevamente.';
+    } finally {
+      this.generandoInforme = false;
+    }
+  }
+
+  async descargarInformeFinal(): Promise<void> {
+    if (!this.informeListo || this.generandoInforme || !this.evaluacion) return;
+
+    this.generandoInforme = true;
+    this.errorInforme = '';
+
+    try {
+      const analista = await this.nombreAnalista(this.evaluacion.analistaId);
+
+      await this.informeService.generar({
+        ...this.datosInforme(),
+        analista,
+        estado: 'Validada',
+        observaciones: this.evaluacion.observacion ?? ''
+      }, true);
+    } catch {
+      this.errorInforme = 'No se pudo generar el informe final. Inténtalo nuevamente.';
+    } finally {
+      this.generandoInforme = false;
+    }
+  }
+
+  // La evaluación solo trae el id del analista: se busca su nombre; si no se puede, se indica el id
+  private async nombreAnalista(analistaId: number): Promise<string> {
+    const usuarios = await firstValueFrom(
+      this.usuarioService.listarUsuarios().pipe(catchError(() => of([])))
+    );
+
+    return usuarios.find(u => u.id === analistaId)?.nombre ?? `Analista #${analistaId}`;
+  }
+
   private cargarRecomendaciones(evaluacionId: number, preguntas: PreguntaResponse[]): void {
     this.recomendacionService.obtenerSugeridasPorEvaluacion(evaluacionId).subscribe(sugeridas => {
       this.recomendaciones = sugeridas.map(s => {
@@ -160,17 +326,22 @@ export class DashboardComponent implements OnInit {
             dominio: s.dominioNombre,
             pregunta: s.preguntaTexto,
             controlesISO27001: p?.controles.filter(c => c.norma === 'ISO_27001').map(c => c.anexoA) ?? [],
-            controlesISO42001: p?.controles.filter(c => c.norma === 'ISO_42001').map(c => c.anexoA) ?? []
+            controlesISO42001: p?.controles.filter(c => c.norma === 'ISO_42001').map(c => c.anexoA) ?? [],
+            pesoDominio: Math.round((this.resultadosDominio.find(d => d.nombre === s.dominioNombre)?.peso ?? 0) * 1000) / 10
           },
           prioridad: (s.nivelRespondido === 'NO_EXISTE' ? 'ALTA' : 'MEDIA') as 'ALTA' | 'MEDIA',
           recomendacion: s.recomendacionDescripcion
         };
       });
 
+      // Prioridad (ALTA, luego MEDIA); después, peso del dominio de mayor a menor; y por número de pregunta
       this.recomendaciones.sort((a, b) => {
-        if (a.prioridad === b.prioridad) return 0;
-        return a.prioridad === 'ALTA' ? -1 : 1;
+        if (a.prioridad !== b.prioridad) return a.prioridad === 'ALTA' ? -1 : 1;
+        if (a.pregunta.pesoDominio !== b.pregunta.pesoDominio) return b.pregunta.pesoDominio - a.pregunta.pesoDominio;
+        return a.pregunta.id - b.pregunta.id;
       });
+
+      this.recomendacionesListas = true;
     });
   }
 
