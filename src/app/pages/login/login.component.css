@@ -3,24 +3,22 @@
   box-sizing: border-box;
   margin: 0;
   padding: 0;
-  font-family: inherit;
+  font-family: 'Segoe UI', Roboto, sans-serif;
 }
 
 
 /* 2. Contenedor principal de pantalla completa */
 .login-container {
   display: flex;
-  width: 100%;
-  height: 100%;
-  overflow-y: auto;
+  width: 100vw;
+  height: 100vh;
 }
 
 /* 3. Panel Izquierdo (Imagen de fondo + overlay para leer el texto) */
 .login-sidebar {
   flex: 1;
-  /* Overlay sólido sobre la imagen para legibilidad del texto */
-  box-shadow: inset 0 0 0 100vmax rgba(0, 0, 0, 0.5);
-  background-image: url('https://cdn.pixabay.com/animation/2025/08/15/07/22/07-22-21-420_512.gif');
+  background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), 
+                    url('https://cdn.pixabay.com/animation/2025/08/15/07/22/07-22-21-420_512.gif');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -71,7 +69,7 @@
 .p-registro p{
   color: #ffffff;
   font-size: 12px;
-  font-family: inherit;
+  font-family: 'Segoe UI', Roboto, sans-serif;
 }
 
 /* Formulario */
@@ -130,78 +128,4 @@ button {
 button:hover {
   background-color: #00b89f;
   transform: translateY(-1px);
-}
-
-button:disabled {
-  opacity: 0.7;
-  cursor: not-allowed;
-  transform: none;
-}
-
-/* Pop up de inicio de sesión fallido */
-
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 2000;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  padding: 20px;
-
-  background: rgba(8, 13, 20, 0.72);
-}
-
-.modal-box {
-  width: 100%;
-  max-width: 400px;
-
-  padding: 32px 28px 26px;
-
-  background: #1a2332;
-  border: 1px solid #324158;
-  border-radius: 14px;
-
-  text-align: center;
-
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55);
-}
-
-.modal-icon {
-  width: 52px;
-  height: 52px;
-  margin: 0 auto 16px;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  border-radius: 50%;
-
-  background: rgba(239, 83, 80, 0.14);
-  color: #ef5350;
-
-  font-size: 28px;
-}
-
-.modal-box h3 {
-  margin: 0 0 8px;
-
-  color: #ffffff;
-  font-size: 18px;
-  font-weight: 700;
-}
-
-.modal-box p {
-  margin: 0 0 22px;
-
-  color: #a0aec0;
-  font-size: 14px;
-  line-height: 1.5;
-}
-
-.modal-button {
-  margin-top: 0;
 }
