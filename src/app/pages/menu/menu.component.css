@@ -220,3 +220,33 @@
     padding: 24px;
   }
 }
+
+/* Tarjeta "Continuar evaluación en curso" */
+
+.card-org {
+  margin: 0 0 14px;
+  font-weight: 600;
+  color: #0b1628;
+}
+
+.card-progress {
+  height: 8px;
+  margin-bottom: 8px;
+  border-radius: 8px;
+  background: #dcebf6;
+  overflow: hidden;
+}
+
+.card-progress i {
+  display: block;
+  height: 100%;
+  border-radius: 8px;
+  background: #1261a0;
+}
+
+.card-progress-text {
+  font-size: 13px;
+  color: #66798b;
+}
+
+.card-progress-text b { color: #0b1628; font-weight: 800; }
