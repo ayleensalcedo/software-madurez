@@ -139,7 +139,7 @@
                     </td>
                     <td class="acc">
                       @if (u.estado === 'ACTIVO') {
-                        <button type="button" class="icon-btn danger" (click)="desactivar(u)"
+                        <button type="button" class="icon-btn danger" (click)="pedirDesactivar(u)"
                                 title="Desactivar usuario" [attr.aria-label]="'Desactivar a ' + u.nombre">
                           <app-icon name="user-x" />
                         </button>
@@ -193,6 +193,16 @@
                   </tr>
                 }
               </tbody>
+              <tfoot>
+                <tr class="total" [class.ok]="pesosCompletos" [class.mal]="!pesosCompletos">
+                  <td><b class="strong">Total</b></td>
+                  <td>
+                    @if (!pesosCompletos) { <span class="aviso-total">Los pesos relativos deben sumar 100%.</span> }
+                  </td>
+                  <td><span class="pill" [class.ana]="pesosCompletos" [class.bad]="!pesosCompletos">{{ totalPesos | number:'1.1-1' }}%</span></td>
+                  <td></td>
+                </tr>
+              </tfoot>
             </table>
           }
         </div>
@@ -433,6 +443,33 @@
           </label>
         </div>
 
+        <form class="audit-filtros" (ngSubmit)="buscarAuditoria()">
+          <div class="af">
+            <label for="a-usuario">Usuario</label>
+            <select id="a-usuario" class="field" [(ngModel)]="filtroUsuario" name="filtroUsuario">
+              <option value="">Todos</option>
+              @for (u of usuariosAuditoria; track u) {
+                <option [value]="u">{{ u }}</option>
+              }
+            </select>
+          </div>
+          <div class="af">
+            <label for="a-desde">Desde</label>
+            <input id="a-desde" type="date" class="field" [(ngModel)]="filtroDesde" name="filtroDesde" [max]="filtroHasta || null">
+          </div>
+          <div class="af">
+            <label for="a-hasta">Hasta</label>
+            <input id="a-hasta" type="date" class="field" [(ngModel)]="filtroHasta" name="filtroHasta" [min]="filtroDesde || null">
+          </div>
+          <button type="submit" class="btn" [disabled]="rangoFechasInvalido">
+            <app-icon name="search" /> Buscar
+          </button>
+          <button type="button" class="chip" (click)="limpiarFiltrosAuditoria()">Limpiar</button>
+          @if (rangoFechasInvalido) {
+            <span class="aviso-total">"Desde" no puede ser posterior a "Hasta".</span>
+          }
+        </form>
+
         <div class="table-wrap">
           @if (cargando) {
             <p class="vacio">Cargando...</p>
@@ -595,13 +632,13 @@
             <textarea id="p-texto" class="field" rows="3" placeholder="Texto de la pregunta" [(ngModel)]="nuevaPregunta.texto" name="textoPregunta"></textarea>
           </div>
 
-          <div class="sec">Controles asociados</div>
-          <p class="hint">El dominio se hereda de los controles seleccionados.</p>
+          <div class="sec" [class.sec-error]="sinControles">Controles asociados</div>
+          <p class="hint" [class.hint-error]="sinControles">El dominio se hereda de los controles seleccionados.</p>
 
           @if (cargando) {
             <p class="vacio">Cargando controles...</p>
           } @else {
-            <div class="checks">
+            <div class="checks" [class.checks-error]="sinControles" [attr.aria-invalid]="sinControles ? 'true' : null">
               @for (c of controles; track c.id) {
                 <label class="check-item" [class.on]="controlEstaSeleccionado(c.id)">
                   <input type="checkbox" [checked]="controlEstaSeleccionado(c.id)" (change)="toggleControlSeleccionado(c.id)">
@@ -652,4 +689,29 @@
     </div>
 
   </aside>
+}
+
+
+<!-- ==========================================
+     VENTANA: CONFIRMAR DESACTIVAR USUARIO
+     ========================================== -->
+
+@if (usuarioPorDesactivar) {
+  <div class="pop-overlay" (click)="cancelarDesactivar()">
+    <div class="pop-box" role="alertdialog" aria-modal="true"
+         aria-labelledby="desact-titulo" aria-describedby="desact-mensaje"
+         (click)="$event.stopPropagation()">
+
+      <div class="pop-icon rojo"><app-icon name="user-x" /></div>
+
+      <h3 id="desact-titulo">Desactivar usuario</h3>
+      <p id="desact-mensaje">¿Está seguro de que desea desactivar esta cuenta?</p>
+
+      <div class="pop-botones">
+        <button type="button" class="pop-btn secundario" (click)="cancelarDesactivar()">Cancelar</button>
+        <button type="button" class="pop-btn peligro" (click)="confirmarDesactivar()">Confirmar</button>
+      </div>
+
+    </div>
+  </div>
 }

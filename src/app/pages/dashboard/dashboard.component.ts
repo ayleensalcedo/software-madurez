@@ -1,7 +1,7 @@
 import { IconComponent } from '../../shared/icon/icon.component';
 import { Component, OnInit, inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { DatePipe } from '@angular/common';
+import { DatePipe, DecimalPipe } from '@angular/common';
 import { HeaderComponent } from '../header/header.component';
 import { EvaluacionService } from '../../core/services/evaluacion.service';
 import { ResultadoService } from '../../core/services/resultado.service';
@@ -9,6 +9,10 @@ import { RecomendacionService } from '../../core/services/recomendacion.service'
 import { PreguntaService } from '../../core/services/pregunta.service';
 import { RespuestaService } from '../../core/services/respuesta.service';
 import { PreguntaResponse } from '../../core/services/models/pregunta.model';
+import { EvaluacionResponse } from '../../core/services/models/evaluacion.model';
+import { AuthService } from '../../core/services/auth.service';
+import { UsuarioService } from '../../core/services/usuario.service';
+import { InformeService } from '../../core/services/informe.service';
 
 interface ResultadoDominioVista {
   nombre: string;
@@ -28,13 +32,23 @@ interface RecomendacionVista {
     controlesISO42001: string[];
   };
   prioridad: 'ALTA' | 'MEDIA';
+  pesoDominio: number;
   recomendacion: string;
+}
+
+interface TendenciaVista {
+  direccion: 'sube' | 'baja' | 'igual';
+  simbolo: string;
+  etiqueta: string;
+  diferencia: number;
+  nivelAnterior: string;
+  coberturaAnterior: number;
 }
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [HeaderComponent, DatePipe, IconComponent],
+  imports: [HeaderComponent, DatePipe, DecimalPipe, IconComponent],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.css'
 })
@@ -46,8 +60,24 @@ export class DashboardComponent implements OnInit {
   private preguntaService = inject(PreguntaService);
   private respuestaService = inject(RespuestaService);
   private router = inject(Router);
+  private authService = inject(AuthService);
+  private usuarioService = inject(UsuarioService);
+  private informeService = inject(InformeService);
 
   Math = Math;
+
+  evaluacion: EvaluacionResponse | null = null;
+  tendencia: TendenciaVista | null = null;
+  analista = '';
+  generandoInforme = false;
+
+  get esJefe(): boolean {
+    return this.authService.getRol() === 'JEFE_CIBERSEGURIDAD';
+  }
+
+  get esValidada(): boolean {
+    return this.evaluacion?.estado === 'VALIDADA';
+  }
 
   organizacion = 'Sin organización registrada';
   sector = '—';
@@ -85,12 +115,15 @@ export class DashboardComponent implements OnInit {
       return;
     }
 
+    this.evaluacion = evaluacion;
     this.organizacion = evaluacion.organizacionNombre;
     if (evaluacion.fechaFin) {
       this.fechaEvaluacion = new Date(evaluacion.fechaFin);
     }
 
     this.cargarResultado(evaluacion.id);
+    this.cargarTendencia(evaluacion);
+    if (this.esJefe) this.cargarAnalista(evaluacion);
   });
 }
 
@@ -120,6 +153,120 @@ export class DashboardComponent implements OnInit {
         this.error = err.error ?? 'No se pudo cargar el resultado de la evaluación';
       }
     });
+  }
+
+  // ===== Tendencia respecto a la evaluación anterior de la misma organización =====
+
+  private cargarTendencia(actual: EvaluacionResponse): void {
+    const lista$ = this.esJefe
+      ? this.evaluacionService.listarEvaluacionesEquipo()
+      : this.evaluacionService.listarMisEvaluaciones();
+
+    lista$.subscribe({
+      next: (evaluaciones) => {
+        const tiempo = (e: EvaluacionResponse) => new Date(e.fechaFin ?? e.fechaInicio).getTime();
+
+        // Anterior = la última evaluación terminada de la misma organización, previa a la actual
+        const anterior = evaluaciones
+          .filter(e => e.id !== actual.id
+            && e.organizacionId === actual.organizacionId
+            && e.estado !== 'EN_CURSO'
+            && tiempo(e) <= tiempo(actual))
+          .sort((a, b) => tiempo(b) - tiempo(a))[0];
+
+        if (!anterior) return;
+
+        this.resultadoService.obtenerResultado(anterior.id).subscribe({
+          next: (res) => this.calcularTendencia(res.coberturaGlobal, res.nivelMadurez),
+          error: () => { /* sin tendencia */ }
+        });
+      },
+      error: () => { /* sin tendencia */ }
+    });
+  }
+
+  private calcularTendencia(coberturaAnterior: number, nivelAnterior: string): void {
+    const anterior = Math.round(coberturaAnterior);
+    const diferencia = this.coberturaGlobal - anterior;
+
+    const direccion = diferencia > 0 ? 'sube' : diferencia < 0 ? 'baja' : 'igual';
+    this.tendencia = {
+      direccion,
+      simbolo: direccion === 'sube' ? '↑' : direccion === 'baja' ? '↓' : '=',
+      etiqueta: direccion === 'sube' ? 'Subió' : direccion === 'baja' ? 'Bajó' : 'Se mantuvo',
+      diferencia,
+      nivelAnterior,
+      coberturaAnterior: anterior
+    };
+  }
+
+  // El nombre del analista solo está disponible si el usuario tiene acceso a la lista de usuarios
+  private cargarAnalista(evaluacion: EvaluacionResponse): void {
+    this.analista = `Analista #${evaluacion.analistaId}`;
+    this.usuarioService.listarUsuarios().subscribe({
+      next: (usuarios) => {
+        const a = usuarios.find(u => u.id === evaluacion.analistaId);
+        if (a) this.analista = a.nombre;
+      },
+      error: () => { /* se conserva el identificador */ }
+    });
+  }
+
+  // ===== Informes en PDF =====
+
+  private datosInforme(final: boolean) {
+    return {
+      titulo: final ? 'Informe final de evaluación' : 'Resultados de evaluación',
+      organizacion: this.organizacion,
+      fecha: this.fechaEvaluacion,
+      coberturaGlobal: this.coberturaGlobal,
+      nivel: this.nombreMadurez,
+      tendencia: this.tendencia
+        ? `Respecto a la evaluación anterior: ${this.tendencia.etiqueta}` +
+          (this.tendencia.diferencia !== 0 ? ` (${this.tendencia.diferencia > 0 ? '+' : ''}${this.tendencia.diferencia} pts)` : '') +
+          ` · Anterior: ${this.tendencia.nivelAnterior} (${this.tendencia.coberturaAnterior}%)`
+        : undefined,
+      porDominio: this.resultadosDominio.map(d => ({ nombre: d.nombre, cobertura: d.cobertura, peso: d.peso * 100 })),
+      recomendaciones: this.recomendaciones.map(r => ({
+        prioridad: r.prioridad,
+        pregunta: r.pregunta.id,
+        dominio: r.pregunta.dominio,
+        pesoDominio: r.pesoDominio,
+        texto: r.pregunta.pregunta,
+        accion: r.recomendacion
+      })),
+      ...(final ? {
+        analista: this.analista || `Analista #${this.evaluacion?.analistaId ?? ''}`,
+        estado: 'Validada',
+        observaciones: this.evaluacion?.observacion ?? ''
+      } : {})
+    };
+  }
+
+  private nombreArchivo(prefijo: string): string {
+    const org = this.organizacion.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-zA-Z0-9]+/g, '-').replace(/^-|-$/g, '');
+    const f = this.fechaEvaluacion;
+    const fecha = `${f.getFullYear()}-${String(f.getMonth() + 1).padStart(2, '0')}-${String(f.getDate()).padStart(2, '0')}`;
+    return `${prefijo}-${org || 'organizacion'}-${fecha}.pdf`;
+  }
+
+  exportarInforme(): void {
+    this.descargar(false, 'informe-madurez');
+  }
+
+  descargarInformeFinal(): void {
+    if (!this.esValidada) return;
+    this.descargar(true, 'informe-final');
+  }
+
+  private descargar(final: boolean, prefijo: string): void {
+    if (this.generandoInforme || this.cargando) return;
+    this.generandoInforme = true;
+    try {
+      this.informeService.descargar(this.datosInforme(final), this.nombreArchivo(prefijo));
+    } finally {
+      this.generandoInforme = false;
+    }
   }
 
   private cargarPreguntasYRespuestas(evaluacionId: number): void {
@@ -153,6 +300,7 @@ export class DashboardComponent implements OnInit {
     this.recomendacionService.obtenerSugeridasPorEvaluacion(evaluacionId).subscribe(sugeridas => {
       this.recomendaciones = sugeridas.map(s => {
         const p = preguntas.find(x => x.id === s.preguntaId);
+        const dominio = this.resultadosDominio.find(d => d.nombre === s.dominioNombre);
 
         return {
           pregunta: {
@@ -163,13 +311,16 @@ export class DashboardComponent implements OnInit {
             controlesISO42001: p?.controles.filter(c => c.norma === 'ISO_42001').map(c => c.anexoA) ?? []
           },
           prioridad: (s.nivelRespondido === 'NO_EXISTE' ? 'ALTA' : 'MEDIA') as 'ALTA' | 'MEDIA',
+          pesoDominio: (dominio?.peso ?? 0) * 100,
           recomendacion: s.recomendacionDescripcion
         };
       });
 
+      // Prioridad (ALTA, luego MEDIA) -> peso del dominio (mayor a menor) -> número de pregunta
       this.recomendaciones.sort((a, b) => {
-        if (a.prioridad === b.prioridad) return 0;
-        return a.prioridad === 'ALTA' ? -1 : 1;
+        if (a.prioridad !== b.prioridad) return a.prioridad === 'ALTA' ? -1 : 1;
+        if (a.pesoDominio !== b.pesoDominio) return b.pesoDominio - a.pesoDominio;
+        return a.pregunta.id - b.pregunta.id;
       });
     });
   }

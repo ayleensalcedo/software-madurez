@@ -80,3 +80,88 @@ select,
 textarea {
   font-family: inherit;
 }
+
+/* =====================================================
+   VENTANAS DE CONFIRMACIÓN (pop up compartido)
+   Mismo diseño que el pop up del login y "Evaluación guardada".
+   ===================================================== */
+
+.pop-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(8, 13, 20, 0.72);
+}
+
+.pop-box {
+  width: 100%;
+  max-width: 420px;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 32px 28px 26px;
+  background: #1a2332;
+  border: 1px solid #324158;
+  border-radius: 14px;
+  text-align: center;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55);
+}
+
+.pop-icon {
+  width: 52px;
+  height: 52px;
+  margin: 0 auto 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: rgba(245, 158, 11, 0.16);
+  color: #f5b13d;
+  font-size: 28px;
+}
+
+.pop-icon.rojo { background: rgba(240, 90, 90, 0.16); color: #f58a8a; }
+.pop-icon.verde { background: rgba(18, 163, 111, 0.16); color: #2ed39a; }
+
+.pop-box h3 { margin: 0 0 8px; color: #ffffff; font-size: 18px; font-weight: 700; }
+.pop-box p { margin: 0 0 22px; color: #a0aec0; font-size: 14px; line-height: 1.5; }
+
+.pop-lista {
+  margin: -8px 0 22px;
+  padding: 0;
+  list-style: none;
+  text-align: left;
+  color: #cbd5e0;
+  font-size: 13px;
+}
+
+.pop-lista li { padding: 6px 0; border-top: 1px solid #324158; }
+.pop-lista li:first-child { border-top: 0; }
+
+.pop-botones { display: flex; gap: 10px; }
+
+.pop-btn {
+  flex: 1;
+  padding: 13px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.1s ease;
+}
+
+.pop-btn:hover { transform: translateY(-1px); }
+.pop-btn:focus-visible { outline: 2px solid #ffffff; outline-offset: 3px; }
+.pop-btn:disabled { opacity: 0.6; cursor: default; transform: none; }
+
+.pop-btn.primario { background: #00d2b5; color: #0d1520; }
+.pop-btn.primario:hover { background: #00b89f; }
+.pop-btn.peligro { background: #e5484d; color: #ffffff; }
+.pop-btn.peligro:hover { background: #cf3a3f; }
+.pop-btn.secundario { background: transparent; border-color: #4a5a73; color: #cbd5e0; }
+.pop-btn.secundario:hover { background: #243146; }

@@ -1,0 +1,106 @@
+<app-header></app-header>
+
+<div class="page">
+
+  <button type="button" class="volver" (click)="volver()">
+    <app-icon name="arrow-left" /> Volver a mi equipo
+  </button>
+
+  <header class="page-header">
+    <h1>Vista comparativa</h1>
+    <p>Compara la cobertura y el nivel de madurez de dos evaluaciones finalizadas.</p>
+  </header>
+
+  @if (cargando) {
+
+    <p class="estado">Cargando comparativa...</p>
+
+  } @else if (error) {
+
+    <p class="error-message" role="alert">{{ error }}</p>
+
+  } @else if (izquierda && derecha) {
+
+    <!-- ===== Evaluaciones lado a lado ===== -->
+    <section class="lados">
+
+      @for (lado of [izquierda, derecha]; track lado.evaluacion.id; let i = $index) {
+        <article class="lado">
+
+          <span class="lado-etiqueta">{{ i === 0 ? 'Evaluación anterior' : 'Evaluación más reciente' }}</span>
+          <h2>{{ lado.evaluacion.organizacionNombre }}</h2>
+          <small>
+            {{ (lado.evaluacion.fechaFin ?? lado.evaluacion.fechaInicio) | date:'dd/MM/yyyy HH:mm' }}
+            · {{ etiquetaEstado(lado.evaluacion.estado) }}
+          </small>
+
+          <div class="metrica">
+            <span>Cobertura global</span>
+            <strong>{{ lado.resultado.coberturaGlobal | number:'1.0-1' }}%</strong>
+
+            @if (i === 1) {
+              <span class="delta" [class]="'delta ' + clase(diferenciaGlobal)">
+                @if (diferenciaGlobal < 0) { <app-icon name="triangle-alert" /> }
+                {{ diferenciaGlobal > 0 ? '+' : '' }}{{ diferenciaGlobal | number:'1.0-1' }}%
+              </span>
+            }
+          </div>
+
+          <div class="metrica">
+            <span>Nivel de madurez</span>
+            <strong class="nivel">{{ lado.resultado.nivelMadurez }}</strong>
+          </div>
+
+        </article>
+      }
+
+    </section>
+
+    <!-- ===== Resumen ===== -->
+    <p class="resumen">
+      <span class="mejora"><app-icon name="check" /> {{ mejoras }} dominio(s) con mejora</span>
+      <span class="retroceso"><app-icon name="triangle-alert" /> {{ retrocesos }} dominio(s) con retroceso</span>
+    </p>
+
+    <!-- ===== Cobertura por dominio ===== -->
+    <section class="dominios">
+      <h3>Cobertura por dominio</h3>
+
+      <div class="dom-cabecera" aria-hidden="true">
+        <span>Dominio</span>
+        <span>Anterior</span>
+        <span>Reciente</span>
+        <span>Diferencia</span>
+      </div>
+
+      @for (f of filasDominio; track f.nombre) {
+        <div class="dom-fila" [class]="'dom-fila ' + clase(f.diferencia)">
+
+          <b class="dom-nombre">{{ f.nombre }}</b>
+
+          <span class="dom-valor">
+            <span class="barra"><i [style.width.%]="f.izquierda ?? 0"></i></span>
+            {{ f.izquierda !== null ? (f.izquierda | number:'1.0-1') + '%' : '—' }}
+          </span>
+
+          <span class="dom-valor">
+            <span class="barra"><i [style.width.%]="f.derecha ?? 0"></i></span>
+            {{ f.derecha !== null ? (f.derecha | number:'1.0-1') + '%' : '—' }}
+          </span>
+
+          <span class="dom-diff">
+            @if (f.diferencia === null) {
+              —
+            } @else {
+              @if (f.diferencia < 0) { <app-icon name="triangle-alert" /> }
+              {{ f.diferencia > 0 ? '+' : '' }}{{ f.diferencia | number:'1.0-1' }}%
+            }
+          </span>
+
+        </div>
+      }
+    </section>
+
+  }
+
+</div>

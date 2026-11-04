@@ -1,4 +1,4 @@
-<app-header [attr.inert]="avanceGuardado ? '' : null"></app-header>
+<app-header [attr.inert]="ventanaAbierta ? '' : null"></app-header>
 
 @if (cargando) {
 
@@ -16,7 +16,7 @@
        AVANCE POR DOMINIO
        ========================================== -->
 
-  <nav class="steps" aria-label="Avance por dominio" [attr.inert]="avanceGuardado ? '' : null">
+  <nav class="steps" aria-label="Avance por dominio" [attr.inert]="ventanaAbierta ? '' : null">
     <div class="steps-in" [style.--cols]="dominiosVista.length">
 
       @for (d of dominiosVista; track d.id; let i = $index) {
@@ -27,7 +27,10 @@
               @if (d.activo) { <i class="step-dot"></i> }
               {{ i + 1 }} · {{ d.nombre }}
             </span>
-            <em class="step-count">{{ d.respondidas }}/{{ d.indices.length }}</em>
+            <em class="step-count">{{ d.respondidas }}/{{ d.indices.length }} · {{ porcentajeDominio(d) }}%</em>
+            @if (porcentajeDominio(d) === 100) {
+              <span class="step-done"><app-icon name="circle-check" /> Completado</span>
+            }
           </button>
 
           <div class="seg">
@@ -36,8 +39,9 @@
                 type="button"
                 class="seg-item"
                 [class.ok]="estaRespondida(idx)"
+                [class.omitida]="esOmitida(idx)"
                 [class.cur]="idx === preguntaActual"
-                [title]="'Pregunta ' + (n + 1) + ' de ' + d.nombre"
+                [title]="'Pregunta ' + (n + 1) + ' de ' + d.nombre + (esOmitida(idx) ? ' (pendiente)' : '')"
                 [attr.aria-label]="'Ir a la pregunta ' + (n + 1) + ' de ' + d.nombre"
                 [attr.aria-current]="idx === preguntaActual ? 'step' : null"
                 (click)="irAPregunta(idx)"
@@ -56,7 +60,7 @@
        PREGUNTA
        ========================================== -->
 
-  <main class="stage" [attr.inert]="avanceGuardado ? '' : null">
+  <main class="stage" [attr.inert]="ventanaAbierta ? '' : null">
     <section class="q">
 
       <div class="q-meta">
@@ -128,7 +132,7 @@
        NAVEGACIÓN
        ========================================== -->
 
-  <footer class="foot" [attr.inert]="avanceGuardado ? '' : null">
+  <footer class="foot" [attr.inert]="ventanaAbierta ? '' : null">
     <div class="foot-in">
 
       <button type="button" class="btn-secondary" (click)="anterior()" [disabled]="preguntaActual === 0">
@@ -139,6 +143,10 @@
         <b>{{ totalRespondidas }}</b> de {{ preguntas.length }} respondidas
         <i class="sep"></i>
         <span class="pct">{{ porcentajeRespondido }}%</span>
+        @if (totalPendientes > 0) {
+          <i class="sep"></i>
+          <button type="button" class="link-pendientes" (click)="verPendientes()">Ver preguntas pendientes</button>
+        }
       </span>
 
       <div class="actions">
@@ -159,6 +167,14 @@
 
     </div>
   </footer>
+
+  @if (avisoSinRespuesta) {
+    <div class="toast-aviso" role="status">
+      <app-icon name="circle-alert" />
+      <span>Esta pregunta aún no tiene respuesta. Podrás volver a ella antes de finalizar.</span>
+      <button type="button" aria-label="Cerrar aviso" (click)="cerrarAviso()"><app-icon name="x" /></button>
+    </div>
+  }
 
 }
 
@@ -196,4 +212,77 @@
 
   </div>
 
+}
+
+
+<!-- ==========================================
+     VENTANA: PREGUNTAS PENDIENTES
+     ========================================== -->
+
+@if (ventanaPendientes) {
+  <div class="pop-overlay" (click)="cerrarPendientes()">
+    <div class="pop-box pop-ancho" role="alertdialog" aria-modal="true"
+         aria-labelledby="pend-titulo" (click)="$event.stopPropagation()">
+
+      <div class="pop-icon" [class.rojo]="ventanaPendientes === 'bloqueo'"><app-icon name="circle-alert" /></div>
+
+      @if (ventanaPendientes === 'bloqueo') {
+        <h3 id="pend-titulo">No se puede finalizar la evaluación</h3>
+        <p>Debes responder las preguntas pendientes antes de finalizar.</p>
+      } @else {
+        <h3 id="pend-titulo">Preguntas pendientes</h3>
+        <p>Selecciona una pregunta para ir directamente a ella.</p>
+      }
+
+      <ul class="pend-lista">
+        @for (d of pendientesPorDominio; track d.id) {
+          <li>
+            @if (ventanaPendientes === 'bloqueo') {
+              <span class="pend-msg">
+                Existen {{ d.preguntas.length }} pregunta(s) pendiente(s) por responder en el dominio {{ d.nombre }}.
+              </span>
+            }
+            <span class="pend-dom">Dominio {{ d.numero }}: {{ d.preguntas.length === 1 ? 'Pregunta' : 'Preguntas' }} {{ d.texto }}</span>
+            <span class="pend-chips">
+              @for (n of d.preguntas; track n) {
+                <button type="button" class="pend-chip" (click)="irAPendiente(n)">Ir a la pregunta {{ n }}</button>
+              }
+            </span>
+          </li>
+        }
+      </ul>
+
+      <div class="pop-botones">
+        <button type="button" class="pop-btn primario" (click)="cerrarPendientes()">Entendido</button>
+      </div>
+
+    </div>
+  </div>
+}
+
+
+<!-- ==========================================
+     VENTANA: CONFIRMAR FINALIZAR
+     ========================================== -->
+
+@if (confirmandoFinalizar) {
+  <div class="pop-overlay" (click)="cancelarFinalizar()">
+    <div class="pop-box" role="alertdialog" aria-modal="true"
+         aria-labelledby="fin-titulo" aria-describedby="fin-mensaje"
+         (click)="$event.stopPropagation()">
+
+      <div class="pop-icon"><app-icon name="clipboard-check" /></div>
+
+      <h3 id="fin-titulo">Finalizar evaluación</h3>
+      <p id="fin-mensaje">¿Deseas finalizar la evaluación? Ya no podrás modificar las respuestas.</p>
+
+      <div class="pop-botones">
+        <button type="button" class="pop-btn secundario" (click)="cancelarFinalizar()" [disabled]="finalizando">Cancelar</button>
+        <button type="button" class="pop-btn primario" (click)="confirmarFinalizar()" [disabled]="finalizando">
+          {{ finalizando ? 'Finalizando...' : 'Finalizar' }}
+        </button>
+      </div>
+
+    </div>
+  </div>
 }

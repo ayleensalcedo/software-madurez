@@ -11,6 +11,32 @@
 <div class="menu-grid">
 
   @if (esAnalista) {
+    <!-- CARD 0: evaluación en curso (solo si existe) -->
+    @if (enCurso) {
+      <div class="menu-card highlight en-curso">
+        <div class="card-header">
+          <div class="icon-container"><app-icon class="card-icon" name="clock" /></div>
+        </div>
+        <div class="card-content">
+          <span class="card-label">En curso</span>
+          <h3>Continuar evaluación en curso</h3>
+          <p class="org-nombre"><app-icon name="building" /> {{ enCurso.organizacionNombre }}</p>
+
+          @if (avanceTotal > 0) {
+            <div class="avance" role="progressbar" [attr.aria-valuenow]="porcentajeAvance" aria-valuemin="0" aria-valuemax="100">
+              <div class="avance-barra"><i [style.width.%]="porcentajeAvance"></i></div>
+              <small>{{ avanceRespondidas }}/{{ avanceTotal }} respondidas · {{ porcentajeAvance }}%</small>
+            </div>
+          }
+        </div>
+        <div class="card-footer">
+          <button class="btn-action primary" (click)="continuarEvaluacion()" [disabled]="continuando">
+            Continuar <app-icon name="arrow-right" />
+          </button>
+        </div>
+      </div>
+    }
+
     <!-- CARD 1 -->
     <div class="menu-card highlight">
       <div class="card-header">

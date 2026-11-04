@@ -18,9 +18,33 @@
       <p>Tu equipo aún no tiene evaluaciones registradas.</p>
     </div>
   } @else {
+    <div class="barra-comparar">
+      <span class="barra-texto">
+        Marca la casilla "Comparar" en dos evaluaciones finalizadas.
+        <b>{{ seleccionadas.length }}/2 seleccionadas</b>
+      </span>
+      <button type="button" class="btn-comparar" (click)="compararEvaluaciones()" [disabled]="seleccionadas.length !== 2">
+        Comparar evaluaciones
+      </button>
+    </div>
+
     <div class="evaluaciones-lista">
       @for (ev of evaluaciones; track ev.id) {
-        <article class="evaluacion-card">
+        <article class="evaluacion-card" [class.seleccionada]="estaSeleccionada(ev)">
+          @if (puedeComparar(ev)) {
+            <label class="casilla-comparar" [class.bloqueada]="casillaBloqueada(ev)">
+              <input
+                type="checkbox"
+                [checked]="estaSeleccionada(ev)"
+                [disabled]="casillaBloqueada(ev)"
+                (change)="alternarSeleccion(ev)"
+              >
+              <span>Comparar</span>
+            </label>
+          } @else {
+            <span class="casilla-comparar vacia"></span>
+          }
+
           <div class="evaluacion-info">
             <h3>{{ ev.organizacionNombre }}</h3>
             <span>Iniciada: {{ ev.fechaInicio | date:'dd/MM/yyyy HH:mm' }}</span>
@@ -36,6 +60,10 @@
             <span class="badge" [class]="claseEstado(ev.estado)">
               {{ etiquetaEstado(ev.estado) }}
             </span>
+
+            @if (puedeComparar(ev)) {
+              <button type="button" class="btn-ver" (click)="verResultados(ev)">Ver resultados</button>
+            }
 
             @if (puedeRevisar(ev)) {
               <div class="botones-revision">

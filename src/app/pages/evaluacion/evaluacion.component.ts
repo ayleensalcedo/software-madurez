@@ -1,5 +1,5 @@
 import { IconComponent } from '../../shared/icon/icon.component';
-import { Component, ElementRef, OnInit, ViewChild, inject } from '@angular/core';
+import { Component, ElementRef, HostListener, OnInit, ViewChild, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { HeaderComponent } from '../header/header.component';
 import { EvaluacionService } from '../../core/services/evaluacion.service';
@@ -181,7 +181,27 @@ export class EvaluacionComponent implements OnInit {
     });
   }
 
+  // Aviso temporal al avanzar sin responder
+  avisoSinRespuesta = false;
+  private temporizadorAviso?: ReturnType<typeof setTimeout>;
+
+  private mostrarAviso(): void {
+    this.avisoSinRespuesta = true;
+    clearTimeout(this.temporizadorAviso);
+    this.temporizadorAviso = setTimeout(() => this.avisoSinRespuesta = false, 5000);
+  }
+
+  cerrarAviso(): void {
+    clearTimeout(this.temporizadorAviso);
+    this.avisoSinRespuesta = false;
+  }
+
   siguiente(): void {
+    // Se puede avanzar sin responder, pero se advierte que queda pendiente
+    if (!this.respuestaActual) {
+      this.mostrarAviso();
+    }
+
     if (this.preguntaActual < this.preguntas.length - 1) {
       this.preguntaActual++;
     }
@@ -197,6 +217,7 @@ export class EvaluacionComponent implements OnInit {
     if (indice >= 0 && indice < this.preguntas.length) {
       this.preguntaActual = indice;
       this.error = '';
+      this.cerrarAviso();
     }
   }
 
@@ -240,14 +261,90 @@ export class EvaluacionComponent implements OnInit {
     this.router.navigate(['/menu']);
   }
 
+  // ----- Preguntas pendientes -----
+
+  // Se activa al intentar finalizar con preguntas sin responder: las omitidas se resaltan en rojo
+  intentoFinalizar = false;
+
+  // Ventanas: resumen de pendientes (bloqueo o consulta) y confirmación de finalizar
+  ventanaPendientes: 'bloqueo' | 'consulta' | null = null;
+  confirmandoFinalizar = false;
+
+  get ventanaAbierta(): boolean {
+    return this.avanceGuardado || this.ventanaPendientes !== null || this.confirmandoFinalizar;
+  }
+
+  esOmitida(indice: number): boolean {
+    return this.intentoFinalizar && !this.estaRespondida(indice);
+  }
+
+  // Pendientes agrupadas por dominio, con su número de pregunta (1..N) en la evaluación
+  get pendientesPorDominio(): { id: number; numero: number; nombre: string; preguntas: number[]; texto: string }[] {
+    return this.dominiosVista
+      .map((d, i) => {
+        const preguntas = d.indices.filter(idx => !this.estaRespondida(idx)).map(idx => idx + 1);
+        return {
+          id: d.id,
+          numero: i + 1,
+          nombre: d.nombre,
+          preguntas,
+          texto: this.listaNumeros(preguntas)
+        };
+      })
+      .filter(d => d.preguntas.length > 0);
+  }
+
+  get totalPendientes(): number {
+    return this.preguntas.length - this.totalRespondidas;
+  }
+
+  // "5", "5 y 12", "3, 5 y 12"
+  private listaNumeros(numeros: number[]): string {
+    if (numeros.length <= 1) return numeros.join('');
+    return `${numeros.slice(0, -1).join(', ')} y ${numeros[numeros.length - 1]}`;
+  }
+
+  verPendientes(): void {
+    if (this.totalPendientes === 0) return;
+    this.ventanaPendientes = 'consulta';
+  }
+
+  cerrarPendientes(): void {
+    this.ventanaPendientes = null;
+  }
+
+  // Desde el resumen: lleva directamente a la pregunta
+  irAPendiente(numeroPregunta: number): void {
+    this.ventanaPendientes = null;
+    this.irAPregunta(numeroPregunta - 1);
+  }
+
+  porcentajeDominio(d: { respondidas: number; indices: number[] }): number {
+    return d.indices.length === 0 ? 0 : Math.round((d.respondidas / d.indices.length) * 100);
+  }
+
+  // ----- Finalizar -----
+
   finalizando = false;
 
   finalizarEvaluacion(): void {
+    if (this.finalizando) return;
+
     if (!this.todasRespondidas()) {
-      this.error = 'Debes responder todas las preguntas antes de finalizar.';
+      this.error = '';
+      this.intentoFinalizar = true;
+      this.ventanaPendientes = 'bloqueo';
       return;
     }
 
+    this.confirmandoFinalizar = true;
+  }
+
+  cancelarFinalizar(): void {
+    this.confirmandoFinalizar = false;
+  }
+
+  confirmarFinalizar(): void {
     if (this.finalizando) return;
     this.finalizando = true;
 
@@ -256,14 +353,23 @@ export class EvaluacionComponent implements OnInit {
     ).subscribe({
       next: () => {
         this.finalizando = false;
+        this.confirmandoFinalizar = false;
         this.router.navigate(['/dashboard']);
       },
       error: (err) => {
         this.finalizando = false;
+        this.confirmandoFinalizar = false;
         this.error = typeof err.error === 'string'
           ? err.error
           : (err.error?.message ?? 'No se pudo finalizar la evaluación');
       }
     });
+  }
+
+  @HostListener('document:keydown.escape')
+  cerrarVentanas(): void {
+    if (this.finalizando) return;
+    this.ventanaPendientes = null;
+    this.confirmandoFinalizar = false;
   }
 }

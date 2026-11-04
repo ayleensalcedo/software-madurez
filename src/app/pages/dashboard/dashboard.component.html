@@ -23,13 +23,31 @@
 
     </div>
 
-    <div class="evaluation-date">
+    <div class="header-right">
 
-      <span>Evaluación realizada</span>
+      <div class="evaluation-date">
 
-      <strong>
-        {{ fechaEvaluacion | date:'dd/MM/yyyy' }}
-      </strong>
+        <span>Evaluación realizada</span>
+
+        <strong>
+          {{ fechaEvaluacion | date:'dd/MM/yyyy' }}
+        </strong>
+
+      </div>
+
+      <div class="header-actions">
+
+        <button type="button" class="btn-informe" (click)="exportarInforme()" [disabled]="cargando || generandoInforme">
+          <app-icon name="download" /> Exportar informe (PDF)
+        </button>
+
+        @if (esJefe && esValidada) {
+          <button type="button" class="btn-informe final" (click)="descargarInformeFinal()" [disabled]="cargando || generandoInforme">
+            <app-icon name="file-text" /> Descargar informe final
+          </button>
+        }
+
+      </div>
 
     </div>
 
@@ -102,6 +120,17 @@
           <span class="maturity-description">
             Cobertura global ponderada
           </span>
+
+          @if (tendencia; as t) {
+            <div class="trend" [class]="'trend ' + t.direccion"
+                 [attr.aria-label]="t.etiqueta + ' respecto a la evaluación anterior'">
+              <span class="trend-icon" aria-hidden="true">{{ t.simbolo }}</span>
+              <span class="trend-text">
+                <b>{{ t.etiqueta }}@if (t.diferencia !== 0) { {{ t.diferencia > 0 ? '+' : '' }}{{ t.diferencia }} pts }</b>
+                <small>Anterior: {{ t.nivelAnterior }} · {{ t.coberturaAnterior }}%</small>
+              </span>
+            </div>
+          }
 
         </div>
 
@@ -565,6 +594,12 @@
                 <span class="recommendation-domain">
 
                   {{ item.pregunta.dominio }}
+
+                </span>
+
+                <span class="domain-weight" title="Peso del dominio en la cobertura global">
+
+                  Peso del dominio: {{ item.pesoDominio | number:'1.0-1' }}%
 
                 </span>
 

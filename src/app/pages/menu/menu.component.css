@@ -220,3 +220,40 @@
     padding: 24px;
   }
 }
+
+
+/* ---------- Tarjeta: continuar evaluación en curso ---------- */
+
+.org-nombre {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+}
+
+.avance { margin-top: 14px; }
+
+.avance-barra {
+  height: 8px;
+  border-radius: 6px;
+  background: #e6ecf1;
+  overflow: hidden;
+}
+
+.avance-barra i {
+  display: block;
+  height: 100%;
+  border-radius: 6px;
+  background: #12a36f;
+  transition: width 0.3s ease;
+}
+
+.avance small {
+  display: block;
+  margin-top: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #5a6f82;
+}
+
+.btn-action:disabled { opacity: 0.6; cursor: default; }

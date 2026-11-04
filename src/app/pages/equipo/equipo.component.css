@@ -139,3 +139,71 @@
   opacity: 0.5;
   cursor: not-allowed;
 }
+
+/* ---------- Comparar evaluaciones ---------- */
+
+.barra-comparar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+  padding: 12px 16px;
+  border: 1px solid #dce6ed;
+  border-radius: 12px;
+  background: #f7fafc;
+}
+
+.barra-texto { font-size: 13px; color: #4a6176; }
+.barra-texto b { margin-left: 8px; color: #0b2a4a; }
+
+.btn-comparar {
+  padding: 9px 18px;
+  border: 0;
+  border-radius: 10px;
+  background: #0464a4;
+  color: #ffffff;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.btn-comparar:disabled { opacity: 0.45; cursor: not-allowed; }
+
+.evaluacion-card { gap: 16px; }
+.evaluacion-card.seleccionada { border-color: #0464a4; box-shadow: 0 0 0 3px rgba(4, 100, 164, 0.12); }
+.evaluacion-info { flex: 1; }
+
+.casilla-comparar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 96px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #0b2a4a;
+  cursor: pointer;
+}
+
+.casilla-comparar.bloqueada { opacity: 0.45; cursor: not-allowed; }
+.casilla-comparar input { width: 16px; height: 16px; accent-color: #0464a4; }
+
+.btn-ver {
+  padding: 6px 14px;
+  border: 1px solid #0464a4;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #0464a4;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.btn-ver:hover { background: #e0f0ff; }
+
+@media (max-width: 640px) {
+  .evaluacion-card { flex-wrap: wrap; }
+  .evaluacion-acciones { align-items: flex-start; width: 100%; }
+}

@@ -79,6 +79,12 @@ export class AdminComponent implements OnInit {
   filtroRol: 'TODOS' | 'JEFE' | 'GERENTE' | 'ANALISTA' | 'INACTIVOS' = 'TODOS';
   filtroAccion = '';
 
+  // Filtros de auditoría: los campos se editan y se aplican con el botón "Buscar"
+  filtroUsuario = '';
+  filtroDesde = '';
+  filtroHasta = '';
+  private aplicado = { usuario: '', desde: '', hasta: '' };
+
   usuarios: UsuarioResponse[] = [];
   auditoria: AuditoriaTecnicaResponse[] = [];
   dominios: DominioResponse[] = [];
@@ -144,12 +150,14 @@ export class AdminComponent implements OnInit {
 
   abrirPanel(): void {
     this.error = ''; this.exito = '';
+    this.sinControles = false;
     this.panelAbierto = true;
   }
 
   @HostListener('document:keydown.escape')
   cerrarPanel(): void {
     this.panelAbierto = false;
+    this.usuarioPorDesactivar = null;
   }
 
   cambiarSeccion(seccion: Seccion): void {
@@ -160,6 +168,8 @@ export class AdminComponent implements OnInit {
     this.busqueda = '';
     this.filtroRol = 'TODOS';
     this.filtroAccion = '';
+    this.limpiarFiltrosAuditoria();
+    this.sinControles = false;
 
     if (seccion === 'usuarios' && this.usuarios.length === 0) this.cargarUsuarios();
     if (seccion === 'auditoria' && this.auditoria.length === 0) this.cargarAuditoria();
@@ -201,7 +211,24 @@ export class AdminComponent implements OnInit {
     });
   }
 
-  desactivar(usuario: UsuarioResponse): void {
+  // Usuario pendiente de confirmar en la ventana "Desactivar usuario"
+  usuarioPorDesactivar: UsuarioResponse | null = null;
+
+  pedirDesactivar(usuario: UsuarioResponse): void {
+    this.usuarioPorDesactivar = usuario;
+  }
+
+  cancelarDesactivar(): void {
+    this.usuarioPorDesactivar = null;
+  }
+
+  confirmarDesactivar(): void {
+    const usuario = this.usuarioPorDesactivar;
+    this.usuarioPorDesactivar = null;
+    if (usuario) this.desactivar(usuario);
+  }
+
+  private desactivar(usuario: UsuarioResponse): void {
     this.error = ''; this.exito = '';
     this.usuarioService.desactivarUsuario(usuario.id).subscribe({
       next: () => { this.exito = `${usuario.nombre} desactivado correctamente`; this.cargarUsuarios(); },
@@ -318,7 +345,11 @@ export class AdminComponent implements OnInit {
     });
   }
 
+  // Se activa al intentar crear una pregunta sin controles: resalta la sección en rojo
+  sinControles = false;
+
   toggleControlSeleccionado(controlId: number): void {
+    this.sinControles = false;
     const idx = this.nuevaPregunta.controlIds.indexOf(controlId);
     if (idx === -1) {
       this.nuevaPregunta.controlIds.push(controlId);
@@ -335,6 +366,7 @@ export class AdminComponent implements OnInit {
     this.error = ''; this.exito = '';
 
     if (this.nuevaPregunta.controlIds.length === 0) {
+      this.sinControles = true;
       this.error = 'Selecciona al menos un control para la pregunta';
       return;
     }
@@ -344,6 +376,7 @@ export class AdminComponent implements OnInit {
         this.exito = 'Pregunta creada correctamente';
         this.panelAbierto = false;
         this.nuevaPregunta = { texto: '', controlIds: [] };
+        this.sinControles = false;
         this.cargarPreguntasYControles();
       },
       error: (err) => this.error = err.error ?? 'No se pudo crear la pregunta'
@@ -442,6 +475,15 @@ export class AdminComponent implements OnInit {
 
   // ===== Ayudas de vista =====
 
+  // Suma de los pesos relativos de los dominios (debe ser 100%)
+  get totalPesos(): number {
+    return this.dominios.reduce((suma, d) => suma + d.pesoRelativo, 0);
+  }
+
+  get pesosCompletos(): boolean {
+    return Math.abs(this.totalPesos - 100) < 0.05;
+  }
+
   get totalActivos(): number {
     return this.usuarios.filter(u => u.estado === 'ACTIVO').length;
   }
@@ -488,11 +530,40 @@ export class AdminComponent implements OnInit {
     return Array.from(new Set(this.auditoria.map(a => a.accion)));
   }
 
+  get usuariosAuditoria(): string[] {
+    return Array.from(new Set(this.auditoria.map(a => a.usuarioNombre))).sort((a, b) => a.localeCompare(b));
+  }
+
+  buscarAuditoria(): void {
+    this.aplicado = { usuario: this.filtroUsuario, desde: this.filtroDesde, hasta: this.filtroHasta };
+  }
+
+  limpiarFiltrosAuditoria(): void {
+    this.filtroUsuario = this.filtroDesde = this.filtroHasta = '';
+    this.buscarAuditoria();
+  }
+
+  get rangoFechasInvalido(): boolean {
+    return !!this.filtroDesde && !!this.filtroHasta && this.filtroDesde > this.filtroHasta;
+  }
+
+  // Compara por día local (yyyy-MM-dd), igual que los campos de fecha
+  private diaLocal(fecha: string): string {
+    const d = new Date(fecha);
+    const mes = String(d.getMonth() + 1).padStart(2, '0');
+    const dia = String(d.getDate()).padStart(2, '0');
+    return `${d.getFullYear()}-${mes}-${dia}`;
+  }
+
   get auditoriaFiltrada(): AuditoriaTecnicaResponse[] {
     const q = this.busqueda.trim().toLowerCase();
+    const { usuario, desde, hasta } = this.aplicado;
 
     return this.auditoria.filter(a =>
       (!this.filtroAccion || a.accion === this.filtroAccion) &&
+      (!usuario || a.usuarioNombre === usuario) &&
+      (!desde || this.diaLocal(a.fecha) >= desde) &&
+      (!hasta || this.diaLocal(a.fecha) <= hasta) &&
       (!q ||
         a.usuarioNombre.toLowerCase().includes(q) ||
         a.entidadAfectada.toLowerCase().includes(q) ||

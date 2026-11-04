@@ -1,5 +1,6 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { DatePipe } from '@angular/common';
+import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { HeaderComponent } from '../header/header.component';
 import { EvaluacionService } from '../../core/services/evaluacion.service';
@@ -15,6 +16,7 @@ import { EvaluacionResponse } from '../../core/services/models/evaluacion.model'
 export class EquipoComponent implements OnInit {
 
   private evaluacionService = inject(EvaluacionService);
+  private router = inject(Router);
 
   evaluaciones: EvaluacionResponse[] = [];
   cargando: boolean = true;
@@ -41,6 +43,43 @@ export class EquipoComponent implements OnInit {
         this.error = err.error ?? 'No se pudieron cargar las evaluaciones del equipo';
       }
     });
+  }
+
+  // ===== Comparar dos evaluaciones finalizadas =====
+
+  seleccionadas: number[] = [];
+
+  // Solo se comparan evaluaciones ya finalizadas (finalizada, validada u observada)
+  puedeComparar(evaluacion: EvaluacionResponse): boolean {
+    return evaluacion.estado !== 'EN_CURSO';
+  }
+
+  estaSeleccionada(evaluacion: EvaluacionResponse): boolean {
+    return this.seleccionadas.includes(evaluacion.id);
+  }
+
+  // Con dos elegidas, el resto de casillas se bloquea hasta quitar una
+  casillaBloqueada(evaluacion: EvaluacionResponse): boolean {
+    return this.seleccionadas.length >= 2 && !this.estaSeleccionada(evaluacion);
+  }
+
+  alternarSeleccion(evaluacion: EvaluacionResponse): void {
+    if (this.estaSeleccionada(evaluacion)) {
+      this.seleccionadas = this.seleccionadas.filter(id => id !== evaluacion.id);
+    } else if (this.seleccionadas.length < 2) {
+      this.seleccionadas = [...this.seleccionadas, evaluacion.id];
+    }
+  }
+
+  compararEvaluaciones(): void {
+    if (this.seleccionadas.length !== 2) return;
+    const [a, b] = this.seleccionadas;
+    this.router.navigate(['/comparativa'], { queryParams: { a, b } });
+  }
+
+  verResultados(evaluacion: EvaluacionResponse): void {
+    this.evaluacionService.setEvaluacionActual(evaluacion);
+    this.router.navigate(['/dashboard']);
   }
 
   puedeRevisar(evaluacion: EvaluacionResponse): boolean {

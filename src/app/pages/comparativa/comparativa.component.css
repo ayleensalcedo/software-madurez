@@ -1,0 +1,160 @@
+.volver {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 14px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: #1261a0;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.volver:hover { color: #0b2a4a; }
+
+.estado { color: #718494; }
+.error-message { color: #c0392b; }
+
+/* ---------- Evaluaciones lado a lado ---------- */
+
+.lados {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.lado {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 20px;
+  border: 1px solid #dce6ed;
+  border-radius: 14px;
+  background: #ffffff;
+}
+
+.lado-etiqueta {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: #10aebd;
+}
+
+.lado h2 { margin: 0; font-size: 18px; color: #0b2a4a; }
+.lado small { color: #718494; font-size: 12px; }
+
+.metrica {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+  margin-top: 12px;
+}
+
+.metrica > span:first-child { width: 100%; font-size: 12px; color: #8a9aa7; }
+.metrica strong { font-size: 32px; font-weight: 800; color: #0b2a4a; }
+.metrica strong.nivel { font-size: 20px; }
+
+/* ---------- Diferencias ---------- */
+
+.delta,
+.dom-diff {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.delta {
+  padding: 3px 10px;
+  border-radius: 20px;
+  background: #eef2f5;
+  color: #4a6176;
+}
+
+.delta.mejora { background: #e6f7ec; color: #12785f; }
+.delta.retroceso { background: #fdeaea; color: #c0392b; }
+
+.resumen {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+  margin: 18px 0 0;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.resumen span { display: inline-flex; align-items: center; gap: 6px; }
+.resumen .mejora { color: #12785f; }
+.resumen .retroceso { color: #c0392b; }
+
+/* ---------- Dominios ---------- */
+
+.dominios {
+  margin-top: 18px;
+  padding: 20px;
+  border: 1px solid #dce6ed;
+  border-radius: 14px;
+  background: #ffffff;
+}
+
+.dominios h3 { margin: 0 0 12px; font-size: 16px; color: #0b2a4a; }
+
+.dom-cabecera,
+.dom-fila {
+  display: grid;
+  grid-template-columns: minmax(140px, 1.2fr) minmax(0, 1fr) minmax(0, 1fr) 110px;
+  align-items: center;
+  gap: 16px;
+}
+
+.dom-cabecera {
+  padding: 0 0 8px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  color: #8a9aa7;
+}
+
+.dom-fila {
+  padding: 12px 10px;
+  border-top: 1px solid #eef3f6;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #0b2a4a;
+}
+
+.dom-fila.mejora { background: #f3fbf6; }
+.dom-fila.retroceso { background: #fdf3f3; }
+
+.dom-valor { display: flex; align-items: center; gap: 10px; font-weight: 700; }
+
+.barra {
+  flex: 1;
+  height: 8px;
+  border-radius: 6px;
+  background: #e6ecf1;
+  overflow: hidden;
+}
+
+.barra i { display: block; height: 100%; border-radius: 6px; background: #8a9aa7; }
+
+.dom-fila.mejora .dom-valor:nth-of-type(2) .barra i { background: #12a36f; }
+.dom-fila.retroceso .dom-valor:nth-of-type(2) .barra i { background: #e5484d; }
+
+.dom-fila.mejora .dom-diff { color: #12785f; }
+.dom-fila.retroceso .dom-diff { color: #c0392b; }
+.dom-fila.igual .dom-diff { color: #718494; }
+
+@media (max-width: 760px) {
+  .lados { grid-template-columns: 1fr; }
+  .dom-cabecera { display: none; }
+  .dom-fila { grid-template-columns: 1fr 1fr; gap: 8px 12px; }
+  .dom-nombre { grid-column: 1 / -1; }
+}

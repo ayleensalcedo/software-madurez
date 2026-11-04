@@ -480,3 +480,107 @@
 
 .modal-button:hover { background: #00b89f; transform: translateY(-1px); }
 .modal-button:focus-visible { outline: 2px solid #ffffff; outline-offset: 3px; }
+
+
+/* ---------- Avance por dominio: completado y omitidas ---------- */
+
+.step-done {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #12a36f;
+}
+
+.seg-item.omitida { background: #e5484d; }
+.seg-item.omitida.cur { background: #1c8ee0; box-shadow: 0 0 0 2px #e5484d; }
+
+/* ---------- Pie: enlace a pendientes ---------- */
+
+.link-pendientes {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: #1261a0;
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: 700;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.link-pendientes:hover { color: #0b2a4a; }
+
+/* ---------- Aviso al avanzar sin responder ---------- */
+
+.toast-aviso {
+  position: fixed;
+  left: 50%;
+  bottom: 96px;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  max-width: min(560px, calc(100vw - 32px));
+  padding: 12px 14px;
+  border: 1px solid #f1d38a;
+  border-radius: 12px;
+  background: #fff7e0;
+  color: #8a5a00;
+  font-size: 13px;
+  font-weight: 600;
+  box-shadow: 0 10px 30px rgba(11, 42, 74, 0.18);
+  transform: translateX(-50%);
+}
+
+.toast-aviso > app-icon { font-size: 18px; }
+
+.toast-aviso button {
+  padding: 2px;
+  border: 0;
+  background: none;
+  color: inherit;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+/* ---------- Ventana de pendientes ---------- */
+
+.pop-ancho { max-width: 520px; }
+
+.pend-lista {
+  margin: 0 0 22px;
+  padding: 0;
+  list-style: none;
+  text-align: left;
+}
+
+.pend-lista li {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 12px 0;
+  border-top: 1px solid #324158;
+}
+
+.pend-lista li:first-child { border-top: 0; }
+
+.pend-msg { color: #f58a8a; font-size: 13px; line-height: 1.4; }
+.pend-dom { color: #ffffff; font-size: 14px; font-weight: 700; }
+.pend-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+
+.pend-chip {
+  padding: 5px 12px;
+  border: 1px solid #4a5a73;
+  border-radius: 20px;
+  background: #243146;
+  color: #cbd5e0;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.pend-chip:hover { background: #00d2b5; border-color: #00d2b5; color: #0d1520; }

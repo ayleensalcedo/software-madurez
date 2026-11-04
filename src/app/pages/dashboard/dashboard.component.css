@@ -1159,3 +1159,95 @@
     align-items: center;
   }
 }
+
+
+/* =====================================================
+   INFORMES Y TENDENCIA
+   ===================================================== */
+
+.header-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 12px;
+}
+
+.header-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.btn-informe {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 16px;
+  border: 1px solid #1261a0;
+  border-radius: 10px;
+  background: #1261a0;
+  color: #ffffff;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.1s ease;
+}
+
+.btn-informe:hover:not(:disabled) { background: #0f548c; transform: translateY(-1px); }
+.btn-informe:disabled { opacity: 0.6; cursor: default; }
+.btn-informe app-icon { font-size: 16px; }
+
+.btn-informe.final {
+  background: #ffffff;
+  color: #12785f;
+  border-color: #12a36f;
+}
+
+.btn-informe.final:hover:not(:disabled) { background: #e6f7ec; }
+
+.trend {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  padding: 6px 12px 6px 8px;
+  border-radius: 10px;
+  background: #eef2f5;
+  color: #4a6176;
+}
+
+.trend-icon {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: currentColor;
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.trend-icon { color: #ffffff; }
+.trend.sube { background: #e6f7ec; color: #12785f; }
+.trend.baja { background: #fdeaea; color: #c0392b; }
+.trend.sube .trend-icon { background: #12a36f; }
+.trend.baja .trend-icon { background: #e5484d; }
+.trend.igual .trend-icon { background: #8a9aa7; }
+
+.trend-text { display: flex; flex-direction: column; line-height: 1.25; }
+.trend-text b { font-size: 12px; }
+.trend-text small { font-size: 10px; font-weight: 600; opacity: 0.85; }
+
+.domain-weight {
+  color: #5a6f82;
+  font-size: 8px;
+  font-weight: 700;
+}
+
+@media (max-width: 768px) {
+  .header-right { align-items: flex-start; }
+  .header-actions { justify-content: flex-start; }
+}
