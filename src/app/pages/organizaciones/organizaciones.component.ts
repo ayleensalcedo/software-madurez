@@ -1,6 +1,7 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { HeaderComponent } from '../header/header.component';
+import { IconComponent } from '../../shared/icon/icon.component';
 import { EvaluacionService } from '../../core/services/evaluacion.service';
 import { OrganizacionService } from '../../core/services/organizacion.service';
 import { OrganizacionResponse } from '../../core/services/models/organizacion.model';
@@ -8,7 +9,7 @@ import { OrganizacionResponse } from '../../core/services/models/organizacion.mo
 @Component({
   selector: 'app-organizaciones',
   standalone: true,
-  imports: [HeaderComponent],
+  imports: [HeaderComponent, IconComponent],
   templateUrl: './organizaciones.component.html',
   styleUrl: './organizaciones.component.css'
 })
@@ -32,7 +33,9 @@ export class OrganizacionesComponent implements OnInit {
       },
       error: (err) => {
         this.cargando = false;
-        this.error = err.error ?? 'No tienes una organización asignada. Contacta a tu Jefe de ciberseguridad.';
+        this.error = typeof err.error === 'string' && err.error
+          ? err.error
+          : 'No tienes una organización asignada. Contacta a tu Jefe de ciberseguridad.';
       }
     });
   }
@@ -48,8 +51,14 @@ export class OrganizacionesComponent implements OnInit {
       },
       error: (err) => {
         this.iniciando = false;
-        this.error = err.error ?? 'No se pudo iniciar la evaluación';
+        this.error = typeof err.error === 'string' && err.error
+          ? err.error
+          : 'No se pudo iniciar la evaluación';
       }
     });
+  }
+
+  volver(): void {
+    this.router.navigate(['/menu']);
   }
 }
