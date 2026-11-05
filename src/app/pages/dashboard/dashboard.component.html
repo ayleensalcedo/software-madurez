@@ -33,6 +33,10 @@
           {{ fechaEvaluacion | date:'dd/MM/yyyy' }}
         </strong>
 
+        @if (evaluacion?.versionInstrumento) {
+          <span class="version-instrumento">Instrumento versión {{ evaluacion?.versionInstrumento }}</span>
+        }
+
       </div>
 
       <div class="header-actions">

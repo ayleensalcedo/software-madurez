@@ -57,6 +57,7 @@ export class AuthService {
 
     localStorage.setItem('token', respuesta.token);
     localStorage.setItem('usuario', JSON.stringify(usuario));
+    this.fijarCambioPendiente(respuesta.debeCambiarPassword === true);
 
     this.usuarioActual.set(usuario);
   }
@@ -69,7 +70,29 @@ export class AuthService {
     localStorage.removeItem('token');
     localStorage.removeItem('usuario');
     localStorage.removeItem('evaluacionActualId');
+    localStorage.removeItem(this.CLAVE_CAMBIO);
     this.usuarioActual.set(null);
+  }
+
+  // Primer inicio de sesión: el servidor exige cambiar la contraseña asignada
+  private readonly CLAVE_CAMBIO = 'debeCambiarPassword';
+
+  private fijarCambioPendiente(pendiente: boolean): void {
+    if (pendiente) {
+      localStorage.setItem(this.CLAVE_CAMBIO, '1');
+    } else {
+      localStorage.removeItem(this.CLAVE_CAMBIO);
+    }
+  }
+
+  debeCambiarPassword(): boolean {
+    return isPlatformBrowser(this.platformId) && localStorage.getItem(this.CLAVE_CAMBIO) === '1';
+  }
+
+  marcarPasswordCambiada(): void {
+    if (isPlatformBrowser(this.platformId)) {
+      this.fijarCambioPendiente(false);
+    }
   }
 
   getToken(): string | null {

@@ -331,3 +331,19 @@ td.acc { width: 1%; text-align: right; white-space: nowrap; }
 }
 
 .vacio.error { color: #c0392b; }
+
+
+/* ---------- Reevaluación y versión ---------- */
+
+.head-acciones { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: flex-end; gap: 12px; }
+.reeval { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; max-width: 280px; }
+.reeval small { color: #8a5a00; font-size: 11px; font-weight: 600; text-align: right; line-height: 1.3; }
+
+.btn.btn-sec { background: #ffffff; color: #1261a0; border: 1px solid #1261a0; box-shadow: none; }
+.btn.btn-sec:hover:not(:disabled) { background: #e0f0ff; }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+.ver {
+  margin-left: 8px; padding: 1px 7px; border-radius: 20px; background: #e0f0ff; color: #0464a4;
+  font-size: 10px; font-weight: 800;
+}

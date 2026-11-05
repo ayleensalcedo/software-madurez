@@ -9,9 +9,22 @@
       <p>Historial de evaluaciones registradas, organizadas por estado.</p>
     </div>
 
-    <button type="button" class="btn" (click)="nuevaEvaluacion()">
-      <app-icon name="plus" /> Nueva evaluación
-    </button>
+    <div class="head-acciones">
+      <div class="reeval">
+        <button type="button" class="btn btn-sec" (click)="pedirReevaluacion()"
+                [disabled]="!puedeReevaluar || cargando"
+                [attr.aria-describedby]="!puedeReevaluar && !cargando ? 'reeval-aviso' : null">
+          <app-icon name="history" /> Iniciar reevaluación
+        </button>
+        @if (!puedeReevaluar && !cargando) {
+          <small id="reeval-aviso">Se debe completar primero una evaluación inicial para poder reevaluar</small>
+        }
+      </div>
+
+      <button type="button" class="btn" (click)="nuevaEvaluacion()">
+        <app-icon name="plus" /> Nueva evaluación
+      </button>
+    </div>
   </header>
 
   <section class="panel">
@@ -119,7 +132,7 @@
 
                     <div>
                       <b>{{ ev.organizacionNombre }}</b>
-                      <small>Evaluación #{{ ev.id }}</small>
+                      <small>Evaluación #{{ ev.id }}@if (ev.versionInstrumento) { <span class="ver">v{{ ev.versionInstrumento }}</span> }</small>
 
                       @if (ev.estado === 'OBSERVADA' && ev.observacion) {
                         <div class="obs">
@@ -161,3 +174,33 @@
   </section>
 
 </div>
+
+
+<!-- ===== Confirmar reevaluación ===== -->
+
+@if (confirmandoReevaluacion) {
+  <div class="pop-overlay" (click)="cancelarReevaluacion()">
+    <div class="pop-box" role="alertdialog" aria-modal="true"
+         aria-labelledby="reeval-titulo" aria-describedby="reeval-mensaje" (click)="$event.stopPropagation()">
+
+      <div class="pop-icon"><app-icon name="history" /></div>
+      <h3 id="reeval-titulo">Iniciar reevaluación</h3>
+      <p id="reeval-mensaje">
+        ¿Deseas iniciar una nueva evaluación para {{ organizacionReevaluacion || 'tu organización' }}?
+        Se creará una evaluación en curso con la versión vigente del instrumento.
+      </p>
+
+      @if (errorReevaluacion) {
+        <p class="pop-error" role="alert">{{ errorReevaluacion }}</p>
+      }
+
+      <div class="pop-botones">
+        <button type="button" class="pop-btn secundario" (click)="cancelarReevaluacion()" [disabled]="reevaluando">Cancelar</button>
+        <button type="button" class="pop-btn primario" (click)="confirmarReevaluacion()" [disabled]="reevaluando">
+          {{ reevaluando ? 'Iniciando...' : 'Iniciar reevaluación' }}
+        </button>
+      </div>
+
+    </div>
+  </div>
+}

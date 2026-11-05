@@ -38,9 +38,9 @@ export class LoginComponent {
     this.cargando = true;
 
     this.authService.login(this.email, this.password).subscribe({
-      next: () => {
+      next: (respuesta) => {
         this.cargando = false;
-        this.router.navigate(['/menu']);
+        this.router.navigate([respuesta.debeCambiarPassword ? '/cambiar-password' : '/menu']);
       },
       error: (err) => {
         this.cargando = false;

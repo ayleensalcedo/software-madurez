@@ -424,6 +424,48 @@
       </div>
 
 
+    <!-- ================= VERSIONES DEL INSTRUMENTO ================= -->
+
+    } @else if (seccion === 'versiones') {
+
+      <section class="card">
+        <div class="card-h">
+          <div>
+            <h2>Versiones publicadas</h2>
+            <small>
+              {{ versiones.length }} versión(es)
+              @if (versionVigente; as vv) { · vigente: versión {{ vv.numeroVersion }} }
+            </small>
+          </div>
+        </div>
+
+        <div class="table-wrap">
+          @if (cargando) {
+            <p class="vacio">Cargando...</p>
+          } @else if (versiones.length === 0) {
+            <p class="vacio">Aún no hay versiones publicadas.</p>
+          } @else {
+            <table>
+              <thead>
+                <tr><th>Versión</th><th>Publicada</th><th>Contenido</th><th>Nota de versión</th><th>Estado</th></tr>
+              </thead>
+              <tbody>
+                @for (v of versiones; track v.id) {
+                  <tr>
+                    <td><b class="strong">Versión {{ v.numeroVersion }}</b></td>
+                    <td class="mono">{{ v.fechaPublicacion | date:'dd/MM/yyyy HH:mm' }}</td>
+                    <td>{{ v.totalDominios }} dominios · {{ v.totalControles }} controles · {{ v.totalPreguntas }} preguntas</td>
+                    <td class="texto">{{ v.nota || '—' }}</td>
+                    <td><span class="pill" [class.ana]="v.vigente" [class.adm]="!v.vigente">{{ v.vigente ? 'Vigente' : 'Anterior' }}</span></td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          }
+        </div>
+      </section>
+
+
     <!-- ================= AUDITORÍA ================= -->
 
     } @else {
@@ -652,6 +694,25 @@
           }
         }
 
+        @case ('versiones') {
+          <div class="note">
+            <app-icon name="info" />
+            <span>
+              Se copiarán a la nueva versión los dominios, controles, preguntas y recomendaciones de la versión vigente.
+              Las evaluaciones ya finalizadas conservan la versión con la que se hicieron.
+            </span>
+          </div>
+
+          @if (errorPublicar) {
+            <p class="banner error"><app-icon name="circle-alert" /> {{ errorPublicar }}</p>
+          }
+
+          <div class="f">
+            <label for="v-nota">Nota de versión</label>
+            <textarea id="v-nota" class="field" rows="5" placeholder="Describe qué cambia en esta versión" [(ngModel)]="notaVersion" name="notaVersion"></textarea>
+          </div>
+        }
+
         @case ('recomendaciones') {
           @if (preguntaSeleccionada; as p) {
             <div class="quote">
@@ -684,6 +745,7 @@
         @case ('dominios') { <button type="button" class="btn" (click)="crearDominio()"><app-icon name="plus" /> Crear dominio</button> }
         @case ('controles') { <button type="button" class="btn" (click)="crearControl()"><app-icon name="plus" /> Crear control</button> }
         @case ('preguntas') { <button type="button" class="btn" (click)="crearPregunta()"><app-icon name="plus" /> Crear pregunta</button> }
+        @case ('versiones') { <button type="button" class="btn" (click)="publicarVersion()" [disabled]="publicando"><app-icon name="plus" /> {{ publicando ? 'Publicando...' : 'Publicar versión' }}</button> }
         @case ('recomendaciones') { <button type="button" class="btn" (click)="crearRecomendacion()"><app-icon name="save" /> Guardar recomendación</button> }
       }
     </div>

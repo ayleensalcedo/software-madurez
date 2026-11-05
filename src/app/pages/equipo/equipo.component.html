@@ -65,6 +65,9 @@
             @if (ev.fechaFin) {
               <span>Finalizada: {{ ev.fechaFin | date:'dd/MM/yyyy HH:mm' }}</span>
             }
+            @if (ev.versionInstrumento) {
+              <span>Instrumento: versión {{ ev.versionInstrumento }}</span>
+            }
             @if (ev.observacion) {
               <span class="observacion-texto">Observación: {{ ev.observacion }}</span>
             }

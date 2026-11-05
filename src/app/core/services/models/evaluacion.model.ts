@@ -14,4 +14,5 @@ export interface EvaluacionResponse {
   fechaInicio: string;
   fechaFin: string | null;
   observacion: string | null;
+  versionInstrumento?: number | null;
 }

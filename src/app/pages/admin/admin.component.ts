@@ -18,9 +18,10 @@ import { ControlResponse, PreguntaResponse } from '../../core/services/models/pr
 import { RecomendacionResponse } from '../../core/services/models/recomendacion.model';
 import { NivelItem, NivelMadurezResponse } from '../../core/services/models/nivel-madurez.model';
 import { OrganizacionResponse } from '../../core/services/models/organizacion.model';
+import { InstrumentoVersionService, VersionInstrumento } from '../../core/services/instrumento-version.service';
 import { MENSAJE_CORREO_REPETIDO, esCorreoRepetido, textoError } from '../../core/utils/errores';
 
-type Seccion = 'usuarios' | 'dominios' | 'controles' | 'preguntas' | 'recomendaciones' | 'niveles' | 'auditoria';
+type Seccion = 'usuarios' | 'dominios' | 'controles' | 'preguntas' | 'recomendaciones' | 'niveles' | 'versiones' | 'auditoria';
 
 @Component({
   selector: 'app-admin',
@@ -39,6 +40,7 @@ export class AdminComponent implements OnInit {
   private recomendacionService = inject(RecomendacionService);
   private nivelMadurezService = inject(NivelMadurezService);
   private organizacionService = inject(OrganizacionService);
+  private versionService = inject(InstrumentoVersionService);
 
   seccion: Seccion = 'usuarios';
 
@@ -55,6 +57,7 @@ export class AdminComponent implements OnInit {
     ]},
     { titulo: 'Configuración', items: [
       { id: 'niveles', label: 'Niveles de madurez', icono: 'gauge' },
+      { id: 'versiones', label: 'Versiones del instrumento', icono: 'layers' },
       { id: 'auditoria', label: 'Auditoría técnica', icono: 'history' }
     ]}
   ];
@@ -67,6 +70,7 @@ export class AdminComponent implements OnInit {
     preguntas: { eyebrow: 'Catálogo de evaluación', titulo: 'Preguntas', sub: 'Preguntas de la evaluación y los controles que cubren.', accion: 'Nueva pregunta' },
     recomendaciones: { eyebrow: 'Catálogo de evaluación', titulo: 'Recomendaciones', sub: 'Acciones sugeridas según el nivel de implementación de cada pregunta.', accion: 'Nueva recomendación' },
     niveles: { eyebrow: 'Configuración', titulo: 'Niveles de madurez', sub: 'Define el rango de cobertura (0–100) de cada uno de los 5 niveles.' },
+    versiones: { eyebrow: 'Configuración', titulo: 'Versiones del instrumento', sub: 'Cada versión conserva el catálogo (dominios, controles y preguntas) con el que se evaluó.', accion: 'Publicar nueva versión' },
     auditoria: { eyebrow: 'Auditoría', titulo: 'Auditoría técnica', sub: 'Historial de cambios de configuración realizados en el sistema.' }
   };
 
@@ -151,6 +155,7 @@ export class AdminComponent implements OnInit {
 
   abrirPanel(): void {
     this.error = ''; this.exito = '';
+    this.errorPublicar = ''; this.notaVersion = '';
     this.sinControles = false;
     this.panelAbierto = true;
   }
@@ -180,6 +185,7 @@ export class AdminComponent implements OnInit {
     if (seccion === 'preguntas') this.cargarPreguntasYControles();
     if (seccion === 'recomendaciones') this.cargarPreguntasSoloParaSelector();
     if (seccion === 'niveles') this.cargarNiveles();
+    if (seccion === 'versiones') this.cargarVersiones();
   }
 
   // ===== Usuarios =====
@@ -451,6 +457,52 @@ export class AdminComponent implements OnInit {
       case 'IMPLEMENTADO': return 'Implementado';
       default: return nivel;
     }
+  }
+
+  // ===== Versiones del instrumento =====
+
+  versiones: VersionInstrumento[] = [];
+  notaVersion = '';
+  publicando = false;
+  errorPublicar = '';
+
+  get versionVigente(): VersionInstrumento | undefined {
+    return this.versiones.find(v => v.vigente);
+  }
+
+  private cargarVersiones(): void {
+    this.cargando = true;
+    this.versionService.listarVersiones().subscribe({
+      next: (v) => { this.versiones = v; this.cargando = false; },
+      error: (err) => { this.cargando = false; this.error = textoError(err, 'No se pudo cargar las versiones del instrumento'); }
+    });
+  }
+
+  publicarVersion(): void {
+    this.errorPublicar = '';
+    if (!this.notaVersion.trim()) {
+      this.errorPublicar = 'Debe registrar la nota de la versión';
+      return;
+    }
+    if (this.publicando) return;
+    this.publicando = true;
+
+    this.versionService.publicarNuevaVersion(this.notaVersion.trim()).subscribe({
+      next: (nueva) => {
+        this.publicando = false;
+        this.panelAbierto = false;
+        this.notaVersion = '';
+        this.exito = `Versión ${nueva.numeroVersion} publicada correctamente`;
+        // El catálogo vigente cambió: se recargan las listas que dependen de él
+        this.dominios = []; this.controles = []; this.preguntas = [];
+        this.cargarVersiones();
+        this.precargarContadores();
+      },
+      error: (err) => {
+        this.publicando = false;
+        this.errorPublicar = textoError(err, 'No se pudo publicar la nueva versión');
+      }
+    });
   }
 
   // ===== Niveles de madurez =====

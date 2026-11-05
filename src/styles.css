@@ -165,3 +165,8 @@ textarea {
 .pop-btn.peligro:hover { background: #cf3a3f; }
 .pop-btn.secundario { background: transparent; border-color: #4a5a73; color: #cbd5e0; }
 .pop-btn.secundario:hover { background: #243146; }
+
+.pop-error {
+  margin: -8px 0 16px !important; padding: 10px 12px; border-radius: 8px; background: rgba(240, 90, 90, 0.16);
+  color: #f58a8a !important; font-size: 13px !important; text-align: left;
+}

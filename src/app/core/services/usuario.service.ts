@@ -25,6 +25,11 @@ export class UsuarioService {
     return this.http.post<UsuarioResponse>(this.apiUrl, request);
   }
 
+  // Cambia la contraseña del usuario autenticado
+  cambiarPassword(passwordActual: string, passwordNueva: string): Observable<string> {
+    return this.http.put(`${this.apiUrl}/cambiar-password`, { passwordActual, passwordNueva }, { responseType: 'text' });
+  }
+
   desactivarUsuario(id: number): Observable<string> {
     return this.http.put(`${this.apiUrl}/${id}/desactivar`, {}, { responseType: 'text' });
   }

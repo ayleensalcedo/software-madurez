@@ -34,6 +34,51 @@ export class ResultadosComponent implements OnInit {
   // Rango de fechas (formato yyyy-MM-dd, como entrega el calendario) sobre la fecha de inicio
   desde = '';
   hasta = '';
+
+  // ===== Reevaluación (solo el Analista; el backend exige una evaluación finalizada previa) =====
+
+  confirmandoReevaluacion = false;
+  reevaluando = false;
+  errorReevaluacion = '';
+
+  get puedeReevaluar(): boolean {
+    return this.evaluaciones.some(e => e.estado !== 'EN_CURSO');
+  }
+
+  get organizacionReevaluacion(): string {
+    return this.evaluaciones.find(e => e.estado !== 'EN_CURSO')?.organizacionNombre ?? '';
+  }
+
+  pedirReevaluacion(): void {
+    if (!this.puedeReevaluar) return;
+    this.errorReevaluacion = '';
+    this.confirmandoReevaluacion = true;
+  }
+
+  cancelarReevaluacion(): void {
+    if (!this.reevaluando) this.confirmandoReevaluacion = false;
+  }
+
+  confirmarReevaluacion(): void {
+    if (this.reevaluando) return;
+    this.reevaluando = true;
+    this.errorReevaluacion = '';
+
+    this.evaluacionService.iniciarReevaluacion().subscribe({
+      next: () => {
+        this.reevaluando = false;
+        this.confirmandoReevaluacion = false;
+        this.router.navigate(['/evaluacion']);
+      },
+      error: (err) => {
+        this.reevaluando = false;
+        this.errorReevaluacion = typeof err.error === 'string' && err.error
+          ? err.error
+          : 'No se pudo iniciar la reevaluación';
+      }
+    });
+  }
+
   cargando: boolean = true;
   error: string = '';
 
