@@ -108,6 +108,25 @@
     </div>
   }
 
+  @if (esGerente) {
+    <!-- CARD 5: solo para el Gerente General -->
+    <div class="menu-card highlight">
+      <div class="card-header">
+        <div class="icon-container"><app-icon class="card-icon" name="gauge" /></div>
+      </div>
+      <div class="card-content">
+        <span class="card-label">Resultados</span>
+        <h3>Dashboard ejecutivo</h3>
+        <p>Consulta la cobertura global y por dominio de la última evaluación de cada organización.</p>
+      </div>
+      <div class="card-footer">
+        <button class="btn-action primary" (click)="VerEjecutivo()">
+          Ver dashboard <app-icon name="arrow-right" />
+        </button>
+      </div>
+    </div>
+  }
+
   @if (esAdmin) {
     <!-- CARD 4: solo para el Admin -->
     <div class="menu-card highlight">

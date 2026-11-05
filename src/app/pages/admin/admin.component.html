@@ -715,3 +715,27 @@
     </div>
   </div>
 }
+
+
+<!-- ==========================================
+     VENTANA: NO SE PUDO DESACTIVAR
+     ========================================== -->
+
+@if (avisoDesactivar) {
+  <div class="pop-overlay" (click)="avisoDesactivar = null">
+    <div class="pop-box" role="alertdialog" aria-modal="true"
+         aria-labelledby="noDes-titulo" aria-describedby="noDes-mensaje"
+         (click)="$event.stopPropagation()">
+
+      <div class="pop-icon"><app-icon name="triangle-alert" /></div>
+
+      <h3 id="noDes-titulo">No se puede desactivar</h3>
+      <p id="noDes-mensaje">{{ avisoDesactivar }}</p>
+
+      <div class="pop-botones">
+        <button type="button" class="pop-btn primario" (click)="avisoDesactivar = null">Entendido</button>
+      </div>
+
+    </div>
+  </div>
+}

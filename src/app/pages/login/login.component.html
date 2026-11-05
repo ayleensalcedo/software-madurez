@@ -144,10 +144,14 @@
         </svg>
       </div>
 
-      <h3 id="credenciales-titulo">Credenciales incorrectas</h3>
+      <h3 id="credenciales-titulo">{{ cuentaInactiva ? 'Cuenta inactiva' : 'Credenciales incorrectas' }}</h3>
 
       <p id="credenciales-mensaje">
-        El correo electrónico o la contraseña son incorrectos. Verifica tus datos e inténtalo nuevamente.
+        @if (cuentaInactiva) {
+          Usuario inactivo, contacte al Jefe de Ciberseguridad.
+        } @else {
+          El correo electrónico o la contraseña son incorrectos. Verifica tus datos e inténtalo nuevamente.
+        }
       </p>
 
       <button #btnEntendido type="button" class="modal-button" (click)="cerrarCredenciales()">

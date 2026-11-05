@@ -1,0 +1,74 @@
+<app-header></app-header>
+
+<div class="page">
+
+  <button type="button" class="volver" (click)="volver()">
+    <app-icon name="arrow-left" /> Volver al menú
+  </button>
+
+  <header class="page-header">
+    <h1>Dashboard ejecutivo</h1>
+    <p>Consulta la cobertura global y por dominio de la última evaluación finalizada de una organización.</p>
+  </header>
+
+  <div class="selector">
+    <label for="org">Organización</label>
+    <select id="org" [(ngModel)]="organizacionId" (ngModelChange)="consultar()" [disabled]="cargandoOrganizaciones">
+      <option [ngValue]="null" disabled>Selecciona una organización</option>
+      @for (o of organizaciones; track o.id) {
+        <option [ngValue]="o.id">{{ o.nombre }}</option>
+      }
+    </select>
+  </div>
+
+  @if (error) {
+    <p class="error-message" role="alert">{{ error }}</p>
+  }
+
+  @if (cargandoResultado) {
+
+    <p class="estado">Cargando resultados...</p>
+
+  } @else if (sinResultados) {
+
+    <div class="vacio">
+      <app-icon name="info" />
+      <p>Aún no existen resultados disponibles para esta organización</p>
+    </div>
+
+  } @else if (dashboard) {
+
+    @let d = dashboard;
+
+    <section class="global">
+      <div>
+        <span class="etiqueta">{{ d.organizacionNombre }}</span>
+        <div class="cifra">{{ d.coberturaGlobal | number:'1.0-1' }}<small>%</small></div>
+        <strong class="nivel">{{ d.nivelMadurezNombre }}</strong>
+        <span class="fecha">Evaluación finalizada el {{ d.fechaEvaluacion | date:'dd/MM/yyyy' }}</span>
+      </div>
+
+      <div class="tendencia" [class]="'tendencia ' + d.tendencia">
+        <span class="simbolo" aria-hidden="true">{{ simboloTendencia(d.tendencia) }}</span>
+        {{ etiquetaTendencia(d.tendencia) }}
+      </div>
+    </section>
+
+    <section class="dominios">
+      <h2>Cobertura por dominio</h2>
+
+      @for (dom of d.porDominio; track dom.dominioId) {
+        <div class="dom">
+          <div class="dom-cab">
+            <b>{{ dom.dominioNombre }}</b>
+            <span>{{ dom.coberturaPorcentaje | number:'1.0-1' }}%
+              <small>(peso {{ dom.pesoRelativo | number:'1.0-1' }}%)</small></span>
+          </div>
+          <div class="barra"><i [class]="clase(dom.coberturaPorcentaje)" [style.width.%]="dom.coberturaPorcentaje"></i></div>
+        </div>
+      }
+    </section>
+
+  }
+
+</div>

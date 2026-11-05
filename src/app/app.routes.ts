@@ -9,6 +9,7 @@ import { MenuComponent } from './pages/menu/menu.component';
 import { authGuard } from './core/guards/auth.guard';
 import { EquipoComponent } from './pages/equipo/equipo.component';
 import { AdminComponent } from './pages/admin/admin.component';
+import { EjecutivoComponent } from './pages/ejecutivo/ejecutivo.component';
 import { AnalistasComponent } from './pages/analistas/analistas.component';
 import { ComparativaComponent } from './pages/comparativa/comparativa.component';
 
@@ -27,5 +28,6 @@ export const routes: Routes = [
   { path: 'equipo', component: EquipoComponent, canActivate: [authGuard] },
   { path: 'comparativa', component: ComparativaComponent, canActivate: [authGuard] },
   { path: 'analistas', component: AnalistasComponent, canActivate: [authGuard] },
+  { path: 'ejecutivo', component: EjecutivoComponent, canActivate: [authGuard] },
   { path: 'admin', component: AdminComponent, canActivate: [authGuard] },
 ];

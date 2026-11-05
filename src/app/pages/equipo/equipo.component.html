@@ -11,6 +11,20 @@
     <p class="error-message">{{ error }}</p>
   }
 
+  <div class="pestanas" role="tablist">
+    <button type="button" role="tab" class="pestana" [class.on]="pestana === 'evaluaciones'"
+            [attr.aria-selected]="pestana === 'evaluaciones'" (click)="pestana = 'evaluaciones'; analistaDetalle = null">
+      Evaluaciones
+    </button>
+    <button type="button" role="tab" class="pestana" [class.on]="pestana === 'analistas'"
+            [attr.aria-selected]="pestana === 'analistas'" (click)="pestana = 'analistas'">
+      Analistas de mi equipo
+      @if (!cargandoAnalistas) { <span class="pestana-n">{{ analistas.length }}</span> }
+    </button>
+  </div>
+
+  @if (pestana === 'evaluaciones') {
+
   @if (cargando) {
     <p>Cargando...</p>
   } @else if (evaluaciones.length === 0) {
@@ -75,6 +89,97 @@
         </article>
       }
     </div>
+  }
+
+  } @else {
+
+    @if (analistaDetalle; as a) {
+
+      <!-- ===== Detalle de un analista ===== -->
+      <button type="button" class="volver-lista" (click)="volverAAnalistas()">← Volver a analistas</button>
+
+      <div class="detalle-cab">
+        <div class="av">{{ iniciales(a.nombre) }}</div>
+        <div>
+          <h2>{{ a.nombre }}</h2>
+          <small>{{ a.email }}</small>
+        </div>
+      </div>
+
+      @if (evaluacionesDe(a).length === 0) {
+        <div class="sin-evaluaciones">
+          <p>No hay evaluaciones realizadas por este analista</p>
+        </div>
+      } @else {
+        <div class="evaluaciones-lista">
+          @for (ev of evaluacionesDe(a); track ev.id) {
+            <article class="evaluacion-card">
+              <div class="evaluacion-info">
+                <h3>{{ ev.organizacionNombre }}</h3>
+                <span>Iniciada: {{ ev.fechaInicio | date:'dd/MM/yyyy HH:mm' }}</span>
+                @if (ev.fechaFin) {
+                  <span>Finalizada: {{ ev.fechaFin | date:'dd/MM/yyyy HH:mm' }}</span>
+                }
+              </div>
+              <div class="evaluacion-acciones">
+                <span class="badge" [class]="claseEstado(ev.estado)">{{ etiquetaEstado(ev.estado) }}</span>
+                @if (puedeComparar(ev)) {
+                  <button type="button" class="btn-ver" (click)="verResultados(ev)">Ver resultados</button>
+                }
+              </div>
+            </article>
+          }
+        </div>
+      }
+
+    } @else {
+
+      <!-- ===== Tabla de analistas ===== -->
+      @if (errorAnalistas) {
+        <p class="error-message">{{ errorAnalistas }}</p>
+      }
+
+      @if (cargandoAnalistas || cargando) {
+        <p>Cargando...</p>
+      } @else if (analistas.length === 0) {
+        <div class="sin-evaluaciones">
+          <p>Aún no tienes analistas en tu equipo.</p>
+        </div>
+      } @else {
+        <div class="tabla-analistas">
+          <table>
+            <thead>
+              <tr>
+                <th>Analista</th>
+                <th class="num">Evaluaciones en curso</th>
+                <th class="num">Evaluaciones finalizadas</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (a of analistas; track a.id) {
+                <tr>
+                  <td>
+                    <div class="quien">
+                      <div class="av">{{ iniciales(a.nombre) }}</div>
+                      <div>
+                        <b>{{ a.nombre }}</b>
+                        <small>{{ a.email }}@if (a.estado !== 'ACTIVO') { · Inactivo }</small>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="num">{{ enCurso(a) }}</td>
+                  <td class="num">{{ finalizadas(a) }}</td>
+                  <td><button type="button" class="btn-ver" (click)="verDetalleAnalista(a)">Ver detalle</button></td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+
+    }
+
   }
 
   @if (evaluacionParaObservar) {

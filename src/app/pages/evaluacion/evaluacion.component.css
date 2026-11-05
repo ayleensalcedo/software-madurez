@@ -584,3 +584,19 @@
 }
 
 .pend-chip:hover { background: #00d2b5; border-color: #00d2b5; color: #0d1520; }
+
+
+/* ---------- Dominio sin preguntas ---------- */
+
+.step-vacio {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin: 0;
+  padding: 2px 0;
+  color: #8a5a00;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.step.vacio .step-name { color: #8a9aa7; }

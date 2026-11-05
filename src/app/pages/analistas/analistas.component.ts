@@ -6,6 +6,7 @@ import { IconComponent } from '../../shared/icon/icon.component';
 import { AuthService } from '../../core/services/auth.service';
 import { UsuarioService } from '../../core/services/usuario.service';
 import { UsuarioResponse } from '../../core/services/models/usuario.model';
+import { MENSAJE_CORREO_REPETIDO, esCorreoRepetido, textoError } from '../../core/utils/errores';
 
 @Component({
   selector: 'app-analistas',
@@ -127,7 +128,8 @@ export class AnalistasComponent implements OnInit {
       },
       error: (err) => {
         this.guardando = false;
-        this.errorFormulario = this.mensajeError(err, 'No se pudo crear el analista.');
+        const texto = this.mensajeError(err, 'No se pudo crear el analista.');
+        this.errorFormulario = esCorreoRepetido(texto) ? MENSAJE_CORREO_REPETIDO : texto;
       }
     });
   }
@@ -135,6 +137,8 @@ export class AnalistasComponent implements OnInit {
   // ===== Desactivar =====
 
   porDesactivar: UsuarioResponse | null = null;
+  // Motivo por el que el servidor no permitió desactivar (p. ej. evaluaciones en curso)
+  avisoDesactivar: string | null = null;
   desactivando = false;
 
   pedirDesactivar(a: UsuarioResponse): void {
@@ -161,7 +165,7 @@ export class AnalistasComponent implements OnInit {
       error: (err) => {
         this.desactivando = false;
         this.porDesactivar = null;
-        this.error = this.mensajeError(err, 'No se pudo desactivar al analista.');
+        this.avisoDesactivar = textoError(err, 'No se pudo desactivar al analista.');
       }
     });
   }
@@ -170,6 +174,7 @@ export class AnalistasComponent implements OnInit {
   cerrarVentanas(): void {
     this.cerrarCrear();
     this.cancelarDesactivar();
+    this.avisoDesactivar = null;
   }
 
   volver(): void {

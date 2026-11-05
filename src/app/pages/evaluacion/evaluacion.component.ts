@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { HeaderComponent } from '../header/header.component';
 import { EvaluacionService } from '../../core/services/evaluacion.service';
 import { PreguntaService } from '../../core/services/pregunta.service';
+import { DominioService } from '../../core/services/dominio.service';
 import { RespuestaService } from '../../core/services/respuesta.service';
 import { PreguntaResponse } from '../../core/services/models/pregunta.model';
 import { NivelImplementacion } from '../../core/services/models/respuesta.model';
@@ -20,6 +21,7 @@ export class EvaluacionComponent implements OnInit {
 
   private evaluacionService = inject(EvaluacionService);
   private preguntaService = inject(PreguntaService);
+  private dominioService = inject(DominioService);
   private respuestaService = inject(RespuestaService);
   private router = inject(Router);
 
@@ -71,7 +73,15 @@ export class EvaluacionComponent implements OnInit {
       next: (preguntas) => {
         this.preguntas = preguntas;
         this.construirDominios();
-        this.cargarRespuestasPrevias();
+
+        // Todos los dominios configurados, incluso los que aún no tienen preguntas
+        this.dominioService.listarDominios().subscribe({
+          next: (dominios) => {
+            this.completarDominios(dominios);
+            this.cargarRespuestasPrevias();
+          },
+          error: () => this.cargarRespuestasPrevias()
+        });
       },
       error: () => {
         this.cargando = false;
@@ -90,6 +100,17 @@ export class EvaluacionComponent implements OnInit {
         this.dominios.push({ id: p.dominioId, nombre: p.dominioNombre });
       }
     }
+  }
+
+  // Ordena los dominios como están configurados y agrega los que no tienen preguntas
+  private completarDominios(configurados: { id: number; nombre: string }[]): void {
+    const porId = new Map(this.dominios.map(d => [d.id, d]));
+    const lista = configurados.map(d => ({ id: d.id, nombre: d.nombre }));
+
+    // Si la pregunta pertenece a un dominio que el listado no trae, se conserva
+    this.dominios.forEach(d => { if (!lista.some(x => x.id === d.id)) lista.push(d); });
+
+    this.dominios = lista.map(d => porId.get(d.id) ?? d);
   }
 
   private cargarRespuestasPrevias(): void {

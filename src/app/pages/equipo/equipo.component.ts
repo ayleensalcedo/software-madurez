@@ -5,6 +5,8 @@ import { FormsModule } from '@angular/forms';
 import { HeaderComponent } from '../header/header.component';
 import { EvaluacionService } from '../../core/services/evaluacion.service';
 import { EvaluacionResponse } from '../../core/services/models/evaluacion.model';
+import { UsuarioService } from '../../core/services/usuario.service';
+import { UsuarioResponse } from '../../core/services/models/usuario.model';
 
 @Component({
   selector: 'app-equipo',
@@ -17,6 +19,7 @@ export class EquipoComponent implements OnInit {
 
   private evaluacionService = inject(EvaluacionService);
   private router = inject(Router);
+  private usuarioService = inject(UsuarioService);
 
   evaluaciones: EvaluacionResponse[] = [];
   cargando: boolean = true;
@@ -25,8 +28,61 @@ export class EquipoComponent implements OnInit {
   evaluacionParaObservar: EvaluacionResponse | null = null;
   textoObservacion: string = '';
 
+  // ===== Pestañas: evaluaciones / analistas de mi equipo =====
+
+  pestana: 'evaluaciones' | 'analistas' = 'evaluaciones';
+  analistas: UsuarioResponse[] = [];
+  cargandoAnalistas = true;
+  errorAnalistas = '';
+  analistaDetalle: UsuarioResponse | null = null;
+
   ngOnInit(): void {
     this.cargar();
+    this.cargarAnalistas();
+  }
+
+  private cargarAnalistas(): void {
+    this.cargandoAnalistas = true;
+    this.usuarioService.listarMiEquipo().subscribe({
+      next: (equipo) => {
+        this.analistas = equipo
+          .filter(u => u.rol === 'ANALISTA_CIBERSEGURIDAD')
+          .sort((a, b) => a.nombre.localeCompare(b.nombre));
+        this.cargandoAnalistas = false;
+      },
+      error: (err) => {
+        this.cargandoAnalistas = false;
+        this.errorAnalistas = typeof err.error === 'string' && err.error
+          ? err.error
+          : 'No se pudo cargar a los analistas de tu equipo';
+      }
+    });
+  }
+
+  // Evaluaciones de un analista (la evaluación trae su analistaId)
+  evaluacionesDe(analista: UsuarioResponse): EvaluacionResponse[] {
+    return this.evaluaciones.filter(e => e.analistaId === analista.id);
+  }
+
+  enCurso(analista: UsuarioResponse): number {
+    return this.evaluacionesDe(analista).filter(e => e.estado === 'EN_CURSO').length;
+  }
+
+  finalizadas(analista: UsuarioResponse): number {
+    return this.evaluacionesDe(analista).filter(e => e.estado !== 'EN_CURSO').length;
+  }
+
+  verDetalleAnalista(analista: UsuarioResponse): void {
+    this.analistaDetalle = analista;
+  }
+
+  volverAAnalistas(): void {
+    this.analistaDetalle = null;
+  }
+
+  iniciales(nombre: string): string {
+    const p = nombre.trim().split(/\s+/).filter(Boolean);
+    return ((p[0]?.[0] ?? '') + (p.length > 1 ? p[p.length - 1][0] : '')).toUpperCase();
   }
 
   private cargar(): void {

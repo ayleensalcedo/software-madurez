@@ -24,6 +24,9 @@ export class LoginComponent {
   // Ventana que avisa que el correo o la contraseña son incorrectos
   mostrarCredenciales: boolean = false;
 
+  // true cuando el servidor rechaza la cuenta por estar desactivada (403)
+  cuentaInactiva: boolean = false;
+
   // Al abrirse la ventana, el foco pasa a su botón
   @ViewChild('btnEntendido')
   set btnEntendido(ref: ElementRef<HTMLButtonElement> | undefined) {
@@ -42,7 +45,11 @@ export class LoginComponent {
       error: (err) => {
         this.cargando = false;
 
-        if (err.status === 400 || err.status === 401 || err.status === 403) {
+        if (err.status === 403) {
+          this.cuentaInactiva = true;
+          this.mostrarCredenciales = true;
+        } else if (err.status === 400 || err.status === 401) {
+          this.cuentaInactiva = false;
           this.mostrarCredenciales = true;
         } else if (err.status === 0) {
           this.error = 'No se pudo conectar con el servidor';

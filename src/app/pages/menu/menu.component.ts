@@ -94,6 +94,14 @@ export class MenuComponent implements OnInit {
     this.router.navigate(['/resultados']);
   }
 
+  get esGerente(): boolean {
+    return this.authService.getRol() === 'GERENTE_GENERAL';
+  }
+
+  VerEjecutivo(): void {
+    this.router.navigate(['/ejecutivo']);
+  }
+
   VerAnalistas(): void {
     this.router.navigate(['/analistas']);
   }

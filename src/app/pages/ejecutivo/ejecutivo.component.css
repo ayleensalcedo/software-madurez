@@ -1,0 +1,55 @@
+
+.volver {
+  display: inline-flex; align-items: center; gap: 6px; margin-bottom: 14px; padding: 0; border: 0; background: none;
+  color: #1261a0; font-family: inherit; font-size: 13px; font-weight: 700; cursor: pointer;
+}
+
+.selector { display: flex; flex-direction: column; gap: 6px; max-width: 420px; margin-bottom: 20px; }
+.selector label { font-size: 12px; font-weight: 700; letter-spacing: 0.6px; text-transform: uppercase; color: #8a9aa7; }
+
+.selector select {
+  height: 42px; padding: 0 12px; border: 1px solid #d3e0e8; border-radius: 10px; background: #ffffff;
+  color: #0b2a4a; font-family: inherit; font-size: 14px;
+}
+
+.estado { color: #718494; }
+.error-message { color: #c0392b; }
+
+.vacio {
+  display: flex; align-items: center; justify-content: center; gap: 10px; padding: 48px 20px;
+  border: 1px dashed #c8d6e0; border-radius: 14px; background: #ffffff; color: #718494; font-size: 15px;
+}
+.vacio p { margin: 0; }
+.vacio app-icon { font-size: 20px; }
+
+.global {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 20px;
+  padding: 24px; border: 1px solid #dce6ed; border-radius: 14px; background: #ffffff;
+}
+
+.etiqueta { display: block; font-size: 12px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; color: #10aebd; }
+.cifra { font-size: 52px; font-weight: 800; color: #0b2a4a; line-height: 1.1; }
+.cifra small { font-size: 24px; }
+.nivel { display: block; font-size: 18px; color: #0b2a4a; }
+.fecha { display: block; margin-top: 4px; font-size: 12px; color: #8a9aa7; }
+
+.tendencia {
+  display: inline-flex; align-items: center; gap: 8px; padding: 8px 14px; border-radius: 10px;
+  background: #eef2f5; color: #4a6176; font-size: 13px; font-weight: 700;
+}
+.tendencia.SUBIO { background: #e6f7ec; color: #12785f; }
+.tendencia.BAJO { background: #fdeaea; color: #c0392b; }
+.simbolo { font-size: 18px; font-weight: 800; }
+
+.dominios { margin-top: 18px; padding: 22px 24px; border: 1px solid #dce6ed; border-radius: 14px; background: #ffffff; }
+.dominios h2 { margin: 0 0 14px; font-size: 16px; color: #0b2a4a; }
+
+.dom { margin-bottom: 14px; }
+.dom-cab { display: flex; justify-content: space-between; gap: 12px; margin-bottom: 6px; font-size: 14px; color: #0b2a4a; }
+.dom-cab small { color: #8a9aa7; }
+.barra { height: 10px; border-radius: 6px; background: #e6ecf1; overflow: hidden; }
+.barra i { display: block; height: 100%; border-radius: 6px; }
+.barra i.bajo { background: #e5484d; }
+.barra i.medio { background: #f2a93b; }
+.barra i.alto { background: #1c8ee0; }
+.barra i.optimo { background: #12a36f; }

@@ -18,6 +18,7 @@ import { ControlResponse, PreguntaResponse } from '../../core/services/models/pr
 import { RecomendacionResponse } from '../../core/services/models/recomendacion.model';
 import { NivelItem, NivelMadurezResponse } from '../../core/services/models/nivel-madurez.model';
 import { OrganizacionResponse } from '../../core/services/models/organizacion.model';
+import { MENSAJE_CORREO_REPETIDO, esCorreoRepetido, textoError } from '../../core/utils/errores';
 
 type Seccion = 'usuarios' | 'dominios' | 'controles' | 'preguntas' | 'recomendaciones' | 'niveles' | 'auditoria';
 
@@ -158,6 +159,7 @@ export class AdminComponent implements OnInit {
   cerrarPanel(): void {
     this.panelAbierto = false;
     this.usuarioPorDesactivar = null;
+    this.avisoDesactivar = null;
   }
 
   cambiarSeccion(seccion: Seccion): void {
@@ -207,9 +209,15 @@ export class AdminComponent implements OnInit {
         };
         this.cargarUsuarios();
       },
-      error: (err) => this.error = err.error ?? 'No se pudo crear el usuario'
+      error: (err) => {
+        const texto = textoError(err, 'No se pudo crear el usuario');
+        this.error = esCorreoRepetido(texto) ? MENSAJE_CORREO_REPETIDO : texto;
+      }
     });
   }
+
+  // Motivo por el que el servidor no permitió desactivar la cuenta
+  avisoDesactivar: string | null = null;
 
   // Usuario pendiente de confirmar en la ventana "Desactivar usuario"
   usuarioPorDesactivar: UsuarioResponse | null = null;
@@ -232,7 +240,10 @@ export class AdminComponent implements OnInit {
     this.error = ''; this.exito = '';
     this.usuarioService.desactivarUsuario(usuario.id).subscribe({
       next: () => { this.exito = `${usuario.nombre} desactivado correctamente`; this.cargarUsuarios(); },
-      error: (err) => this.error = err.error ?? 'No se pudo desactivar el usuario'
+      error: (err) => {
+        // El backend rechaza la desactivación (p. ej. evaluaciones en curso): se explica en un pop up
+        this.avisoDesactivar = textoError(err, 'No se pudo desactivar el usuario');
+      }
     });
   }
 

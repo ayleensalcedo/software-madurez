@@ -20,18 +20,26 @@
     <div class="steps-in" [style.--cols]="dominiosVista.length">
 
       @for (d of dominiosVista; track d.id; let i = $index) {
-        <div class="step" [class.on]="d.activo">
+        <div class="step" [class.on]="d.activo" [class.vacio]="d.indices.length === 0">
 
           <button type="button" class="step-label" (click)="irAlDominio(d.nombre)">
             <span class="step-name">
               @if (d.activo) { <i class="step-dot"></i> }
               {{ i + 1 }} · {{ d.nombre }}
             </span>
-            <em class="step-count">{{ d.respondidas }}/{{ d.indices.length }} · {{ porcentajeDominio(d) }}%</em>
-            @if (porcentajeDominio(d) === 100) {
+            @if (d.indices.length > 0) {
+              <em class="step-count">{{ d.respondidas }}/{{ d.indices.length }} · {{ porcentajeDominio(d) }}%</em>
+            }
+            @if (d.indices.length > 0 && porcentajeDominio(d) === 100) {
               <span class="step-done"><app-icon name="circle-check" /> Completado</span>
             }
           </button>
+
+          @if (d.indices.length === 0) {
+            <p class="step-vacio">
+              <app-icon name="info" /> Este dominio aún no tiene preguntas configuradas
+            </p>
+          }
 
           <div class="seg">
             @for (idx of d.indices; track idx; let n = $index) {
