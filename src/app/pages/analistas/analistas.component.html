@@ -9,7 +9,7 @@
   <header class="top">
     <div>
       <h1>Gestionar mi equipo</h1>
-      <p>Crea y consulta las cuentas de los analistas de ciberseguridad a tu cargo.</p>
+      <p>Crea, consulta y desactiva las cuentas de los analistas de ciberseguridad a tu cargo.</p>
     </div>
     <button type="button" class="btn" (click)="abrirCrear()">
       <app-icon name="plus" /> Nuevo analista
@@ -45,7 +45,7 @@
     } @else {
       <div class="table-wrap">
         <table>
-          <thead><tr><th>Analista</th><th>Organización</th><th>Estado</th></tr></thead>
+          <thead><tr><th>Analista</th><th>Organización</th><th>Estado</th><th></th></tr></thead>
           <tbody>
             @for (a of filtrados; track a.id) {
               <tr>
@@ -58,6 +58,14 @@
                 <td>{{ a.organizacionNombre ?? '—' }}</td>
                 <td>
                   <span class="st" [class.off]="a.estado !== 'ACTIVO'"><i></i>{{ a.estado === 'ACTIVO' ? 'Activo' : 'Inactivo' }}</span>
+                </td>
+                <td class="acc">
+                  @if (a.estado === 'ACTIVO') {
+                    <button type="button" class="icon-btn" (click)="pedirDesactivar(a)"
+                            title="Desactivar analista" [attr.aria-label]="'Desactivar a ' + a.nombre">
+                      <app-icon name="user-x" />
+                    </button>
+                  }
                 </td>
               </tr>
             }
@@ -105,5 +113,26 @@
       </div>
 
     </form>
+  </div>
+}
+
+
+<!-- ===== Confirmar desactivar ===== -->
+
+@if (porDesactivar) {
+  <div class="pop-overlay" (click)="cancelarDesactivar()">
+    <div class="pop-box" role="alertdialog" aria-modal="true"
+         aria-labelledby="des-titulo" aria-describedby="des-mensaje" (click)="$event.stopPropagation()">
+
+      <div class="pop-icon rojo"><app-icon name="user-x" /></div>
+      <h3 id="des-titulo">Desactivar usuario</h3>
+      <p id="des-mensaje">¿Está seguro de que desea desactivar esta cuenta?</p>
+
+      <div class="pop-botones">
+        <button type="button" class="pop-btn secundario" (click)="cancelarDesactivar()" [disabled]="desactivando">Cancelar</button>
+        <button type="button" class="pop-btn peligro" (click)="confirmarDesactivar()" [disabled]="desactivando">Confirmar</button>
+      </div>
+
+    </div>
   </div>
 }

@@ -5,7 +5,6 @@ import { HeaderComponent } from '../header/header.component';
 import { IconComponent } from '../../shared/icon/icon.component';
 import { AuthService } from '../../core/services/auth.service';
 import { UsuarioService } from '../../core/services/usuario.service';
-import { EvaluacionService } from '../../core/services/evaluacion.service';
 import { UsuarioResponse } from '../../core/services/models/usuario.model';
 
 @Component({
@@ -19,7 +18,6 @@ export class AnalistasComponent implements OnInit {
 
   private authService = inject(AuthService);
   private usuarioService = inject(UsuarioService);
-  private evaluacionService = inject(EvaluacionService);
   private router = inject(Router);
 
   analistas: UsuarioResponse[] = [];
@@ -55,47 +53,22 @@ export class AnalistasComponent implements OnInit {
     return mensaje || porDefecto;
   }
 
-  // El backend solo lista usuarios al Administrador (GET /usuarios responde 400 a un Jefe),
-  // así que el equipo se arma con lo que sí se conoce.
   cargar(): void {
     this.cargando = true;
     this.error = '';
-    this.cargarRespaldo();
-  }
 
-  // ===== Respaldo sin cambios en el backend =====
-  // Equipo = analistas creados desde este navegador (guardados localmente)
-  //        + analistas que figuran en las evaluaciones del equipo (solo se conoce su id).
-
-  private cargarRespaldo(): void {
-    const locales = this.usuarioService.leerEquipoLocal(this.authService.getUsuario()?.email);
-
-    this.evaluacionService.listarEvaluacionesEquipo().subscribe({
-      next: (evaluaciones) => this.armarRespaldo(locales, evaluaciones.map(e => ({ id: e.analistaId, org: e.organizacionNombre }))),
-      error: () => this.armarRespaldo(locales, [])
-    });
-  }
-
-  private armarRespaldo(locales: UsuarioResponse[], deEvaluaciones: { id: number; org: string }[]): void {
-    const lista = [...locales];
-
-    for (const e of deEvaluaciones) {
-      if (e.id && !lista.some(a => a.id === e.id)) {
-        lista.push({
-          id: e.id,
-          nombre: `Analista #${e.id}`,
-          email: 'Dato no disponible (sin acceso a la lista de usuarios)',
-          rol: 'ANALISTA_CIBERSEGURIDAD',
-          estado: 'ACTIVO',
-          jefeId: null,
-          organizacionId: null,
-          organizacionNombre: e.org
-        });
+    this.usuarioService.listarMiEquipo().subscribe({
+      next: (equipo) => {
+        this.analistas = equipo
+          .filter(u => u.rol === 'ANALISTA_CIBERSEGURIDAD')
+          .sort((a, b) => a.nombre.localeCompare(b.nombre));
+        this.cargando = false;
+      },
+      error: (err) => {
+        this.cargando = false;
+        this.error = this.mensajeError(err, 'No se pudo cargar tu equipo.');
       }
-    }
-
-    this.analistas = lista;
-    this.cargando = false;
+    });
   }
 
   get filtrados(): UsuarioResponse[] {
@@ -147,11 +120,6 @@ export class AnalistasComponent implements OnInit {
       rol: 'ANALISTA_CIBERSEGURIDAD'
     }).subscribe({
       next: (creado) => {
-        // El servidor no permite listar el equipo: se recuerda en este navegador
-        if (creado?.id) {
-          this.usuarioService.registrarAnalistaLocal(this.authService.getUsuario()?.email,
-            { ...creado, rol: creado.rol ?? 'ANALISTA_CIBERSEGURIDAD', estado: creado.estado ?? 'ACTIVO' });
-        }
         this.guardando = false;
         this.creando = false;
         this.exito = `Analista ${creado?.nombre ?? this.nuevo.nombre} creado correctamente.`;
@@ -164,9 +132,44 @@ export class AnalistasComponent implements OnInit {
     });
   }
 
+  // ===== Desactivar =====
+
+  porDesactivar: UsuarioResponse | null = null;
+  desactivando = false;
+
+  pedirDesactivar(a: UsuarioResponse): void {
+    this.porDesactivar = a;
+  }
+
+  cancelarDesactivar(): void {
+    if (!this.desactivando) this.porDesactivar = null;
+  }
+
+  confirmarDesactivar(): void {
+    const a = this.porDesactivar;
+    if (!a || this.desactivando) return;
+    this.desactivando = true;
+    this.error = ''; this.exito = '';
+
+    this.usuarioService.desactivarUsuario(a.id).subscribe({
+      next: () => {
+        this.desactivando = false;
+        this.porDesactivar = null;
+        this.exito = `${a.nombre} desactivado correctamente.`;
+        this.cargar();
+      },
+      error: (err) => {
+        this.desactivando = false;
+        this.porDesactivar = null;
+        this.error = this.mensajeError(err, 'No se pudo desactivar al analista.');
+      }
+    });
+  }
+
   @HostListener('document:keydown.escape')
   cerrarVentanas(): void {
     this.cerrarCrear();
+    this.cancelarDesactivar();
   }
 
   volver(): void {

@@ -200,13 +200,16 @@ export class DashboardComponent implements OnInit {
     };
   }
 
-  // GET /usuarios es solo del Administrador: el nombre sale de los analistas que este Jefe creó
+  // El Jefe consulta su equipo para mostrar el nombre del analista en el informe
   private cargarAnalista(evaluacion: EvaluacionResponse): void {
-    const local = this.usuarioService
-      .leerEquipoLocal(this.authService.getUsuario()?.email)
-      .find(u => u.id === evaluacion.analistaId);
-
-    this.analista = local?.nombre ?? `Analista #${evaluacion.analistaId}`;
+    this.analista = `Analista #${evaluacion.analistaId}`;
+    this.usuarioService.listarMiEquipo().subscribe({
+      next: (equipo) => {
+        const a = equipo.find(u => u.id === evaluacion.analistaId);
+        if (a) this.analista = a.nombre;
+      },
+      error: () => { /* se conserva el identificador */ }
+    });
   }
 
   // ===== Informes en PDF =====
