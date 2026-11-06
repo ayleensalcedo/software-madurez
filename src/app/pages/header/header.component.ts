@@ -17,6 +17,18 @@ export class HeaderComponent {
 
   constructor(private router: Router) {}
 
+  private readonly ETIQUETAS_ROL: Record<string, string> = {
+    ADMINISTRADOR: 'Administrador',
+    JEFE_CIBERSEGURIDAD: 'Jefe de ciberseguridad',
+    ANALISTA_CIBERSEGURIDAD: 'Analista de ciberseguridad',
+    GERENTE_GENERAL: 'Gerente general'
+  };
+
+  get rolLegible(): string {
+    const rol = this.usuario()?.rol ?? '';
+    return this.ETIQUETAS_ROL[rol] ?? rol;
+  }
+
   IrInicio(): void {
     this.router.navigate(['/menu']);
   }
