@@ -14,6 +14,11 @@ import { AuthService } from '../../core/services/auth.service';
 import { UsuarioService } from '../../core/services/usuario.service';
 import { InformeService } from '../../core/services/informe.service';
 import { textoError } from '../../core/utils/errores';
+import { OrganizacionService } from '../../core/services/organizacion.service';
+import { DominioService } from '../../core/services/dominio.service';
+import { ordenarPreguntasPorDominio } from '../../core/utils/orden-preguntas';
+import { catchError, forkJoin, of } from 'rxjs';
+import { OrganizacionResponse } from '../../core/services/models/organizacion.model';
 
 interface ResultadoDominioVista {
   nombre: string;
@@ -27,6 +32,7 @@ interface ResultadoDominioVista {
 interface RecomendacionVista {
   pregunta: {
     id: number;
+    numero: number;
     dominio: string;
     pregunta: string;
     controlesISO27001: string[];
@@ -64,6 +70,8 @@ export class DashboardComponent implements OnInit {
   private authService = inject(AuthService);
   private usuarioService = inject(UsuarioService);
   private informeService = inject(InformeService);
+  private organizacionService = inject(OrganizacionService);
+  private dominioService = inject(DominioService);
 
   Math = Math;
 
@@ -118,6 +126,7 @@ export class DashboardComponent implements OnInit {
 
     this.evaluacion = evaluacion;
     this.organizacion = evaluacion.organizacionNombre;
+    this.cargarSector(evaluacion.organizacionId);
     if (evaluacion.fechaFin) {
       this.fechaEvaluacion = new Date(evaluacion.fechaFin);
     }
@@ -230,7 +239,7 @@ export class DashboardComponent implements OnInit {
       porDominio: this.resultadosDominio.map(d => ({ nombre: d.nombre, cobertura: d.cobertura, peso: d.peso * 100 })),
       recomendaciones: this.recomendaciones.map(r => ({
         prioridad: r.prioridad,
-        pregunta: r.pregunta.id,
+        pregunta: r.pregunta.numero,
         dominio: r.pregunta.dominio,
         pesoDominio: r.pesoDominio,
         texto: r.pregunta.pregunta,
@@ -271,7 +280,12 @@ export class DashboardComponent implements OnInit {
   }
 
   private cargarPreguntasYRespuestas(evaluacionId: number): void {
-    this.preguntaService.listarPreguntas().subscribe(preguntas => {
+    forkJoin({
+      preguntas: this.preguntaService.listarPreguntas(),
+      dominios: this.dominioService.listarDominios().pipe(catchError(() => of([])))
+    }).subscribe(({ preguntas: lista, dominios }) => {
+      // Mismo orden que el formulario de evaluación, para que "Pregunta N" coincida
+      const preguntas = ordenarPreguntasPorDominio(lista, dominios);
       this.totalPreguntas = preguntas.length;
 
       const controles = new Set<string>();
@@ -306,6 +320,7 @@ export class DashboardComponent implements OnInit {
         return {
           pregunta: {
             id: s.preguntaId,
+            numero: this.numeroPregunta(preguntas, s.preguntaId),
             dominio: s.dominioNombre,
             pregunta: s.preguntaTexto,
             controlesISO27001: p?.controles.filter(c => c.norma === 'ISO_27001').map(c => c.anexoA) ?? [],
@@ -321,8 +336,36 @@ export class DashboardComponent implements OnInit {
       this.recomendaciones.sort((a, b) => {
         if (a.prioridad !== b.prioridad) return a.prioridad === 'ALTA' ? -1 : 1;
         if (a.pesoDominio !== b.pesoDominio) return b.pesoDominio - a.pesoDominio;
-        return a.pregunta.id - b.pregunta.id;
+        return a.pregunta.numero - b.pregunta.numero;
       });
+    });
+  }
+
+  /** Número de la pregunta según su orden en la evaluación (el mismo que ve el Analista). */
+  private numeroPregunta(preguntas: PreguntaResponse[], preguntaId: number): number {
+    const indice = preguntas.findIndex(p => p.id === preguntaId);
+    return indice === -1 ? preguntaId : indice + 1;
+  }
+
+  /**
+   * El sector no viene en la evaluación: se busca en "mi organización" (Analista/Jefe)
+   * y, si no coincide, en la lista de organizaciones (Administrador/Gerente).
+   */
+  private cargarSector(organizacionId: number): void {
+    const aplicar = (org: OrganizacionResponse | undefined): boolean => {
+      if (org && org.id === organizacionId && org.sector) {
+        this.sector = org.sector;
+        return true;
+      }
+      return false;
+    };
+    const buscarEnLista = () => this.organizacionService.listarOrganizaciones().subscribe({
+      next: (orgs) => { aplicar(orgs.find(o => o.id === organizacionId)); },
+      error: () => { /* se conserva "—" */ }
+    });
+    this.organizacionService.obtenerMiOrganizacion().subscribe({
+      next: (org) => { if (!aplicar(org)) buscarEnLista(); },
+      error: () => buscarEnLista()
     });
   }
 
