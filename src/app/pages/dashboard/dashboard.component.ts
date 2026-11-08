@@ -14,6 +14,9 @@ import { AuthService } from '../../core/services/auth.service';
 import { UsuarioService } from '../../core/services/usuario.service';
 import { InformeService } from '../../core/services/informe.service';
 import { OrganizacionService } from '../../core/services/organizacion.service';
+import { DominioService } from '../../core/services/dominio.service';
+import { ordenarPreguntasPorDominio } from '../../core/utils/orden-preguntas';
+import { catchError, forkJoin, of } from 'rxjs';
 import { OrganizacionResponse } from '../../core/services/models/organizacion.model';
 
 interface ResultadoDominioVista {
@@ -67,6 +70,7 @@ export class DashboardComponent implements OnInit {
   private usuarioService = inject(UsuarioService);
   private informeService = inject(InformeService);
   private organizacionService = inject(OrganizacionService);
+  private dominioService = inject(DominioService);
 
   Math = Math;
 
@@ -275,7 +279,12 @@ export class DashboardComponent implements OnInit {
   }
 
   private cargarPreguntasYRespuestas(evaluacionId: number): void {
-    this.preguntaService.listarPreguntas().subscribe(preguntas => {
+    forkJoin({
+      preguntas: this.preguntaService.listarPreguntas(),
+      dominios: this.dominioService.listarDominios().pipe(catchError(() => of([])))
+    }).subscribe(({ preguntas: lista, dominios }) => {
+      // Mismo orden que el formulario de evaluación, para que "Pregunta N" coincida
+      const preguntas = ordenarPreguntasPorDominio(lista, dominios);
       this.totalPreguntas = preguntas.length;
 
       const controles = new Set<string>();
