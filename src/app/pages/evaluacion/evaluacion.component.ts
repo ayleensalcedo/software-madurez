@@ -102,15 +102,17 @@ export class EvaluacionComponent implements OnInit {
     }
   }
 
-  // Ordena los dominios como están configurados y agrega los que no tienen preguntas
+  // Los dominios con preguntas conservan el orden de las preguntas (así "Dominio 1" corresponde a la
+  // "Pregunta 1"); los configurados que aún no tienen preguntas se agregan al final.
   private completarDominios(configurados: { id: number; nombre: string }[]): void {
-    const porId = new Map(this.dominios.map(d => [d.id, d]));
-    const lista = configurados.map(d => ({ id: d.id, nombre: d.nombre }));
-
-    // Si la pregunta pertenece a un dominio que el listado no trae, se conserva
-    this.dominios.forEach(d => { if (!lista.some(x => x.id === d.id)) lista.push(d); });
-
-    this.dominios = lista.map(d => porId.get(d.id) ?? d);
+    configurados
+      .slice()
+      .sort((a, b) => a.id - b.id)
+      .forEach(d => {
+        if (!this.dominios.some(x => x.id === d.id)) {
+          this.dominios.push({ id: d.id, nombre: d.nombre });
+        }
+      });
   }
 
   private cargarRespuestasPrevias(): void {

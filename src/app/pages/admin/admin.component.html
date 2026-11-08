@@ -199,7 +199,7 @@
                   <td>
                     @if (!pesosCompletos) { <span class="aviso-total">Los pesos relativos deben sumar 100%.</span> }
                   </td>
-                  <td><span class="pill" [class.ana]="pesosCompletos" [class.bad]="!pesosCompletos">{{ totalPesos | number:'1.1-1' }}%</span></td>
+                  <td><span class="pill" [class.ok]="pesosCompletos" [class.bad]="!pesosCompletos">{{ totalPesos | number:'1.1-1' }}%</span></td>
                   <td></td>
                 </tr>
               </tfoot>

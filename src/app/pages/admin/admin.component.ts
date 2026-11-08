@@ -153,7 +153,16 @@ export class AdminComponent implements OnInit {
     }
   }
 
+  private reiniciarNuevoUsuario(): void {
+    this.nuevoUsuario = {
+      nombre: '', email: '', password: '', rol: 'JEFE_CIBERSEGURIDAD',
+      organizacionId: undefined, nombreOrganizacion: '', sectorOrganizacion: '', plataformaOrganizacion: ''
+    };
+    this.modoOrganizacion = 'nueva';
+  }
+
   abrirPanel(): void {
+    if (this.seccion === 'usuarios') this.reiniciarNuevoUsuario();
     this.error = ''; this.exito = '';
     this.errorPublicar = ''; this.notaVersion = '';
     this.sinControles = false;
@@ -194,7 +203,7 @@ export class AdminComponent implements OnInit {
     this.cargando = true;
     this.usuarioService.listarUsuarios().subscribe({
       next: (usuarios) => { this.usuarios = usuarios; this.cargando = false; },
-      error: (err) => { this.cargando = false; this.error = err.error ?? 'No se pudo cargar la lista de usuarios'; }
+      error: (err) => { this.cargando = false; this.error = textoError(err, 'No se pudo cargar la lista de usuarios'); }
     });
 
     this.organizacionService.listarOrganizaciones().subscribe({
@@ -205,19 +214,37 @@ export class AdminComponent implements OnInit {
 
   crearUsuario(): void {
     this.error = ''; this.exito = '';
-    this.usuarioService.crearUsuario(this.nuevoUsuario).subscribe({
+    const u = this.nuevoUsuario;
+    const esJefe = u.rol === 'JEFE_CIBERSEGURIDAD';
+
+    // Solo se envían los datos de la opción elegida ("Existente" o "Nueva"): un valor que quedó de la
+    // otra opción haría que el servidor use la organización equivocada.
+    const solicitud = {
+      nombre: u.nombre, email: u.email, password: u.password, rol: u.rol,
+      ...(esJefe && this.modoOrganizacion === 'existente' ? { organizacionId: u.organizacionId } : {}),
+      ...(esJefe && this.modoOrganizacion === 'nueva' ? {
+        nombreOrganizacion: u.nombreOrganizacion,
+        sectorOrganizacion: u.sectorOrganizacion,
+        plataformaOrganizacion: u.plataformaOrganizacion
+      } : {})
+    };
+
+    this.usuarioService.crearUsuario(solicitud).subscribe({
       next: () => {
         this.exito = 'Usuario creado correctamente';
         this.panelAbierto = false;
-        this.nuevoUsuario = {
-          nombre: '', email: '', password: '', rol: 'JEFE_CIBERSEGURIDAD',
-          organizacionId: undefined, nombreOrganizacion: '', sectorOrganizacion: '', plataformaOrganizacion: ''
-        };
+        this.reiniciarNuevoUsuario();
         this.cargarUsuarios();
       },
       error: (err) => {
         const texto = textoError(err, 'No se pudo crear el usuario');
-        this.error = esCorreoRepetido(texto) ? MENSAJE_CORREO_REPETIDO : texto;
+        if (esCorreoRepetido(texto)) {
+          this.error = MENSAJE_CORREO_REPETIDO;
+        } else if (/ya existe una organizaci/i.test(texto)) {
+          this.error = 'La organización ya existe en el sistema. Selecciónala en la opción “Existente”.';
+        } else {
+          this.error = texto;
+        }
       }
     });
   }
@@ -269,7 +296,7 @@ export class AdminComponent implements OnInit {
     this.cargando = true;
     this.auditoriaService.listarTodo().subscribe({
       next: (registros) => { this.auditoria = registros; this.cargando = false; },
-      error: (err) => { this.cargando = false; this.error = err.error ?? 'No se pudo cargar la auditoría'; }
+      error: (err) => { this.cargando = false; this.error = textoError(err, 'No se pudo cargar la auditoría'); }
     });
   }
 
@@ -279,7 +306,7 @@ export class AdminComponent implements OnInit {
     this.cargando = true;
     this.dominioService.listarDominios().subscribe({
       next: (dominios) => { this.dominios = dominios; this.cargando = false; },
-      error: (err) => { this.cargando = false; this.error = err.error ?? 'No se pudo cargar los dominios'; }
+      error: (err) => { this.cargando = false; this.error = textoError(err, 'No se pudo cargar los dominios'); }
     });
   }
 
@@ -292,7 +319,7 @@ export class AdminComponent implements OnInit {
         this.nuevoDominio = { nombre: '', descripcion: '' };
         this.cargarDominios();
       },
-      error: (err) => this.error = err.error ?? 'No se pudo crear el dominio'
+      error: (err) => this.error = textoError(err, 'No se pudo crear el dominio')
     });
   }
 
@@ -300,7 +327,7 @@ export class AdminComponent implements OnInit {
     this.error = ''; this.exito = '';
     this.dominioService.eliminarDominio(dominio.id).subscribe({
       next: () => { this.exito = `Dominio "${dominio.nombre}" eliminado`; this.cargarDominios(); },
-      error: (err) => this.error = err.error ?? 'No se pudo eliminar el dominio'
+      error: (err) => this.error = textoError(err, 'No se pudo eliminar el dominio')
     });
   }
 
@@ -317,10 +344,10 @@ export class AdminComponent implements OnInit {
 
         this.controlService.listarControles().subscribe({
           next: (controles) => { this.controles = controles; this.cargando = false; },
-          error: (err) => { this.cargando = false; this.error = err.error ?? 'No se pudo cargar los controles'; }
+          error: (err) => { this.cargando = false; this.error = textoError(err, 'No se pudo cargar los controles'); }
         });
       },
-      error: (err) => { this.cargando = false; this.error = err.error ?? 'No se pudo cargar los dominios'; }
+      error: (err) => { this.cargando = false; this.error = textoError(err, 'No se pudo cargar los dominios'); }
     });
   }
 
@@ -340,7 +367,7 @@ export class AdminComponent implements OnInit {
         this.cargarControles();
         this.dominios = [];
       },
-      error: (err) => this.error = err.error ?? 'No se pudo crear el control'
+      error: (err) => this.error = textoError(err, 'No se pudo crear el control')
     });
   }
 
@@ -355,10 +382,10 @@ export class AdminComponent implements OnInit {
 
         this.preguntaService.listarPreguntas().subscribe({
           next: (preguntas) => { this.preguntas = preguntas; this.cargando = false; },
-          error: (err) => { this.cargando = false; this.error = err.error ?? 'No se pudo cargar las preguntas'; }
+          error: (err) => { this.cargando = false; this.error = textoError(err, 'No se pudo cargar las preguntas'); }
         });
       },
-      error: (err) => { this.cargando = false; this.error = err.error ?? 'No se pudo cargar los controles'; }
+      error: (err) => { this.cargando = false; this.error = textoError(err, 'No se pudo cargar los controles'); }
     });
   }
 
@@ -396,7 +423,7 @@ export class AdminComponent implements OnInit {
         this.sinControles = false;
         this.cargarPreguntasYControles();
       },
-      error: (err) => this.error = err.error ?? 'No se pudo crear la pregunta'
+      error: (err) => this.error = textoError(err, 'No se pudo crear la pregunta')
     });
   }
 
@@ -414,7 +441,7 @@ export class AdminComponent implements OnInit {
           this.cargando = false;
         }
       },
-      error: (err) => { this.cargando = false; this.error = err.error ?? 'No se pudo cargar las preguntas'; }
+      error: (err) => { this.cargando = false; this.error = textoError(err, 'No se pudo cargar las preguntas'); }
     });
   }
 
@@ -426,7 +453,7 @@ export class AdminComponent implements OnInit {
     this.cargando = true;
     this.recomendacionService.listarPorPregunta(preguntaId).subscribe({
       next: (recs) => { this.recomendacionesPregunta = recs; this.cargando = false; },
-      error: (err) => { this.cargando = false; this.error = err.error ?? 'No se pudo cargar las recomendaciones'; }
+      error: (err) => { this.cargando = false; this.error = textoError(err, 'No se pudo cargar las recomendaciones'); }
     });
   }
 
@@ -445,7 +472,7 @@ export class AdminComponent implements OnInit {
         this.nuevaRecomendacion.descripcion = '';
         this.cargarRecomendacionesDePregunta(this.nuevaRecomendacion.preguntaId);
       },
-      error: (err) => this.error = err.error ?? 'No se pudo guardar la recomendación'
+      error: (err) => this.error = textoError(err, 'No se pudo guardar la recomendación')
     });
   }
 
@@ -520,7 +547,7 @@ export class AdminComponent implements OnInit {
         }
         this.cargando = false;
       },
-      error: (err) => { this.cargando = false; this.error = err.error ?? 'No se pudo cargar los niveles de madurez'; }
+      error: (err) => { this.cargando = false; this.error = textoError(err, 'No se pudo cargar los niveles de madurez'); }
     });
   }
 
@@ -532,7 +559,7 @@ export class AdminComponent implements OnInit {
         this.exito = 'Niveles de madurez configurados correctamente';
         this.niveles = niveles;
       },
-      error: (err) => this.error = err.error ?? 'No se pudo guardar la configuración'
+      error: (err) => this.error = textoError(err, 'No se pudo guardar la configuración')
     });
   }
 
@@ -603,6 +630,8 @@ export class AdminComponent implements OnInit {
 
   limpiarFiltrosAuditoria(): void {
     this.filtroUsuario = this.filtroDesde = this.filtroHasta = '';
+    this.filtroAccion = '';
+    this.busqueda = '';
     this.buscarAuditoria();
   }
 

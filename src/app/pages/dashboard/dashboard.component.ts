@@ -13,6 +13,7 @@ import { EvaluacionResponse } from '../../core/services/models/evaluacion.model'
 import { AuthService } from '../../core/services/auth.service';
 import { UsuarioService } from '../../core/services/usuario.service';
 import { InformeService } from '../../core/services/informe.service';
+import { textoError } from '../../core/utils/errores';
 
 interface ResultadoDominioVista {
   nombre: string;
@@ -150,7 +151,7 @@ export class DashboardComponent implements OnInit {
       },
       error: (err) => {
         this.cargando = false;
-        this.error = err.error ?? 'No se pudo cargar el resultado de la evaluación';
+        this.error = textoError(err, 'No se pudo cargar el resultado de la evaluación');
       }
     });
   }

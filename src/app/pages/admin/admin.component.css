@@ -728,3 +728,5 @@ tfoot tr.total.mal td { background: #fdf3f3; }
 }
 
 .note { margin-bottom: 16px; }
+
+.pill.ok { background: #e6f7ec; color: #12785f; }

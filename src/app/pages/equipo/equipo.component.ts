@@ -7,6 +7,7 @@ import { EvaluacionService } from '../../core/services/evaluacion.service';
 import { EvaluacionResponse } from '../../core/services/models/evaluacion.model';
 import { UsuarioService } from '../../core/services/usuario.service';
 import { UsuarioResponse } from '../../core/services/models/usuario.model';
+import { textoError } from '../../core/utils/errores';
 
 @Component({
   selector: 'app-equipo',
@@ -96,7 +97,7 @@ export class EquipoComponent implements OnInit {
       },
       error: (err) => {
         this.cargando = false;
-        this.error = err.error ?? 'No se pudieron cargar las evaluaciones del equipo';
+        this.error = textoError(err, 'No se pudieron cargar las evaluaciones del equipo');
       }
     });
   }
@@ -145,7 +146,7 @@ export class EquipoComponent implements OnInit {
   validar(evaluacion: EvaluacionResponse): void {
     this.evaluacionService.validarEvaluacion(evaluacion.id).subscribe({
       next: () => this.cargar(),
-      error: (err) => this.error = err.error ?? 'No se pudo validar la evaluación'
+      error: (err) => this.error = textoError(err, 'No se pudo validar la evaluación')
     });
   }
 
@@ -169,7 +170,7 @@ export class EquipoComponent implements OnInit {
         this.cancelarObservar();
         this.cargar();
       },
-      error: (err) => this.error = err.error ?? 'No se pudo observar la evaluación'
+      error: (err) => this.error = textoError(err, 'No se pudo observar la evaluación')
     });
   }
 

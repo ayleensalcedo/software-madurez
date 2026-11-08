@@ -58,6 +58,10 @@
   </header>
 
 
+  @if (error) {
+    <p class="dash-error" role="alert">{{ error }}</p>
+  }
+
   <!-- ==========================================
        TOP CARDS
        ========================================== -->
@@ -246,7 +250,7 @@
 
       <div>
         <span>Controles evaluados</span>
-        <strong>41</strong>
+        <strong>{{ controlesEvaluados }}</strong>
       </div>
 
     </article>
@@ -317,7 +321,7 @@
                 </span>
 
                 <small>
-                  Peso {{ dominio.peso * 100 }}%
+                  Peso {{ dominio.peso * 100 | number:'1.0-1' }}%
                 </small>
 
               </div>
