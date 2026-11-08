@@ -9,6 +9,7 @@ import { RespuestaService } from '../../core/services/respuesta.service';
 import { PreguntaResponse } from '../../core/services/models/pregunta.model';
 import { NivelImplementacion } from '../../core/services/models/respuesta.model';
 import { switchMap } from 'rxjs';
+import { ordenarPreguntasPorDominio } from '../../core/utils/orden-preguntas';
 
 @Component({
   selector: 'app-evaluacion',
@@ -73,11 +74,14 @@ export class EvaluacionComponent implements OnInit {
       next: (preguntas) => {
         this.preguntas = preguntas;
         this.construirDominios();
+        // Las preguntas se responden en orden, dominio por dominio, igual que la barra de avance
+        this.preguntas = ordenarPreguntasPorDominio(this.preguntas, this.dominios);
 
         // Todos los dominios configurados, incluso los que aún no tienen preguntas
         this.dominioService.listarDominios().subscribe({
           next: (dominios) => {
             this.completarDominios(dominios);
+            this.preguntas = ordenarPreguntasPorDominio(this.preguntas, this.dominios);
             this.cargarRespuestasPrevias();
           },
           error: () => this.cargarRespuestasPrevias()
